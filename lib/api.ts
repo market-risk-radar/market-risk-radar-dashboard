@@ -1,7 +1,7 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { cache: 'no-store' });
+  const res = await fetch(`${BASE}${path}`, { next: { revalidate: 30 } });
   if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
   return res.json();
 }
