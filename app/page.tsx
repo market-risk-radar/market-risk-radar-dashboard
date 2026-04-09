@@ -1,6 +1,7 @@
 import { api } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import NavChart from '@/components/NavChart';
+import { clsx } from 'clsx';
 
 function pct(v: number | null) {
   if (v === null) return '—';
@@ -13,9 +14,10 @@ function trend(v: number | null): 'up' | 'down' | 'neutral' {
 }
 
 export default async function OverviewPage() {
-  const [navHistory, perf] = await Promise.all([
+  const [navHistory, perf, bStats] = await Promise.all([
     api.navHistory(60).catch(() => []),
     api.performance().catch(() => null),
+    api.bStats().catch(() => null),
   ]);
 
   return (
@@ -87,6 +89,29 @@ export default async function OverviewPage() {
           <span>기간: {perf.startDate} ~ {perf.endDate}</span>
           {perf.cagr != null && <span>CAGR: {pct(perf.cagr)}</span>}
           {perf.profitFactor != null && <span>Profit Factor: {perf.profitFactor.toFixed(2)}</span>}
+        </div>
+      )}
+
+      {/* Portfolio B Summary */}
+      {bStats && (
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-900 text-blue-300">
+              B
+            </span>
+            <p className="text-sm font-semibold text-zinc-300">Portfolio B 요약</p>
+            <span className="text-xs text-zinc-600">신호 기반 롱</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <StatCard label="오픈 포지션" value={bStats.openPositions} trend="neutral" />
+            <StatCard label="총 거래 수" value={bStats.totalTrades} trend="neutral" />
+            <StatCard
+              label="실현 손익"
+              value={(bStats.closedPnl / 10000).toFixed(0) + '만'}
+              trend={bStats.closedPnl >= 0 ? 'up' : 'down'}
+              sub={`청산 ${bStats.closedCount}건 · 손절 ${bStats.stoppedCount}건`}
+            />
+          </div>
         </div>
       )}
     </div>

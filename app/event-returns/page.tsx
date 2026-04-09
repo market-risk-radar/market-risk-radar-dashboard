@@ -50,7 +50,7 @@ export default async function EventReturnsPage() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">총 이벤트</p>
           <p className="text-2xl font-bold text-white">{totalEvents}</p>
