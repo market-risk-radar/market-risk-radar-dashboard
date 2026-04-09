@@ -3,8 +3,19 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 const n = (v: unknown) => (v == null ? 0 : Number(v));
 const nNull = (v: unknown) => (v == null ? null : Number(v));
 
+const CF_HEADERS: HeadersInit =
+  process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
+    ? {
+        'CF-Access-Client-Id': process.env.CF_ACCESS_CLIENT_ID,
+        'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET,
+      }
+    : {};
+
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { next: { revalidate: 30 } });
+  const res = await fetch(`${BASE}${path}`, {
+    next: { revalidate: 30 },
+    headers: CF_HEADERS,
+  });
   if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
   return res.json();
 }
