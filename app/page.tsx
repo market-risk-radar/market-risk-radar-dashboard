@@ -1,7 +1,6 @@
 import { api } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import NavChart from '@/components/NavChart';
-import { clsx } from 'clsx';
 
 function pct(v: number | null) {
   if (v === null) return '—';
