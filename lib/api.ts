@@ -66,6 +66,7 @@ export interface PaperPosition {
 export interface PaperTrade {
   id: number;
   ticker: string;
+  name: string;
   side: 'BUY' | 'SELL';
   qty: number;
   fillPrice: number;
@@ -79,6 +80,7 @@ export interface SignalCandidate {
   id: number;
   sourceItemId: string;
   ticker: string;
+  name: string;
   signalDate: string;
   category: string;
   rawTag: string;
@@ -174,6 +176,7 @@ function normalizeTrade(raw: any): PaperTrade {
   return {
     id: n(raw.id),
     ticker: raw.ticker,
+    name: raw.name ?? raw.ticker,
     side: raw.side,
     qty,
     fillPrice,
@@ -190,6 +193,7 @@ function normalizeSignalCandidate(raw: any): SignalCandidate {
     id: n(raw.id),
     sourceItemId: raw.sourceItemId,
     ticker: raw.ticker,
+    name: raw.name ?? raw.ticker,
     signalDate: raw.signalDate,
     category: raw.category,
     rawTag: raw.rawTag,

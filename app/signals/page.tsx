@@ -104,7 +104,10 @@ export default async function SignalsPage() {
             <tbody className="divide-y divide-zinc-800">
               {candidates.map((c) => (
                 <tr key={c.id} className="hover:bg-zinc-800/50">
-                  <td className="py-2.5 pr-4 font-medium text-white">{c.ticker}</td>
+                  <td className="py-2.5 pr-4">
+                    <p className="font-medium text-white">{c.name}</p>
+                    <p className="text-xs text-zinc-500">{c.ticker}</p>
+                  </td>
                   <td className="py-2.5 pr-4">{categoryBadge(c.category)}</td>
                   <td className={clsx('py-2.5 pr-4 text-right font-bold', DIRECTION_COLOR[c.impactDirection])}>
                     {c.impactDirection === '+' ? '▲' : '▼'}

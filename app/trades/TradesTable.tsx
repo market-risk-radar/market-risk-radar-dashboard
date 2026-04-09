@@ -61,7 +61,10 @@ export function TradesTable({ trades }: { trades: PaperTrade[] }) {
             ) : (
               filtered.map((t) => (
                 <tr key={t.id} className="hover:bg-zinc-800/50 transition-colors">
-                  <td className="py-2.5 pr-4 font-medium text-white">{t.ticker}</td>
+                  <td className="py-2.5 pr-4">
+                    <p className="font-medium text-white">{t.name}</p>
+                    <p className="text-xs text-zinc-500">{t.ticker}</p>
+                  </td>
                   <td className="py-2.5 pr-4 text-right">
                     <span
                       className={clsx(
