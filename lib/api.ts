@@ -109,6 +109,25 @@ export interface AlertStats {
   avgImpactScore: number;
 }
 
+export interface RecentAlert {
+  alertId: string;
+  sourceItemId: string;
+  sourceType: string;
+  title: string;
+  url: string | null;
+  publishedAt: string;
+  relatedTickers: string[];
+  relatedSectors: string[];
+  impactScore: number;
+  sectorCode: string;
+  slackChannelId: string;
+  slackChannelName: string | null;
+  latestDeliveryStatus: 'SENT' | 'FAILED' | 'RETRIED' | 'PENDING';
+  latestDeliveryError: string | null;
+  sentAt: string | null;
+  createdAt: string;
+}
+
 export interface PortfolioBStats {
   openPositions: number;
   totalTrades: number;
@@ -182,6 +201,60 @@ function normalizeSignalCandidate(raw: any): SignalCandidate {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizePerformance(raw: any): Performance {
+  return {
+    initialized: Boolean(raw.initialized),
+    startDate: raw.startDate,
+    endDate: raw.endDate,
+    initialNav: n(raw.initialNav),
+    currentNav: n(raw.currentNav),
+    totalReturn: n(raw.totalReturn),
+    cagr: nNull(raw.cagr),
+    sharpeRatio: nNull(raw.sharpeRatio),
+    maxDrawdown: n(raw.maxDrawdown),
+    winRate: nNull(raw.winRate),
+    avgWin: nNull(raw.avgWin),
+    avgLoss: nNull(raw.avgLoss),
+    profitFactor: nNull(raw.profitFactor),
+    benchmarkReturn: nNull(raw.benchmarkReturn),
+    alpha: nNull(raw.alpha),
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizePortfolioBStats(raw: any): PortfolioBStats {
+  return {
+    openPositions: n(raw.openPositions),
+    totalTrades: n(raw.totalTrades),
+    closedPnl: n(raw.closedPnl),
+    closedCount: n(raw.closedCount),
+    stoppedCount: n(raw.stoppedCount),
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeRecentAlert(raw: any): RecentAlert {
+  return {
+    alertId: String(raw.alertId),
+    sourceItemId: String(raw.sourceItemId),
+    sourceType: raw.sourceType,
+    title: raw.title,
+    url: raw.url ?? null,
+    publishedAt: raw.publishedAt,
+    relatedTickers: Array.isArray(raw.relatedTickers) ? raw.relatedTickers : [],
+    relatedSectors: Array.isArray(raw.relatedSectors) ? raw.relatedSectors : [],
+    impactScore: n(raw.impactScore),
+    sectorCode: raw.sectorCode,
+    slackChannelId: raw.slackChannelId,
+    slackChannelName: raw.slackChannelName ?? null,
+    latestDeliveryStatus: raw.latestDeliveryStatus,
+    latestDeliveryError: raw.latestDeliveryError ?? null,
+    sentAt: raw.sentAt ?? null,
+    createdAt: raw.createdAt,
+  };
+}
+
 // ── API calls ────────────────────────────────────────────────────────────────
 
 export const api = {
@@ -189,7 +262,8 @@ export const api = {
     get<unknown[]>(`/api/paper-trading/nav/history?limit=${limit}`)
       .then((rows) => rows.map(normalizeNav)),
   performance: () =>
-    get<Performance>('/api/paper-trading/performance'),
+    get<unknown>('/api/paper-trading/performance')
+      .then(normalizePerformance),
   positions: () =>
     get<unknown[]>('/api/paper-trading/positions')
       .then((rows) => rows.map(normalizePosition)),
@@ -200,7 +274,8 @@ export const api = {
     get<unknown[]>('/api/paper-trading/b/positions')
       .then((rows) => rows.map(normalizePosition)),
   bStats: () =>
-    get<PortfolioBStats>('/api/paper-trading/b/stats'),
+    get<unknown>('/api/paper-trading/b/stats')
+      .then(normalizePortfolioBStats),
   signalCandidates: (limit = 50) =>
     get<unknown[]>(`/api/signal/candidates?limit=${limit}`)
       .then((rows) => rows.map(normalizeSignalCandidate)),
@@ -208,4 +283,7 @@ export const api = {
     get<SignalTagStats[]>('/api/signal/stats'),
   alertStats: () =>
     get<AlertStats>('/api/alert/stats'),
+  recentAlerts: (limit = 50) =>
+    get<unknown[]>(`/api/alert/recent?limit=${limit}`)
+      .then((rows) => rows.map(normalizeRecentAlert)),
 };

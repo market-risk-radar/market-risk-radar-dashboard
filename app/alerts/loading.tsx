@@ -13,6 +13,20 @@ export default function Loading() {
           </div>
         ))}
       </div>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-4 bg-zinc-800 rounded w-28" />
+            <div className="h-3 bg-zinc-800 rounded w-24" />
+          </div>
+          <div className="h-3 bg-zinc-800 rounded w-10" />
+        </div>
+
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-14 bg-zinc-800 rounded" />
+        ))}
+      </div>
     </div>
   );
 }
