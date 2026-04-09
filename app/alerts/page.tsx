@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { api } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import { clsx } from 'clsx';
