@@ -3,8 +3,6 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000 (fallback)';
   const url = `${base}/api/paper-trading/performance`;
-  const clientId = process.env.CF_ACCESS_CLIENT_ID ?? '(not set)';
-  const hasSecret = !!process.env.CF_ACCESS_CLIENT_SECRET;
 
   const headers: HeadersInit =
     process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
@@ -16,20 +14,24 @@ export async function GET() {
 
   let status: number | string = 'unknown';
   let error: string | null = null;
+  let resHeaders: Record<string, string> = {};
+  let body = '';
 
   try {
     const res = await fetch(url, { cache: 'no-store', headers });
     status = res.status;
+    res.headers.forEach((v, k) => { resHeaders[k] = v; });
+    body = await res.text().then((t) => t.slice(0, 300));
   } catch (e) {
     error = String(e);
   }
 
   return Response.json({
-    base,
-    url,
     status,
     error,
-    cf_client_id: clientId.slice(0, 8) + '...',
-    cf_secret_set: hasSecret,
+    cf_client_id_prefix: process.env.CF_ACCESS_CLIENT_ID?.slice(0, 8) + '...',
+    cf_secret_set: !!process.env.CF_ACCESS_CLIENT_SECRET,
+    response_headers: resHeaders,
+    body_preview: body,
   });
 }
