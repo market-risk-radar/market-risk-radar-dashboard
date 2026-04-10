@@ -12,8 +12,8 @@ const FILTERS: Array<{ value: PortfolioFilter; label: string }> = [
   { value: 'B', label: 'Portfolio B' },
 ];
 
-function formatAmount(amount: number) {
-  return `${(amount / 10000).toFixed(0)}만`;
+function formatPrice(v: number) {
+  return v.toLocaleString() + '원';
 }
 
 export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
@@ -104,10 +104,10 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
                     {trade.qty.toLocaleString()}
                   </td>
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
-                    {trade.fillPrice.toLocaleString()}원
+                    {formatPrice(trade.fillPrice)}
                   </td>
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
-                    {formatAmount(trade.amount)}
+                    {formatPrice(trade.amount)}
                   </td>
                   <td className="py-2.5 text-right text-zinc-500 text-xs">
                     {trade.tradeDate}

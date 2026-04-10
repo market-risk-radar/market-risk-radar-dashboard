@@ -35,7 +35,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
                 {p.avgPrice.toLocaleString()}원
               </td>
               <td className="py-2.5 pr-4 text-right text-zinc-300">
-                {(p.qty * p.avgPrice / 10000).toFixed(0)}만
+                {(p.qty * p.avgPrice).toLocaleString()}원
               </td>
               <td className="py-2.5 text-right text-zinc-500 text-xs">{p.asOfDate}</td>
             </tr>
@@ -169,7 +169,7 @@ export default async function PositionsPage() {
             <StatCard label="총 거래 수" value={bStats.totalTrades} trend="neutral" />
             <StatCard
               label="실현 손익"
-              value={(bStats.closedPnl / 10000).toFixed(0) + '만'}
+              value={(bStats.closedPnl >= 0 ? '+' : '') + bStats.closedPnl.toLocaleString() + '원'}
               trend={bStats.closedPnl >= 0 ? 'up' : 'down'}
             />
             <StatCard label="손절 횟수" value={bStats.stoppedCount} trend="neutral" />
