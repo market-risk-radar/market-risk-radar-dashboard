@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Market Risk Radar Dashboard
 
-## Getting Started
+Next.js 16 기반 개인용 프론트엔드 대시보드 프로젝트입니다.  
+백엔드 `/Users/jys/market-risk-radar/market-risk-radar` 의 Portfolio, Signal, Alert, Event Return 데이터를 시각화합니다.
 
-First, run the development server:
+## 역할
+
+- Portfolio A/B 현황 모니터링
+- `signal_candidate` 및 `event_return` 통계 조회
+- Slack alert 발송 현황 확인
+- G1~G6 실전 전환 게이트 진행 상태 표시
+- 운영 지표(수집, Gate1, 분류, 비용, 알림) 시각화
+
+## 로컬 개발
+
+백엔드는 기본적으로 `http://localhost:3000` 을 사용하므로, 대시보드는 `3001` 포트로 실행합니다.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저: `http://localhost:3001`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 환경변수
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.local` 예시:
 
-## Learn More
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3000
+CF_ACCESS_CLIENT_ID=
+CF_ACCESS_CLIENT_SECRET=
+```
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_API_URL`: NestJS 백엔드 주소
+- `CF_ACCESS_*`: Cloudflare Access 보호 환경에서만 필요
+- 로컬 백엔드가 직접 열려 있다면 `CF_ACCESS_*`는 비워도 됩니다
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 주요 페이지
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/` Overview
+- `/positions`
+- `/signals`
+- `/alerts`
+- `/event-returns`
+- `/trades`
+- `/operations`
 
-## Deploy on Vercel
+## 주요 파일
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `lib/api.ts`: 백엔드 API 클라이언트와 normalizer
+- `app/page.tsx`: Overview
+- `components/Navigation.tsx`: 사이드바
+- `components/NavChart.tsx`: NAV 차트
+- `components/AlertsTable.tsx`: 알림 상세/필터 테이블
+- `components/TradesTable.tsx`: Portfolio A/B 거래 필터 테이블
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 참고 문서
+
+- `CLAUDE.md`: 작업 규칙
+- `plan.md`: 프론트 개발 계획
+- `research.md`: 현재 구현 현황
+- 백엔드 계획: `/Users/jys/market-risk-radar/market-risk-radar/plan.md`
+
+## 운영 메모
+
+- 이 프로젝트는 프론트엔드만 담당합니다. DB 직접 접근은 없습니다.
+- 커밋 후 Vercel 자동 배포는 사용자가 직접 관리합니다.
+- `NEXT_PUBLIC_API_URL`을 지정하지 않으면 `http://localhost:3000`을 사용합니다.

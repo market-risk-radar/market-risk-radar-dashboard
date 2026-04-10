@@ -35,6 +35,11 @@ function pctOrDash(v: number | null) {
   return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
 }
 
+function alphaTextColor(v: number | null) {
+  if (v === null) return 'text-zinc-500';
+  return v >= 0 ? 'text-emerald-400' : 'text-red-400';
+}
+
 export default async function SignalsPage() {
   const [candidates, stats] = await Promise.all([
     api.signalCandidates(50).catch(() => []),
@@ -73,10 +78,10 @@ export default async function SignalsPage() {
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{s.eventCount}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch1dRate)}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch5dRate)}</td>
-                    <td className={clsx('py-2.5 pr-4 text-right', s.avgAlpha1d != null && s.avgAlpha1d >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+                    <td className={clsx('py-2.5 pr-4 text-right', alphaTextColor(s.avgAlpha1d))}>
                       {pctOrDash(s.avgAlpha1d)}
                     </td>
-                    <td className={clsx('py-2.5 text-right', s.avgAlpha5d != null && s.avgAlpha5d >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+                    <td className={clsx('py-2.5 text-right', alphaTextColor(s.avgAlpha5d))}>
                       {pctOrDash(s.avgAlpha5d)}
                     </td>
                   </tr>

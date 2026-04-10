@@ -2,7 +2,7 @@
 
 # 작업 규칙
 
-> **프론트엔드(이 프로젝트)는 빌드(`npm run build`, `vercel deploy` 등)와 커밋(`git commit`, `git push` 등)을 절대 실행하지 않는다. 코드 수정만 하고, 빌드·커밋·배포는 사용자가 직접 진행한다.**
+> **프론트엔드(이 프로젝트)는 로컬 빌드와 커밋/푸시를 직접 실행하지 않는다. 코드 수정만 하고, 커밋 후 Vercel 배포 관리는 사용자가 직접 진행한다.**
 
 # Market Risk Radar — Dashboard
 
@@ -82,10 +82,8 @@ NEXT_PUBLIC_API_URL=https://api.theorynx.com   # Vercel 배포 시
 ## Commands
 
 ```bash
-npm run dev      # 로컬 개발 서버 (Next.js, port 3001 등)
-npm run build    # 프로덕션 빌드
+npm run dev      # 로컬 개발 서버 (Next.js, port 3001)
 npm run lint     # ESLint
-vercel --prod    # Vercel 프로덕션 배포
 ```
 
 ## 배포 구조

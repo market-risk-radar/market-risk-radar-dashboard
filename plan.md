@@ -3,6 +3,7 @@
 > 작성일: 2026-04-10 / 최종 업데이트: 2026-04-10  
 > 백엔드 로드맵 → `/Users/jys/market-risk-radar/market-risk-radar/plan.md`  
 > 이 문서는 **"지금 어디까지 왔고, 다음에 뭘 할지"** 에 답한다.
+> 운영 배포는 로컬 빌드가 아니라 Git 커밋 이후 Vercel 자동 배포를 기준으로 한다.
 
 ---
 
@@ -15,7 +16,7 @@
 | Overview | `/` | ✅ 완료 | Portfolio A 성과 8개 지표 + NAV 60일 차트 + Portfolio B 요약 + **G1~G6 실전 전환 게이트 패널** |
 | Positions | `/positions` | ✅ 완료 | Portfolio A 리밸런싱 포지션 + Portfolio B 신호 기반 포지션 (청산일·손절가 포함) |
 | Signals | `/signals` | ✅ 완료 | signal_candidate 목록 + 카테고리별 α/방향일치 통계 (8개 카테고리 배지 색상 완비) |
-| Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (제목, 채널, 임팩트, 상태) |
+| Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (채널 필터, 상세 모달 포함) |
 | Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + G2 목표 진행바 |
 | Trades | `/trades` | ✅ 완료 | BUY/SELL 체결 내역 + Portfolio A/B 클라이언트 필터 |
 | Operations | `/operations` | ✅ 완료 | 파이프라인 퍼널 + 6개 KPI 카드 + 소스 타입 비율 + LLM 분류 상세 |
@@ -24,12 +25,12 @@
 
 | 항목 | 내용 |
 |------|------|
-| `lib/api.ts` | `DashboardStats`, `PaperPosition`(B 전용 컬럼), `PortfolioBStats`, `SignalTagStats` 등 8개 타입 + 정규화 완비 |
+| `lib/api.ts` | `DashboardStats`, `Performance`, `PortfolioNav`, `PaperTrade`, `RecentAlert` 등 10개 타입 + 정규화 완비 |
 | 병렬 페치 | 모든 page.tsx: `Promise.all` + `.catch(() => []/null)` 방어 |
 | ISR 캐시 | `next: { revalidate: 30 }` — Vercel 엣지 30초 캐싱 |
 | 스켈레톤 | 7개 페이지 전부 `loading.tsx` (TTFB ~200ms에 즉시 표시) |
 | 반응형 네비게이션 | 데스크탑 고정 사이드바 + 모바일 햄버거 오버레이 |
-| G1~G6 판정 | 임계값 프론트 상수 하드코딩, 실제 수치는 API에서 계산 |
+| G1~G6 판정 | 임계값 프론트 상수 하드코딩, G1은 `api.trades(5000)` 기반 근사 집계, 나머지는 API 데이터 사용 |
 
 ---
 
@@ -39,7 +40,7 @@
 
 | 게이트 | 조건 | 현재 판정 | 데이터 소스 | 비고 |
 |--------|------|---------|------------|------|
-| G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `pending` (수동 확인) | paper_trade 로그 | 자동 집계 API 없음 |
+| G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `watch` 또는 `pass` (거래 데이터 기반) | `api.trades(5000)` | Portfolio A 거래 발생일 distinct 근사 집계 |
 | G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `watch` (표본 부족) | `api.signalStats()` | CONTRACT_WIN 3건 |
 | G3 alpha_5d ≥ 0 | CONTRACT_WIN 기준 | `pass` (+3.93%) | `api.signalStats()` | ✅ 달성 |
 | G4 Portfolio B Sharpe ≥ 0.5 | 3개월 이상 기간 | `pending` (B NAV 축적 중) | 미구현 | B NAV 히스토리 API 필요 |
@@ -69,18 +70,19 @@ GET /api/paper-trading/nav/history?type=B&limit=60
 
 ---
 
-### S-2. G1 리밸런싱 횟수 자동 집계
+### S-2. G1 리밸런싱 횟수 집계 정확도 개선
 
-**배경**: G1은 현재 `pending` — paper_trade 로그에서 리밸런싱 이벤트(Portfolio A, SELL 포함 날짜)를 집계해야 함.
+**배경**: 현재 G1은 프론트에서 `api.trades(5000)`를 사용해 Portfolio A 거래 발생일 distinct 수로 근사 집계한다. 완전 미구현은 아니지만 정확도 한계가 있다.
 
-**방법 A (백엔드 없이)**: `api.trades(500)` 호출 → portfolioType='A', side='SELL' 건이 존재하는 `tradeDate` distinct 집계 → 리밸런싱 횟수로 근사
-- 장점: 백엔드 변경 없음
-- 단점: 500건 제한, 초기 BUY-only 리밸런싱은 누락
+**현재 방식**: `api.trades(5000)` 호출 → portfolioType='A' 거래가 존재하는 `tradeDate` distinct 집계
+- 장점: 이미 구현됨, 백엔드 변경 없음, BUY-only 리밸런싱도 반영 가능
+- 단점: 여전히 최근 거래 수 제한에 의존
 
-**방법 B (백엔드 추가)**: `GET /api/paper-trading/rebalance-count` — paper_trade에서 portfolioType='A' + distinct tradeDate 집계
-- 정확, 추가 API 필요
+**개선안 (백엔드 추가)**: `GET /api/paper-trading/rebalance-count` — paper_trade에서 portfolioType='A' + distinct tradeDate 집계
+- 장점: 정확한 기준치 산출
+- 단점: 추가 API 필요
 
-→ **방법 A로 선 구현** (trades 데이터 이미 있음), 이후 방법 B로 교체 검토
+→ 현재 프론트 근사 집계를 유지하고, 이후 정확 집계 API로 교체 검토
 
 ---
 
@@ -179,7 +181,7 @@ GET /api/signal/candidates/:sourceItemId/return
 | 새 기능 계획 확정 | ✅ | ✗ |
 | 우선순위 변경 | ✅ | ✗ |
 | 컴포넌트·API 타입 추가 | ✗ | ✅ |
-| 배포 설정 변경 | ✗ | ✅ |
+| Vercel 배포 방식/환경 변경 | ✗ | ✅ |
 | 스타일·변수명 변경 | ✗ | ✗ |
 | 내부 리팩토링 | ✗ | ✗ |
 

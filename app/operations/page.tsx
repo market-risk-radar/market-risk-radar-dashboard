@@ -1,6 +1,25 @@
 import { api, DashboardStats } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 
+function normalizeTimestamp(raw: string): string {
+  const match = raw.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
+  if (!match) return raw;
+
+  const [, datePart, hourPart, minutePart, secondPart] = match;
+  const hour = Number(hourPart);
+  if (hour < 24) return raw;
+
+  const next = new Date(`${datePart}T00:${minutePart}:${secondPart}+09:00`);
+  if (Number.isNaN(next.getTime())) return raw;
+  next.setDate(next.getDate() + Math.floor(hour / 24));
+  const normalizedHour = String(hour % 24).padStart(2, '0');
+
+  const yyyy = next.getFullYear();
+  const mm = String(next.getMonth() + 1).padStart(2, '0');
+  const dd = String(next.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${normalizedHour}:${minutePart}:${secondPart}`;
+}
+
 // ── 파이프라인 퍼널 바 ────────────────────────────────────────────────────────
 
 interface FunnelRow {
@@ -127,13 +146,14 @@ export default async function OperationsPage() {
 
   const costTrend =
     stats.summary.estimatedDailyCostUsd <= 3 ? 'up' : 'down'; // $3 이하면 good
+  const timestampLabel = normalizeTimestamp(stats.timestamp);
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Operations</h2>
         <p className="text-sm text-zinc-500 mt-0.5">
-          파이프라인 운영 현황 · 기준 {stats.timestamp}
+          파이프라인 운영 현황 · 기준 {timestampLabel}
         </p>
       </div>
 
