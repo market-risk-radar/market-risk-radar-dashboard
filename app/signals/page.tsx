@@ -100,14 +100,13 @@ export default async function SignalsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
-                <th className="text-left py-2 pr-4">종목</th>
-                <th className="text-left py-2 pr-4">카테고리</th>
-                <th className="text-right py-2 pr-4">방향</th>
-                <th className="text-right py-2 pr-4">Confidence</th>
-                <th className="text-right py-2 pr-4">Signal Score</th>
-                <th className="text-right py-2">날짜</th>
-              </tr>
+                <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
+                  <th className="text-left py-2 pr-4">종목</th>
+                  <th className="text-left py-2 pr-4">카테고리</th>
+                  <th className="text-right py-2 pr-4">방향</th>
+                  <th className="text-right py-2 pr-4">Confidence</th>
+                  <th className="text-right py-2">날짜</th>
+                </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800">
               {candidates.map((c) => (
@@ -123,7 +122,6 @@ export default async function SignalsPage() {
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {(c.confidence * 100).toFixed(0)}%
                   </td>
-                  <td className="py-2.5 pr-4 text-right text-zinc-300">{c.signalScore}</td>
                   <td className="py-2.5 text-right text-zinc-500 text-xs">{c.signalDate}</td>
                 </tr>
               ))}
