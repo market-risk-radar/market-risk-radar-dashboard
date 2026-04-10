@@ -1,5 +1,9 @@
 @AGENTS.md
 
+# 작업 규칙
+
+> **프론트엔드(이 프로젝트)는 빌드(`npm run build`, `vercel deploy` 등)와 커밋(`git commit`, `git push` 등)을 절대 실행하지 않는다. 코드 수정만 하고, 빌드·커밋·배포는 사용자가 직접 진행한다.**
+
 # Market Risk Radar — Dashboard
 
 ## 프로젝트 개요

@@ -60,6 +60,8 @@ export interface PaperPosition {
   portfolioType: string;
   asOfDate: string;
   status: string;
+  targetExitDate: string | null;
+  stopLossPrice: number | null;
   createdAt: string;
 }
 
@@ -138,6 +140,46 @@ export interface PortfolioBStats {
   stoppedCount: number;
 }
 
+export interface DashboardStats {
+  timestamp: string;
+  ingest: {
+    total: number;
+    bySourceType: { sourceType: string; count: number }[];
+    todayCount: number;
+    last24hCount: number;
+  };
+  gate1: {
+    total: number;
+    passed: number;
+    failed: number;
+    passRate: string;
+    backstopApplied: number;
+    avgScore: number;
+  };
+  classify: {
+    total: number;
+    success: number;
+    failed: number;
+    pending: number;
+    successRate: string;
+    totalCostUsd: number;
+  };
+  alert: {
+    total: number;
+    sent: number;
+    failed: number;
+    deliveryRate: string;
+    avgImpactScore: number;
+  };
+  summary: {
+    totalItems: number;
+    gate1PassRate: string;
+    classifySuccessRate: string;
+    alertDeliveryRate: string;
+    estimatedDailyCostUsd: number;
+  };
+}
+
 // ── Normalizers (API returns many numeric fields as strings) ─────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,8 +206,58 @@ function normalizePosition(raw: any): PaperPosition {
     avgPrice: n(raw.avgPrice),
     portfolioType: raw.portfolioType,
     asOfDate: raw.asOfDate,
-    status: raw.status,
+    status: raw.status ?? 'OPEN',
+    targetExitDate: raw.targetExitDate ?? null,
+    stopLossPrice: raw.stopLossPrice != null ? n(raw.stopLossPrice) : null,
     createdAt: raw.createdAt,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeDashboardStats(raw: any): DashboardStats {
+  return {
+    timestamp: raw.timestamp ?? '',
+    ingest: {
+      total: n(raw.ingest?.total),
+      bySourceType: Array.isArray(raw.ingest?.bySourceType)
+        ? raw.ingest.bySourceType.map((x: { sourceType: string; count: unknown }) => ({
+            sourceType: x.sourceType,
+            count: n(x.count),
+          }))
+        : [],
+      todayCount: n(raw.ingest?.todayCount),
+      last24hCount: n(raw.ingest?.last24hCount),
+    },
+    gate1: {
+      total: n(raw.gate1?.total),
+      passed: n(raw.gate1?.passed),
+      failed: n(raw.gate1?.failed),
+      passRate: raw.gate1?.passRate ?? '—',
+      backstopApplied: n(raw.gate1?.backstopApplied),
+      avgScore: n(raw.gate1?.avgScore),
+    },
+    classify: {
+      total: n(raw.classify?.total),
+      success: n(raw.classify?.success),
+      failed: n(raw.classify?.failed),
+      pending: n(raw.classify?.pending),
+      successRate: raw.classify?.successRate ?? '—',
+      totalCostUsd: n(raw.classify?.totalCostUsd),
+    },
+    alert: {
+      total: n(raw.alert?.total),
+      sent: n(raw.alert?.sent),
+      failed: n(raw.alert?.failed),
+      deliveryRate: raw.alert?.deliveryRate ?? '—',
+      avgImpactScore: n(raw.alert?.avgImpactScore),
+    },
+    summary: {
+      totalItems: n(raw.summary?.totalItems),
+      gate1PassRate: raw.summary?.gate1PassRate ?? '—',
+      classifySuccessRate: raw.summary?.classifySuccessRate ?? '—',
+      alertDeliveryRate: raw.summary?.alertDeliveryRate ?? '—',
+      estimatedDailyCostUsd: n(raw.summary?.estimatedDailyCostUsd),
+    },
   };
 }
 
@@ -290,4 +382,6 @@ export const api = {
   recentAlerts: (limit = 50) =>
     get<unknown[]>(`/api/alert/recent?limit=${limit}`)
       .then((rows) => rows.map(normalizeRecentAlert)),
+  dashboardStats: () =>
+    get<unknown>('/api/stats').then(normalizeDashboardStats),
 };
