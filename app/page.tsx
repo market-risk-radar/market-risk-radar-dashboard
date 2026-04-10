@@ -8,6 +8,11 @@ function pct(v: number | null) {
   return (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%';
 }
 
+function drawdownPct(v: number | null) {
+  if (v === null) return '—';
+  return '-' + (Math.abs(v) * 100).toFixed(2) + '%';
+}
+
 function trend(v: number | null): 'up' | 'down' | 'neutral' {
   if (v === null) return 'neutral';
   return v > 0 ? 'up' : v < 0 ? 'down' : 'neutral';
@@ -60,10 +65,10 @@ function computeGates(
   estimatedDailyCostUsd: number | null,
   trades: Awaited<ReturnType<typeof api.trades>>,
 ): GateInfo[] {
-  // G1: Portfolio A 리밸런싱 횟수 — SELL 거래가 존재하는 고유 날짜 수
+  // G1: Portfolio A 리밸런싱 횟수 — A 포트폴리오 거래가 발생한 고유 날짜 수
   const g1RebalanceDates = new Set(
     trades
-      .filter((t) => t.portfolioType === 'A' && t.side === 'SELL')
+      .filter((t) => t.portfolioType === 'A')
       .map((t) => t.tradeDate),
   );
   const g1Count = g1RebalanceDates.size;
@@ -82,6 +87,7 @@ function computeGates(
   );
   const g2Dm = g2Best?.directionMatch5dRate ?? null;
   const bestEventCount = signalStats.reduce((max, s) => Math.max(max, s.eventCount), 0);
+  const g2CategoryLabel = g2Best?.category ?? 'UNCLASSIFIED';
 
   // G3: alpha_5d 평균 ≥ 0 — CONTRACT_WIN 우선, 없으면 전체 평균
   const contractWin = signalStats.find((s) => s.category === 'CONTRACT_WIN');
@@ -113,7 +119,7 @@ function computeGates(
           : 'watch',
       current:
         g2Dm !== null
-          ? `${(g2Dm * 100).toFixed(1)}% (${g2Best?.category})`
+          ? `${(g2Dm * 100).toFixed(1)}% (${g2CategoryLabel})`
           : `표본 부족 (최다 ${bestEventCount}건 / 50건 기준)`,
     },
     {
@@ -197,7 +203,7 @@ export default async function OverviewPage() {
     api.bStats().catch(() => null),
     api.signalStats().catch(() => []),
     api.dashboardStats().catch(() => null),
-    api.trades(500).catch(() => []),
+    api.trades(5000).catch(() => []),
   ]);
 
   const gates = computeGates(
@@ -238,7 +244,7 @@ export default async function OverviewPage() {
           />
           <StatCard
             label="MDD"
-            value={perf ? pct(perf.maxDrawdown) : '—'}
+            value={perf ? drawdownPct(perf.maxDrawdown) : '—'}
             trend="down"
           />
           <StatCard

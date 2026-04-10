@@ -36,6 +36,8 @@
 
 - `NEXT_PUBLIC_API_URL` 미설정 시 `http://localhost:3000` fallback (`lib/api.ts:1`)
 - `CF_ACCESS_*` 미설정 시 헤더 없이 전송 (`lib/api.ts:6–12`) — 로컬 개발용
+- 로컬 대시보드 개발 서버는 `npm run dev` 기준 `3001` 포트 사용
+- 운영 배포는 로컬 빌드가 아니라 Git 커밋 이후 Vercel 자동 배포로 반영
 
 ---
 
@@ -81,7 +83,6 @@ app/
   trades/
     loading.tsx
     page.tsx                # 체결 내역 (A/B 클라이언트 필터)
-    TradesTable.tsx         # (app/ 내 Client Component, 로컬 상태 관리)
 
   operations/
     loading.tsx
@@ -94,10 +95,11 @@ components/
   Navigation.tsx            # 좌측 고정 사이드바 (Client Component, usePathname)
   NavChart.tsx              # Recharts AreaChart 래퍼 (Client Component)
   StatCard.tsx              # 통계 카드 UI (Server Component)
+  AlertsTable.tsx           # 알림 테이블 + 채널 필터 + 상세 모달 (Client Component)
   TradesTable.tsx           # 거래 테이블 + A/B 필터 (Client Component)
 
 lib/
-  api.ts                    # 백엔드 API 클라이언트 + TypeScript 타입 + normalizer
+  api.ts                    # 백엔드 API 클라이언트 + 10개 TypeScript 타입 + normalizer
 ```
 
 ---
@@ -113,7 +115,6 @@ lib/
 | `components/Navigation.tsx` | Client Component (`'use client'`) | `usePathname()` 훅 |
 | `components/NavChart.tsx` | Client Component (`'use client'`) | Recharts (브라우저 DOM 의존) |
 | `components/TradesTable.tsx` | Client Component (`'use client'`) | A/B 필터 `useState` |
-| `app/trades/TradesTable.tsx` | Client Component (`'use client'`) | 동일 |
 
 ### 데이터 페치 전략
 
@@ -157,6 +158,7 @@ Promise.all([
   api.bStats(),            // GET /api/paper-trading/b/stats
   api.signalStats(),       // GET /api/signal/stats  (G2/G3 계산용)
   api.dashboardStats(),    // GET /api/stats         (G6 계산용)
+  api.trades(5000),        // GET /api/paper-trading/trades?limit=5000 (G1 근사 집계용)
 ])
 ```
 
@@ -181,7 +183,7 @@ const GATE_THRESHOLDS = {
 
 | 게이트 | 판정 소스 | 로직 |
 |--------|---------|------|
-| G1 | — | 항상 `pending` (자동 집계 API 없음) |
+| G1 | `trades(5000)` | Portfolio A 거래 발생일 distinct 수로 근사 집계 |
 | G2 | `signalStats` | eventCount ≥ 50인 카테고리 중 dm5d 최고값 ≥ 0.55 |
 | G3 | `signalStats` | CONTRACT_WIN `avgAlpha5d` ≥ 0 |
 | G4 | — | 항상 `pending` (B Sharpe API 미구현) |
@@ -250,11 +252,13 @@ Promise.all([
   api.recentAlerts(50),   // GET /api/alert/recent?limit=50
 ])
 ```
-`export const dynamic = 'force-dynamic'` — 알림 특성상 캐시 없이 항상 최신 데이터
+`export const dynamic = 'force-dynamic'` — 알림 특성상 ISR 캐시 대신 항상 최신 데이터 조회
 
 **렌더링 구조**
 1. StatCard × 4: 총 알림, 발송 성공(+비율), 발송 실패(+비율), 평균 임팩트
-2. 최근 50건 테이블: 종목 뱃지+제목, 채널(이름+ID), 임팩트 스코어, 발송 상태 뱃지, 시각
+2. 채널 필터 버튼: `ALL` + 채널별 필터, 필터된 건수/SENT/FAILED 요약
+3. 최근 50건 테이블: 종목 뱃지+제목, 채널, 임팩트 스코어, 발송 상태 뱃지, 시각
+4. 행 클릭 상세 모달: 관련 종목/섹터, 채널 ID, 발송/게시 시각(KST), 오류 메시지, 원문 링크
 
 **발송 상태 뱃지 색상**
 ```typescript
@@ -290,8 +294,8 @@ api.trades(100)  // GET /api/paper-trading/trades?limit=100
 ```
 
 **렌더링 구조**
-- StatCard × 4: 체결 건수, BUY 수, SELL 수, 총 체결 금액
-- `TradesTable` (Client Component): A/B 탭 필터 + 정렬된 거래 내역 테이블
+- 상단 카드 4개: 최근 체결 수, BUY 수, SELL 수, 총 체결 금액
+- `TradesTable` (Client Component): A/B 탭 필터 + 거래 내역 테이블
 
 ---
 
@@ -412,7 +416,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 | `api.signalCandidates(n)` | `GET /api/signal/candidates?limit=n` | revalidate: 30 |
 | `api.signalStats()` | `GET /api/signal/stats` | revalidate: 30 |
 | `api.alertStats()` | `GET /api/alert/stats` | revalidate: 30 |
-| `api.recentAlerts(n)` | `GET /api/alert/recent?limit=n` | force-dynamic |
+| `api.recentAlerts(n)` | `GET /api/alert/recent?limit=n` | alerts 페이지에서 `force-dynamic` |
 | `api.dashboardStats()` | `GET /api/stats` | revalidate: 30 |
 
 ### 아직 없는 API (plan.md S-1~S-3 참조)

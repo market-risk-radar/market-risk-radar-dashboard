@@ -1,6 +1,20 @@
 import { api } from '@/lib/api';
 import { clsx } from 'clsx';
 
+function weightedAverage(
+  rows: Array<{ eventCount: number; value: number | null }>,
+): number | null {
+  const valid = rows.filter((row) => row.value !== null && row.eventCount > 0);
+  if (valid.length === 0) return null;
+
+  const weightedSum = valid.reduce(
+    (sum, row) => sum + row.eventCount * (row.value ?? 0),
+    0,
+  );
+  const totalWeight = valid.reduce((sum, row) => sum + row.eventCount, 0);
+  return totalWeight > 0 ? weightedSum / totalWeight : null;
+}
+
 function pctOrDash(v: number | null) {
   if (v === null) return <span className="text-zinc-600">—</span>;
   const pos = v >= 0;
@@ -33,14 +47,18 @@ export default async function EventReturnsPage() {
   const filled = stats.filter((s) => s.eventCount > 0);
 
   const totalEvents = filled.reduce((s, r) => s + r.eventCount, 0);
-  const avgDm5d =
-    filled.length > 0
-      ? filled.reduce((s, r) => s + (r.directionMatch5dRate ?? 0), 0) / filled.length
-      : null;
-  const avgAlpha5d =
-    filled.length > 0
-      ? filled.reduce((s, r) => s + (r.avgAlpha5d ?? 0), 0) / filled.length
-      : null;
+  const avgDm5d = weightedAverage(
+    filled.map((row) => ({
+      eventCount: row.eventCount,
+      value: row.directionMatch5dRate,
+    })),
+  );
+  const avgAlpha5d = weightedAverage(
+    filled.map((row) => ({
+      eventCount: row.eventCount,
+      value: row.avgAlpha5d,
+    })),
+  );
 
   return (
     <div className="space-y-6">
