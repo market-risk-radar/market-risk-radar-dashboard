@@ -10,6 +10,7 @@ import {
   Bell,
   TrendingUp,
   History,
+  Activity,
   Menu,
   X,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const NAV = [
   { href: '/alerts',        label: 'Alerts',        icon: Bell },
   { href: '/event-returns', label: 'Event Returns', icon: TrendingUp },
   { href: '/trades',        label: 'Trades',        icon: History },
+  { href: '/operations',    label: 'Operations',    icon: Activity },
 ];
 
 export default function Navigation() {

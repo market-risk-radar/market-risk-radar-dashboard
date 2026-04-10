@@ -86,7 +86,8 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
                     </span>
                   </td>
                   <td className="py-2.5 pr-4">
-                    <p className="font-medium text-white">{trade.ticker}</p>
+                    <p className="font-medium text-white">{trade.name}</p>
+                    <p className="text-xs text-zinc-500">{trade.ticker}</p>
                   </td>
                   <td className="py-2.5 pr-4">
                     <span
