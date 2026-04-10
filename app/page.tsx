@@ -13,9 +13,9 @@ function trend(v: number | null): 'up' | 'down' | 'neutral' {
   return v > 0 ? 'up' : v < 0 ? 'down' : 'neutral';
 }
 
-function moneyInManwon(v: number) {
-  const sign = v > 0 ? '+' : '';
-  return `${sign}${(v / 10000).toFixed(0)}만`;
+function krw(v: number, showSign = false): string {
+  const sign = showSign && v > 0 ? '+' : '';
+  return `${sign}${v.toLocaleString()}원`;
 }
 
 function PortfolioBadge({ type }: { type: 'A' | 'B' }) {
@@ -58,7 +58,16 @@ function computeGates(
   perf: Awaited<ReturnType<typeof api.performance>> | null,
   signalStats: SignalTagStats[],
   estimatedDailyCostUsd: number | null,
+  trades: Awaited<ReturnType<typeof api.trades>>,
 ): GateInfo[] {
+  // G1: Portfolio A 리밸런싱 횟수 — SELL 거래가 존재하는 고유 날짜 수
+  const g1RebalanceDates = new Set(
+    trades
+      .filter((t) => t.portfolioType === 'A' && t.side === 'SELL')
+      .map((t) => t.tradeDate),
+  );
+  const g1Count = g1RebalanceDates.size;
+
   // G2: direction_match_5d ≥ 55% (이벤트 50건 이상 기준)
   const g2Eligible = signalStats.filter(
     (s) => s.eventCount >= GATE_THRESHOLDS.minEventCount,
@@ -89,9 +98,8 @@ function computeGates(
       id: 'G1',
       label: '리밸런싱 무결성',
       target: '10회 이상 (SELL/BUY 정상)',
-      status: 'pending',
-      current: 'Trades 페이지 확인',
-      note: 'paper_trade 로그 수동 검증',
+      status: g1Count >= 10 ? 'pass' : g1Count > 0 ? 'watch' : 'pending',
+      current: g1Count > 0 ? `${g1Count}회 완료` : '거래 데이터 없음',
     },
     {
       id: 'G2',
@@ -183,18 +191,20 @@ function GateCard({ gate }: { gate: GateInfo }) {
 }
 
 export default async function OverviewPage() {
-  const [navHistory, perf, bStats, signalStats, dashboardStats] = await Promise.all([
+  const [navHistory, perf, bStats, signalStats, dashboardStats, trades] = await Promise.all([
     api.navHistory(60).catch(() => []),
     api.performance().catch(() => null),
     api.bStats().catch(() => null),
     api.signalStats().catch(() => []),
     api.dashboardStats().catch(() => null),
+    api.trades(500).catch(() => []),
   ]);
 
   const gates = computeGates(
     perf,
     signalStats,
     dashboardStats?.summary.estimatedDailyCostUsd ?? null,
+    trades,
   );
   const passCount = gates.filter((g) => g.status === 'pass').length;
 
@@ -218,13 +228,12 @@ export default async function OverviewPage() {
           <StatCard
             label="총 수익률"
             value={perf ? pct(perf.totalReturn) : '—'}
-            sub={perf ? `초기 ${(perf.initialNav / 10000).toFixed(0)}만 → 현재 ${(perf.currentNav / 10000).toFixed(0)}만` : undefined}
+            sub={perf ? `초기 ${krw(perf.initialNav)} → 현재 ${krw(perf.currentNav)}` : undefined}
             trend={perf ? trend(perf.totalReturn) : 'neutral'}
           />
           <StatCard
             label="현재 NAV"
-            value={perf ? (perf.currentNav / 1_000_000).toFixed(2) + 'M' : '—'}
-            sub="원화"
+            value={perf ? krw(perf.currentNav) : '—'}
             trend="neutral"
           />
           <StatCard
@@ -275,7 +284,7 @@ export default async function OverviewPage() {
           <StatCard label="총 거래 수" value={bStats?.totalTrades ?? '—'} trend="neutral" />
           <StatCard
             label="실현 손익"
-            value={bStats ? moneyInManwon(bStats.closedPnl) : '—'}
+            value={bStats ? krw(bStats.closedPnl, true) : '—'}
             trend={bStats ? trend(bStats.closedPnl) : 'neutral'}
           />
           <StatCard

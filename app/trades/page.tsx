@@ -1,10 +1,6 @@
 import { api } from '@/lib/api';
 import TradesTable from '@/components/TradesTable';
 
-function formatAmount(amount: number) {
-  return `${(amount / 10000).toFixed(0)}만`;
-}
-
 export default async function TradesPage() {
   const trades = await api.trades(100).catch(() => []);
 
@@ -37,7 +33,7 @@ export default async function TradesPage() {
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">총 체결 금액</p>
-          <p className="text-2xl font-bold text-white">{formatAmount(totalAmount)}</p>
+          <p className="text-2xl font-bold text-white">{totalAmount.toLocaleString()}원</p>
           <p className="text-xs text-zinc-500 mt-1">최근 100건 합계</p>
         </div>
       </div>
