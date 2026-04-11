@@ -19,7 +19,7 @@
 | Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (채널 필터, 상세 모달 포함) |
 | Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + G2 목표 진행바 |
 | Trades | `/trades` | ✅ 완료 | BUY/SELL 체결 내역 + Portfolio A/B 클라이언트 필터 |
-| Operations | `/operations` | ✅ 완료 | 파이프라인 퍼널 + 6개 KPI 카드 + 소스 타입 비율 + LLM 분류 상세 |
+| Operations | `/operations` | ✅ 완료 | 파이프라인 퍼널 + 6개 KPI 카드 + 소스 타입 비율 + LLM 분류 상세 + Claude 비용 30일 차트 |
 
 ### 1-B. 완료된 기반 작업
 
@@ -86,19 +86,16 @@ GET /api/paper-trading/b/performance
 
 ---
 
-### S-3. 일별 Claude 비용 추이 차트 (Operations 페이지 추가)
+### S-3. 일별 Claude 비용 추이 차트 (Operations 페이지 추가) ✅ 완료 (2026-04-11)
 
-**배경**: 현재 Operations는 누계/오늘 예상 비용만 표시. 시계열 추이가 있어야 이상 감지 가능.
+**적용 내용**:
+- 백엔드 `GET /api/stats/cost/history?days=30` 추가
+- `llm_run.cost_estimate_usd`를 KST 날짜별 합계로 집계
+- Operations 하단에 Recharts 비용 추이 라인차트 추가
 
-**필요 백엔드 작업** (선행):
-```
-GET /api/stats/cost/history?days=30
-→ llm_run 테이블을 날짜별 SUM(cost_estimate_usd) 집계
-```
-
-**프론트 작업**:
-- Operations 하단에 비용 추이 라인차트 (Recharts) 추가
-- Y축: USD, X축: 날짜
+**효과**:
+- 비용 급증 구간을 일자별로 바로 확인 가능
+- G6 통과 상태를 추세 관점에서 같이 해석 가능
 
 ---
 
