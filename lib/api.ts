@@ -151,7 +151,7 @@ export interface PortfolioBStats {
   stoppedCount: number;
 }
 
-export interface PortfolioBPerformance extends Performance {}
+export type PortfolioBPerformance = Performance;
 
 export interface RebalanceCount {
   portfolioType: 'A';

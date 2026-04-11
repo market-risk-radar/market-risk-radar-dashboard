@@ -40,6 +40,16 @@ function alphaTextColor(v: number | null) {
   return v >= 0 ? 'text-emerald-400' : 'text-red-400';
 }
 
+function formatSignalDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    month: '2-digit',
+    day: '2-digit',
+  });
+}
+
 export default async function SignalsPage() {
   const [candidates, stats] = await Promise.all([
     api.signalCandidates(50).catch(() => []),
@@ -57,7 +67,35 @@ export default async function SignalsPage() {
       {stats.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
           <p className="text-sm font-semibold text-zinc-300 mb-4">카테고리별 통계</p>
-          <div className="overflow-x-auto">
+          <div className="space-y-3 md:hidden">
+            {stats.map((s, i) => (
+              <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>{s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}</div>
+                  <span className="text-xs text-zinc-500">{s.eventCount}건</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-xs text-zinc-500">방향일치 1d</p>
+                    <p className="text-zinc-200">{pctOrDash(s.directionMatch1dRate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">방향일치 5d</p>
+                    <p className="text-zinc-200">{pctOrDash(s.directionMatch5dRate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">α 1d</p>
+                    <p className={alphaTextColor(s.avgAlpha1d)}>{pctOrDash(s.avgAlpha1d)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">α 5d</p>
+                    <p className={alphaTextColor(s.avgAlpha5d)}>{pctOrDash(s.avgAlpha5d)}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -97,7 +135,45 @@ export default async function SignalsPage() {
         <p className="text-sm font-semibold text-zinc-300 mb-4">
           최근 시그널 후보 ({candidates.length}건)
         </p>
-        <div className="overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {candidates.map((c) => (
+            <div key={c.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium text-white">{c.name}</p>
+                  <p className="text-xs text-zinc-500">{c.ticker}</p>
+                </div>
+                <div className="text-right">
+                  <p className={clsx('font-bold', DIRECTION_COLOR[c.impactDirection])}>
+                    {c.impactDirection === '+' ? '▲' : '▼'}
+                  </p>
+                  <p className="text-xs text-zinc-500">{formatSignalDate(c.signalDate)}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {categoryBadge(c.category)}
+                <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
+                  {(c.confidence * 100).toFixed(0)}%
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-zinc-500">Ret 1d</p>
+                  <p className="text-zinc-200">{pctOrDash(c.ret1d)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">Ret 5d</p>
+                  <p className="text-zinc-200">{pctOrDash(c.ret5d)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">α 5d</p>
+                  <p className={alphaTextColor(c.alpha5d)}>{pctOrDash(c.alpha5d)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -134,7 +210,7 @@ export default async function SignalsPage() {
                   <td className={clsx('py-2.5 pr-4 text-right', alphaTextColor(c.alpha5d))}>
                     {pctOrDash(c.alpha5d)}
                   </td>
-                  <td className="py-2.5 text-right text-zinc-500 text-xs">{c.signalDate}</td>
+                  <td className="py-2.5 text-right text-zinc-500 text-xs">{formatSignalDate(c.signalDate)}</td>
                 </tr>
               ))}
             </tbody>

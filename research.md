@@ -97,9 +97,10 @@ components/
   StatCard.tsx              # 통계 카드 UI (Server Component)
   AlertsTable.tsx           # 알림 테이블 + 채널 필터 + 상세 모달 (Client Component)
   TradesTable.tsx           # 거래 테이블 + A/B 필터 (Client Component)
+  CostHistoryChart.tsx      # Claude 비용 추이 라인차트 (Client Component, Operations 전용)
 
 lib/
-  api.ts                    # 백엔드 API 클라이언트 + 11개 TypeScript 타입 + normalizer
+  api.ts                    # 백엔드 API 클라이언트 + 14개 TypeScript 타입 + normalizer
 ```
 
 ---
@@ -153,14 +154,15 @@ async function get<T>(path: string): Promise<T> {
 **API 호출**
 ```typescript
 Promise.all([
-  api.navHistory(60),      // GET /api/paper-trading/nav/history?limit=60
+  api.navHistory(60),          // GET /api/paper-trading/nav/history?limit=60
+  api.bNavHistory(60),         // GET /api/paper-trading/b/nav/history?limit=60
   api.benchmarkNavHistory(60), // GET /api/paper-trading/benchmark/nav/history?limit=60
-  api.performance(),       // GET /api/paper-trading/performance
-  api.bStats(),            // GET /api/paper-trading/b/stats
-  api.bPerformance(),      // GET /api/paper-trading/b/performance
-  api.signalStats(),       // GET /api/signal/stats  (G2/G3 계산용)
-  api.dashboardStats(),    // GET /api/stats         (G6 계산용)
-  api.rebalanceCount(),    // GET /api/paper-trading/rebalance-count   (G1 정확 집계용)
+  api.performance(),           // GET /api/paper-trading/performance
+  api.bStats(),                // GET /api/paper-trading/b/stats
+  api.bPerformance(),          // GET /api/paper-trading/b/performance
+  api.signalStats(),           // GET /api/signal/stats  (G2/G3 계산용)
+  api.dashboardStats(),        // GET /api/stats         (G6 계산용)
+  api.rebalanceCount(),        // GET /api/paper-trading/rebalance-count   (G1 정확 집계용)
 ])
 ```
 
@@ -320,6 +322,10 @@ Promise.all([
 4. LLM 분류 상세: 전체/성공/실패/대기/평균임팩트 리스트
 5. 비용 추이 차트 (`CostHistoryChart`): Claude 비용 30일 라인차트
 
+**타임스탬프 방어 로직 (`normalizeTimestamp`)**
+
+백엔드 `GET /api/stats`의 `timestamp` 필드가 간헐적으로 `"2026-04-10 26:00:00"` 같은 hour ≥ 24 형식으로 반환되는 경우가 있음. `normalizeTimestamp()` 함수로 다음 날 정상 시각으로 변환해 표시 오류를 방지한다.
+
 ---
 
 ## 6. 컴포넌트 상세
@@ -374,6 +380,7 @@ datasets: Array<{ key: string; label: string; color: string; data: PortfolioNav[
 | 타입 | 대응 백엔드 엔티티/API | 비고 |
 |------|----------------------|------|
 | `PortfolioNav` | `portfolio_nav` 테이블 | B 포함 (`portfolioType` 컬럼) |
+| `BenchmarkNavPoint` | `/api/paper-trading/benchmark/nav/history` | KOSPI 1억원 환산 시계열 |
 | `Performance` | `/api/paper-trading/performance` 집계 | Portfolio A 전용 |
 | `PaperPosition` | `paper_position` 테이블 | B 전용 컬럼: `targetExitDate`, `stopLossPrice`, `status` |
 | `PaperTrade` | `paper_trade` 테이블 | `portfolioType` 포함 |
@@ -382,7 +389,10 @@ datasets: Array<{ key: string; label: string; color: string; data: PortfolioNav[
 | `AlertStats` | `/api/alert/stats` 집계 | 누계 통계 |
 | `RecentAlert` | `/api/alert/recent` | 제목, 채널, 발송 상태 포함 |
 | `PortfolioBStats` | `/api/paper-trading/b/stats` | `closedPnl`, `stoppedCount` |
+| `PortfolioBPerformance` | `/api/paper-trading/b/performance` | `Performance` 타입 re-export |
+| `RebalanceCount` | `/api/paper-trading/rebalance-count` | G1 정확 집계용 (`rebalanceCount`, `firstTradeDate`, `lastTradeDate`) |
 | `DashboardStats` | `/api/stats` | 파이프라인 전체 집계 |
+| `CostHistoryPoint` | `/api/stats/cost/history` | `date`, `costUsd` (KST 날짜별 Claude 비용 합계) |
 
 ### Normalizer 역할
 

@@ -2,17 +2,42 @@ import { api, PaperPosition } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import { clsx } from 'clsx';
 
-function pct(v: number) {
-  return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
-}
-
 // ── Portfolio A 테이블 ────────────────────────────────────────────────────────
 function PositionTableA({ positions }: { positions: PaperPosition[] }) {
   if (positions.length === 0) {
     return <div className="text-sm text-zinc-600 py-8 text-center">보유 포지션 없음</div>;
   }
   return (
-    <div className="overflow-x-auto">
+    <>
+      <div className="space-y-3 md:hidden">
+        {positions.map((p) => (
+          <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+            <div>
+              <p className="font-medium text-white">{p.name || p.ticker}</p>
+              <p className="text-xs text-zinc-500">{p.ticker}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-zinc-500">수량</p>
+                <p className="text-zinc-200">{p.qty.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500">평균단가</p>
+                <p className="text-zinc-200">{p.avgPrice.toLocaleString()}원</p>
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500">평가금액</p>
+                <p className="text-zinc-200">{(p.qty * p.avgPrice).toLocaleString()}원</p>
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500">기준일</p>
+                <p className="text-zinc-400">{p.asOfDate}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden md:block overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -42,7 +67,8 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -60,7 +86,49 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
     return <div className="text-sm text-zinc-600 py-8 text-center">오픈 포지션 없음</div>;
   }
   return (
-    <div className="overflow-x-auto">
+    <>
+      <div className="space-y-3 md:hidden">
+        {positions.map((p) => {
+          const remaining = daysUntil(p.targetExitDate);
+          return (
+            <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium text-white">{p.name || p.ticker}</p>
+                  <p className="text-xs text-zinc-500">{p.ticker}</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium">
+                  {p.status}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-zinc-500">평균단가</p>
+                  <p className="text-zinc-200">{p.avgPrice.toLocaleString()}원</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">손절가</p>
+                  <p className={p.stopLossPrice != null ? 'text-red-400' : 'text-zinc-600'}>
+                    {p.stopLossPrice != null ? `${p.stopLossPrice.toLocaleString()}원` : '—'}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-zinc-500">청산 예정</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-zinc-300">{p.targetExitDate ?? '—'}</p>
+                    {remaining !== null && (
+                      <p className={clsx('text-xs', remaining <= 1 ? 'text-amber-400' : 'text-zinc-600')}>
+                        D{remaining >= 0 ? `-${remaining}` : `+${Math.abs(remaining)}`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="hidden md:block overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -115,7 +183,8 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
           })}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
 

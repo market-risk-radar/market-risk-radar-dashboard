@@ -91,7 +91,48 @@ export default async function EventReturnsPage() {
       {/* Table */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
         <p className="text-sm font-semibold text-zinc-300 mb-4">카테고리별 수익률</p>
-        <div className="overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {filled
+            .sort((a, b) => b.eventCount - a.eventCount)
+            .map((s, i) => (
+              <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-white">{s.category ?? '—'}</p>
+                    {s.rawTags.length > 0 && (
+                      <p className="text-xs text-zinc-600 line-clamp-2">
+                        {s.rawTags.slice(0, 3).join(', ')}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs text-zinc-500 whitespace-nowrap">{s.eventCount}건</span>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500 mb-1">방향일치 5d</p>
+                  {dmBar(s.directionMatch5dRate)}
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-xs text-zinc-500">수익률 1d</p>
+                    <div>{pctOrDash(s.avgRet1d)}</div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">수익률 5d</p>
+                    <div>{pctOrDash(s.avgRet5d)}</div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">α 1d</p>
+                    <div>{pctOrDash(s.avgAlpha1d)}</div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">α 5d</p>
+                    <div>{pctOrDash(s.avgAlpha5d)}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
