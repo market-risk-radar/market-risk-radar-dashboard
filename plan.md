@@ -43,30 +43,28 @@
 | G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `watch` 또는 `pass` (정확 집계) | `api.rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` |
 | G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `watch` (표본 부족) | `api.signalStats()` | CONTRACT_WIN 3건 |
 | G3 alpha_5d ≥ 0 | CONTRACT_WIN 기준 | `pass` (+3.93%) | `api.signalStats()` | ✅ 달성 |
-| G4 Portfolio B Sharpe ≥ 0.5 | 3개월 이상 기간 | `pending` (B NAV 축적 중) | 미구현 | B NAV 히스토리 API 필요 |
-| G5 MDD < 30% | A/B 모두 | `watch` (A: -17.94%) | `api.performance()` | B MDD 미집계 |
+| G4 Portfolio B Sharpe ≥ 0.5 | 3개월 이상 기간 | `pending` 또는 실측값 | `api.bPerformance()` | 60거래일 미만이면 표본 축적 중 |
+| G5 MDD < 30% | A/B 모두 | `watch` / `pass` / `fail` | `api.performance()` + `api.bPerformance()` | B NAV 축적 시 실측 반영 |
 | G6 일비용 ≤ $3 | 최근 1개월 평균 | `pass` (~$1.4/일) | `api.dashboardStats()` | ✅ 달성 |
 
 ---
 
 ## 3. 단기 개선 계획 (이번 배치)
 
-### S-1. Portfolio B NAV 히스토리 + A vs B 비교 차트
+### S-1. Portfolio B NAV 히스토리 + A vs B 비교 차트 🔄 진행 중
 
 **배경**: 현재 Overview의 NAV 차트는 Portfolio A만 표시. B가 운용을 시작하면 A vs B vs KOSPI(069500) 비교가 핵심 지표.
 
-**필요 백엔드 작업** (선행):
+**완료된 백엔드 작업**:
 ```
-GET /api/paper-trading/nav/history?type=B&limit=60
-→ portfolio_type='B' 필터 조건 추가 (현재 타입 파라미터 없음)
+GET /api/paper-trading/b/nav/history?limit=60
+GET /api/paper-trading/b/performance
 ```
 
-**프론트 작업**:
+**남은 프론트 작업**:
 - `api.navHistory()` 파라미터에 `type?: string` 추가
 - Overview: A/B 두 라인을 하나의 차트에 겹쳐 표시
 - NavChart 컴포넌트: `datasets: { data, color, label }[]` 다중 라인 지원
-
-**우선순위**: 백엔드 파라미터 추가 후 즉시
 
 ---
 

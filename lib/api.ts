@@ -140,6 +140,8 @@ export interface PortfolioBStats {
   stoppedCount: number;
 }
 
+export interface PortfolioBPerformance extends Performance {}
+
 export interface RebalanceCount {
   portfolioType: 'A';
   rebalanceCount: number;
@@ -337,6 +339,11 @@ function normalizePortfolioBStats(raw: any): PortfolioBStats {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizePortfolioBPerformance(raw: any): PortfolioBPerformance {
+  return normalizePerformance(raw);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeRebalanceCount(raw: any): RebalanceCount {
   return {
     portfolioType: 'A',
@@ -392,6 +399,12 @@ export const api = {
   bStats: () =>
     get<unknown>('/api/paper-trading/b/stats')
       .then(normalizePortfolioBStats),
+  bNavHistory: (limit = 60) =>
+    get<unknown[]>(`/api/paper-trading/b/nav/history?limit=${limit}`)
+      .then((rows) => rows.map(normalizeNav)),
+  bPerformance: () =>
+    get<unknown>('/api/paper-trading/b/performance')
+      .then(normalizePortfolioBPerformance),
   signalCandidates: (limit = 50) =>
     get<unknown[]>(`/api/signal/candidates?limit=${limit}`)
       .then((rows) => rows.map(normalizeSignalCandidate)),

@@ -156,6 +156,7 @@ Promise.all([
   api.navHistory(60),      // GET /api/paper-trading/nav/history?limit=60
   api.performance(),       // GET /api/paper-trading/performance
   api.bStats(),            // GET /api/paper-trading/b/stats
+  api.bPerformance(),      // GET /api/paper-trading/b/performance
   api.signalStats(),       // GET /api/signal/stats  (G2/G3 계산용)
   api.dashboardStats(),    // GET /api/stats         (G6 계산용)
   api.rebalanceCount(),    // GET /api/paper-trading/rebalance-count   (G1 정확 집계용)
@@ -164,7 +165,7 @@ Promise.all([
 
 **렌더링 구조**
 1. Portfolio A 섹션: StatCard × 8 (총수익률, NAV, MDD, Sharpe, alpha, 승률, 평균수익, 평균손실)
-2. Portfolio B 섹션: StatCard × 4 (오픈포지션, 총 거래, 실현손익, 청산/손절)
+2. Portfolio B 섹션: StatCard × 4 (오픈포지션, 총 거래, 실현손익, Sharpe/MDD)
 3. NAV 차트: `NavChart` (Portfolio A 60일 AreaChart)
 4. 하단 메타: 기간, CAGR, Profit Factor
 5. **G1~G6 게이트 패널**: GateCard × 6, 달성 카운터 뱃지
@@ -186,8 +187,8 @@ const GATE_THRESHOLDS = {
 | G1 | `rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` 정확 집계 |
 | G2 | `signalStats` | eventCount ≥ 50인 카테고리 중 dm5d 최고값 ≥ 0.55 |
 | G3 | `signalStats` | CONTRACT_WIN `avgAlpha5d` ≥ 0 |
-| G4 | — | 항상 `pending` (B Sharpe API 미구현) |
-| G5 | `performance` | `Math.abs(maxDrawdown)` < 0.30 → `watch` (B 미집계) |
+| G4 | `bPerformance` | 60거래일 이상이면 Sharpe ≥ 0.5 판정, 미만이면 `pending` |
+| G5 | `performance` + `bPerformance` | A/B 모두 `maxDrawdown < 0.30`이면 `pass`, B 표본 부족 시 `watch` |
 | G6 | `dashboardStats` | `estimatedDailyCostUsd` ≤ 3.0 |
 
 GateStatus: `'pass'`(초록) / `'watch'`(노랑) / `'fail'`(빨강) / `'pending'`(회색)
@@ -423,6 +424,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 
 | 필요 엔드포인트 | 용도 | 백엔드 작업 난이도 |
 |---------------|------|-----------------|
-| `/api/paper-trading/nav/history?type=B` | Portfolio B NAV 추이 | 낮음 (파라미터 필터 추가) |
+| `/api/paper-trading/b/nav/history` | Portfolio B NAV 추이 | 완료 |
+| `/api/paper-trading/b/performance` | Portfolio B Sharpe/MDD/alpha | 완료 |
 | `/api/stats/cost/history?days=30` | 일별 Claude 비용 추이 | 낮음 (llm_run 날짜별 집계) |
 | `/api/signal/candidates` (event_return JOIN) | 신호 × 실현 수익 연결 | 중간 (JOIN 쿼리 추가) |
