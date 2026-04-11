@@ -166,7 +166,7 @@ Promise.all([
 **렌더링 구조**
 1. Portfolio A 섹션: StatCard × 8 (총수익률, NAV, MDD, Sharpe, alpha, 승률, 평균수익, 평균손실)
 2. Portfolio B 섹션: StatCard × 4 (오픈포지션, 총 거래, 실현손익, Sharpe/MDD)
-3. NAV 차트: `NavChart` (Portfolio A 60일 AreaChart)
+3. NAV 차트: `NavChart` (Portfolio A/B 60일 비교 AreaChart)
 4. 하단 메타: 기간, CAGR, Profit Factor
 5. **G1~G6 게이트 패널**: GateCard × 6, 달성 카운터 뱃지
 
@@ -424,7 +424,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 
 | 필요 엔드포인트 | 용도 | 백엔드 작업 난이도 |
 |---------------|------|-----------------|
-| `/api/paper-trading/b/nav/history` | Portfolio B NAV 추이 | 완료 |
+| `/api/paper-trading/b/nav/history` | Portfolio B NAV 추이 | 완료 (Overview A/B 비교 차트 반영) |
 | `/api/paper-trading/b/performance` | Portfolio B Sharpe/MDD/alpha | 완료 |
 | `/api/stats/cost/history?days=30` | 일별 Claude 비용 추이 | 낮음 (llm_run 날짜별 집계) |
 | `/api/signal/candidates` (event_return JOIN) | 신호 × 실현 수익 연결 | 완료 |
