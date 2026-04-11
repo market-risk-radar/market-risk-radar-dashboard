@@ -23,6 +23,17 @@ function krw(v: number, showSign = false): string {
   return `${sign}${v.toLocaleString()}원`;
 }
 
+function calcWindowReturn(
+  points: Array<{ totalNav: number }>,
+): number | null {
+  if (points.length < 2) return null;
+  const ordered = [...points];
+  const first = Number(ordered[0]?.totalNav ?? 0);
+  const last = Number(ordered[ordered.length - 1]?.totalNav ?? 0);
+  if (first <= 0) return null;
+  return (last - first) / first;
+}
+
 function PortfolioBadge({ type }: { type: 'A' | 'B' }) {
   return (
     <span
@@ -236,6 +247,9 @@ export default async function OverviewPage() {
     rebalanceCount,
   );
   const passCount = gates.filter((g) => g.status === 'pass').length;
+  const aWindowReturn = calcWindowReturn(navHistory);
+  const bWindowReturn = calcWindowReturn(bNavHistory);
+  const benchmarkWindowReturn = calcWindowReturn(benchmarkNavHistory);
 
   return (
     <div className="space-y-6">
@@ -344,6 +358,20 @@ export default async function OverviewPage() {
           </div>
         </div>
         <p className="text-xs text-zinc-600 mb-3">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
+            <p className="text-xs text-zinc-500">Portfolio A 60일 누적</p>
+            <p className="text-lg font-semibold text-white mt-1">{pct(aWindowReturn)}</p>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
+            <p className="text-xs text-zinc-500">Portfolio B 60일 누적</p>
+            <p className="text-lg font-semibold text-white mt-1">{pct(bWindowReturn)}</p>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
+            <p className="text-xs text-zinc-500">KOSPI(1억 기준) 60일 누적</p>
+            <p className="text-lg font-semibold text-white mt-1">{pct(benchmarkWindowReturn)}</p>
+          </div>
+        </div>
         {navHistory.length > 0 || bNavHistory.length > 0 || benchmarkNavHistory.length > 0 ? (
           <NavChart
             datasets={[

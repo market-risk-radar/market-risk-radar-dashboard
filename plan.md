@@ -13,7 +13,7 @@
 
 | 페이지 | 경로 | 상태 | 핵심 내용 |
 |--------|------|------|----------|
-| Overview | `/` | ✅ 완료 | Portfolio A 성과 8개 지표 + **A/B/KOSPI NAV 60일 비교 차트** + Portfolio B 요약 + **G1~G6 실전 전환 게이트 패널** |
+| Overview | `/` | ✅ 완료 | Portfolio A 성과 8개 지표 + **A/B/KOSPI NAV 60일 비교 차트** + **60일 누적수익률 요약** + Portfolio B 요약 + **G1~G6 실전 전환 게이트 패널** |
 | Positions | `/positions` | ✅ 완료 | Portfolio A 리밸런싱 포지션 + Portfolio B 신호 기반 포지션 (청산일·손절가 포함) |
 | Signals | `/signals` | ✅ 완료 | signal_candidate 목록 + 카테고리별 α/방향일치 통계 (8개 카테고리 배지 색상 완비) |
 | Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (채널 필터, 상세 모달 포함) |
@@ -66,6 +66,7 @@ GET /api/paper-trading/benchmark/nav/history?limit=60
 - `api.bNavHistory()` 사용으로 Portfolio B NAV 이력 호출
 - `api.benchmarkNavHistory()` 사용으로 KOSPI(069500) 1억원 환산 이력 호출
 - Overview에서 A/B/KOSPI 세 라인을 하나의 차트에 겹쳐 표시
+- 차트 상단에 A/B/KOSPI 60일 누적수익률 요약 카드 추가
 - `NavChart`를 다중 시리즈 대응 컴포넌트로 확장
 
 **효과**:

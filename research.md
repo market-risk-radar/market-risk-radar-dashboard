@@ -62,7 +62,7 @@ app/
   layout.tsx                # 루트 레이아웃 (Navigation 사이드바 포함)
   globals.css               # Tailwind 기본 스타일
   loading.tsx               # Overview 스켈레톤
-  page.tsx                  # Overview — A 성과 + A/B/KOSPI NAV 차트 + B 요약 + G1~G6 패널
+  page.tsx                  # Overview — A 성과 + A/B/KOSPI NAV 차트 + 60일 누적수익률 요약 + B 요약 + G1~G6 패널
 
   positions/
     loading.tsx
@@ -167,9 +167,10 @@ Promise.all([
 **렌더링 구조**
 1. Portfolio A 섹션: StatCard × 8 (총수익률, NAV, MDD, Sharpe, alpha, 승률, 평균수익, 평균손실)
 2. Portfolio B 섹션: StatCard × 4 (오픈포지션, 총 거래, 실현손익, Sharpe/MDD)
-3. NAV 차트: `NavChart` (Portfolio A/B/KOSPI 60일 비교 AreaChart)
-4. 하단 메타: 기간, CAGR, Profit Factor
-5. **G1~G6 게이트 패널**: GateCard × 6, 달성 카운터 뱃지
+3. 60일 누적수익률 요약: A/B/KOSPI 3개 카드
+4. NAV 차트: `NavChart` (Portfolio A/B/KOSPI 60일 비교 AreaChart)
+5. 하단 메타: 기간, CAGR, Profit Factor
+6. **G1~G6 게이트 패널**: GateCard × 6, 달성 카운터 뱃지
 
 **G1~G6 판정 로직** (`computeGates()`)
 
