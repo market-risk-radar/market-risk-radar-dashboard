@@ -30,7 +30,7 @@
 | ISR 캐시 | `next: { revalidate: 30 }` — Vercel 엣지 30초 캐싱 |
 | 스켈레톤 | 7개 페이지 전부 `loading.tsx` (TTFB ~200ms에 즉시 표시) |
 | 반응형 네비게이션 | 데스크탑 고정 사이드바 + 모바일 햄버거 오버레이 |
-| G1~G6 판정 | 임계값 프론트 상수 하드코딩, G1은 `api.trades(5000)` 기반 근사 집계, 나머지는 API 데이터 사용 |
+| G1~G6 판정 | 임계값 프론트 상수 하드코딩, G1은 `api.rebalanceCount()` 정확 집계, 나머지는 API 데이터 사용 |
 
 ---
 
@@ -40,7 +40,7 @@
 
 | 게이트 | 조건 | 현재 판정 | 데이터 소스 | 비고 |
 |--------|------|---------|------------|------|
-| G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `watch` 또는 `pass` (거래 데이터 기반) | `api.trades(5000)` | Portfolio A 거래 발생일 distinct 근사 집계 |
+| G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `watch` 또는 `pass` (정확 집계) | `api.rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` |
 | G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `watch` (표본 부족) | `api.signalStats()` | CONTRACT_WIN 3건 |
 | G3 alpha_5d ≥ 0 | CONTRACT_WIN 기준 | `pass` (+3.93%) | `api.signalStats()` | ✅ 달성 |
 | G4 Portfolio B Sharpe ≥ 0.5 | 3개월 이상 기간 | `pending` (B NAV 축적 중) | 미구현 | B NAV 히스토리 API 필요 |
@@ -70,19 +70,17 @@ GET /api/paper-trading/nav/history?type=B&limit=60
 
 ---
 
-### S-2. G1 리밸런싱 횟수 집계 정확도 개선
+### S-2. G1 리밸런싱 횟수 집계 정확도 개선 ✅ 완료 (2026-04-11)
 
-**배경**: 현재 G1은 프론트에서 `api.trades(5000)`를 사용해 Portfolio A 거래 발생일 distinct 수로 근사 집계한다. 완전 미구현은 아니지만 정확도 한계가 있다.
+**적용 내용**:
+- 백엔드 `GET /api/paper-trading/rebalance-count` 추가
+- Portfolio A `paper_trade` 기준 `distinct tradeDate` 정확 집계
+- Overview G1 패널을 `api.rebalanceCount()` 사용으로 교체
 
-**현재 방식**: `api.trades(5000)` 호출 → portfolioType='A' 거래가 존재하는 `tradeDate` distinct 집계
-- 장점: 이미 구현됨, 백엔드 변경 없음, BUY-only 리밸런싱도 반영 가능
-- 단점: 여전히 최근 거래 수 제한에 의존
-
-**개선안 (백엔드 추가)**: `GET /api/paper-trading/rebalance-count` — paper_trade에서 portfolioType='A' + distinct tradeDate 집계
-- 장점: 정확한 기준치 산출
-- 단점: 추가 API 필요
-
-→ 현재 프론트 근사 집계를 유지하고, 이후 정확 집계 API로 교체 검토
+**효과**:
+- 최근 거래 수 제한(`api.trades(5000)`) 의존 제거
+- BUY-only 리밸런싱 포함
+- G1 판정 안정화
 
 ---
 

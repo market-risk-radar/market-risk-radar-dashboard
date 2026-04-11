@@ -140,6 +140,13 @@ export interface PortfolioBStats {
   stoppedCount: number;
 }
 
+export interface RebalanceCount {
+  portfolioType: 'A';
+  rebalanceCount: number;
+  firstTradeDate: string | null;
+  lastTradeDate: string | null;
+}
+
 export interface DashboardStats {
   timestamp: string;
   ingest: {
@@ -330,6 +337,16 @@ function normalizePortfolioBStats(raw: any): PortfolioBStats {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeRebalanceCount(raw: any): RebalanceCount {
+  return {
+    portfolioType: 'A',
+    rebalanceCount: n(raw.rebalanceCount),
+    firstTradeDate: raw.firstTradeDate ?? null,
+    lastTradeDate: raw.lastTradeDate ?? null,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeRecentAlert(raw: any): RecentAlert {
   return {
     alertId: String(raw.alertId),
@@ -366,6 +383,9 @@ export const api = {
   trades: (limit = 50) =>
     get<unknown[]>(`/api/paper-trading/trades?limit=${limit}`)
       .then((rows) => rows.map(normalizeTrade)),
+  rebalanceCount: () =>
+    get<unknown>('/api/paper-trading/rebalance-count')
+      .then(normalizeRebalanceCount),
   bPositions: () =>
     get<unknown[]>('/api/paper-trading/b/positions')
       .then((rows) => rows.map(normalizePosition)),
