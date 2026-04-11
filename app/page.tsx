@@ -216,8 +216,9 @@ function GateCard({ gate }: { gate: GateInfo }) {
 }
 
 export default async function OverviewPage() {
-  const [navHistory, perf, bStats, bPerf, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
+  const [navHistory, bNavHistory, perf, bStats, bPerf, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
     api.navHistory(60).catch(() => []),
+    api.bNavHistory(60).catch(() => []),
     api.performance().catch(() => null),
     api.bStats().catch(() => null),
     api.bPerformance().catch(() => null),
@@ -324,12 +325,26 @@ export default async function OverviewPage() {
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <PortfolioBadge type="A" />
+        <div className="flex items-center gap-3 mb-4">
           <p className="text-sm font-semibold text-zinc-300">NAV 히스토리 (최근 60일)</p>
+          <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              Portfolio A
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              Portfolio B
+            </span>
+          </div>
         </div>
-        {navHistory.length > 0 ? (
-          <NavChart data={navHistory} />
+        {navHistory.length > 0 || bNavHistory.length > 0 ? (
+          <NavChart
+            datasets={[
+              { key: 'portfolioA', label: 'Portfolio A', color: '#3b82f6', data: navHistory },
+              { key: 'portfolioB', label: 'Portfolio B', color: '#f59e0b', data: bNavHistory },
+            ].filter((dataset) => dataset.data.length > 0)}
+          />
         ) : (
           <div className="h-60 flex items-center justify-center text-zinc-600 text-sm">
             데이터 없음
