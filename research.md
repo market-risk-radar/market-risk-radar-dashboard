@@ -240,7 +240,7 @@ Promise.all([
 
 **렌더링 구조**
 1. 카테고리별 통계 테이블: 이벤트 수, 방향일치 1d/5d, α 1d/5d
-2. signal_candidate 목록: 종목(이름+코드), 카테고리 뱃지, 방향(▲/▼), confidence%, 날짜
+2. signal_candidate 목록: 종목(이름+코드), 카테고리 뱃지, 방향(▲/▼), confidence%, ret_1d, ret_5d, α_5d, 날짜
 
 ---
 
@@ -427,4 +427,4 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 | `/api/paper-trading/b/nav/history` | Portfolio B NAV 추이 | 완료 |
 | `/api/paper-trading/b/performance` | Portfolio B Sharpe/MDD/alpha | 완료 |
 | `/api/stats/cost/history?days=30` | 일별 Claude 비용 추이 | 낮음 (llm_run 날짜별 집계) |
-| `/api/signal/candidates` (event_return JOIN) | 신호 × 실현 수익 연결 | 중간 (JOIN 쿼리 추가) |
+| `/api/signal/candidates` (event_return JOIN) | 신호 × 실현 수익 연결 | 완료 |

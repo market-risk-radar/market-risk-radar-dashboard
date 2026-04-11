@@ -98,27 +98,16 @@ GET /api/stats/cost/history?days=30
 
 ---
 
-### S-4. Signals 페이지 — signal_candidate × event_return 연결
+### S-4. Signals 페이지 — signal_candidate × event_return 연결 ✅ 완료 (2026-04-11)
 
-**배경**: signal_candidate 목록에서 해당 신호의 실현 수익률(D+1/5일)을 바로 볼 수 없음.
+**적용 내용**:
+- 백엔드 `GET /api/signal/candidates?limit=50`에 `event_return` JOIN 추가
+- `ret_1d`, `ret_5d`, `alpha_5d` 컬럼 포함
+- Signals 테이블에 실현 수익률 컬럼 노출, 미집계 값은 `—` 처리
 
-**현재 구조**: signal_candidate ← source_item_id → event_fact ← source_item_id → event_return
-
-**필요 백엔드 작업**:
-```
-GET /api/signal/candidates?limit=50
-→ event_return JOIN 포함, ret_1d/ret_5d/alpha_5d 컬럼 추가
-```
-
-또는:
-```
-GET /api/signal/candidates/:sourceItemId/return
-→ 단건 조회
-```
-
-**프론트 작업**:
-- Signals 테이블에 `ret_5d`, `alpha_5d` 컬럼 추가
-- 채워지지 않은 경우 `—` 표시 (D+5일 미경과 시)
+**효과**:
+- 신호 후보 화면에서 실현 성과 확인 가능
+- 카테고리 통계와 개별 신호 실적을 같은 화면에서 검증 가능
 
 ---
 

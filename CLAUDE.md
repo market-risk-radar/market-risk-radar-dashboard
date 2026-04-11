@@ -36,7 +36,7 @@ app/
 
   signals/
     loading.tsx
-    page.tsx              # signal_candidate 목록 + 카테고리별 통계
+    page.tsx              # signal_candidate 목록 + 실현 수익률(ret_1d/5d, alpha_5d) + 카테고리별 통계
 
   alerts/
     loading.tsx
