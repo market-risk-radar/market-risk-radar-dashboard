@@ -33,6 +33,13 @@ export interface PortfolioNav {
   createdAt: string;
 }
 
+export interface BenchmarkNavPoint {
+  navDate: string;
+  totalNav: number;
+  closePrice: number;
+  dailyReturn: number | null;
+}
+
 export interface Performance {
   initialized: boolean;
   startDate: string;
@@ -211,6 +218,16 @@ function normalizeNav(raw: any): PortfolioNav {
     cashValue: n(raw.cashValue),
     dailyReturn: nNull(raw.dailyReturn),
     createdAt: raw.createdAt,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeBenchmarkNav(raw: any): BenchmarkNavPoint {
+  return {
+    navDate: raw.navDate,
+    totalNav: n(raw.totalNav),
+    closePrice: n(raw.closePrice),
+    dailyReturn: nNull(raw.dailyReturn),
   };
 }
 
@@ -423,6 +440,9 @@ export const api = {
   bNavHistory: (limit = 60) =>
     get<unknown[]>(`/api/paper-trading/b/nav/history?limit=${limit}`)
       .then((rows) => rows.map(normalizeNav)),
+  benchmarkNavHistory: (limit = 60) =>
+    get<unknown[]>(`/api/paper-trading/benchmark/nav/history?limit=${limit}`)
+      .then((rows) => rows.map(normalizeBenchmarkNav)),
   bPerformance: () =>
     get<unknown>('/api/paper-trading/b/performance')
       .then(normalizePortfolioBPerformance),

@@ -62,7 +62,7 @@ app/
   layout.tsx                # 루트 레이아웃 (Navigation 사이드바 포함)
   globals.css               # Tailwind 기본 스타일
   loading.tsx               # Overview 스켈레톤
-  page.tsx                  # Overview — A 성과 + NAV 차트 + B 요약 + G1~G6 패널
+  page.tsx                  # Overview — A 성과 + A/B/KOSPI NAV 차트 + B 요약 + G1~G6 패널
 
   positions/
     loading.tsx
@@ -154,6 +154,7 @@ async function get<T>(path: string): Promise<T> {
 ```typescript
 Promise.all([
   api.navHistory(60),      // GET /api/paper-trading/nav/history?limit=60
+  api.benchmarkNavHistory(60), // GET /api/paper-trading/benchmark/nav/history?limit=60
   api.performance(),       // GET /api/paper-trading/performance
   api.bStats(),            // GET /api/paper-trading/b/stats
   api.bPerformance(),      // GET /api/paper-trading/b/performance
@@ -166,7 +167,7 @@ Promise.all([
 **렌더링 구조**
 1. Portfolio A 섹션: StatCard × 8 (총수익률, NAV, MDD, Sharpe, alpha, 승률, 평균수익, 평균손실)
 2. Portfolio B 섹션: StatCard × 4 (오픈포지션, 총 거래, 실현손익, Sharpe/MDD)
-3. NAV 차트: `NavChart` (Portfolio A/B 60일 비교 AreaChart)
+3. NAV 차트: `NavChart` (Portfolio A/B/KOSPI 60일 비교 AreaChart)
 4. 하단 메타: 기간, CAGR, Profit Factor
 5. **G1~G6 게이트 패널**: GateCard × 6, 달성 카운터 뱃지
 
@@ -338,11 +339,11 @@ interface Props {
 
 ```typescript
 // props
-data: PortfolioNav[]
+datasets: Array<{ key: string; label: string; color: string; data: PortfolioNav[] | BenchmarkNavPoint[] }>
 ```
-- `PortfolioNav[]` 수신 → `navDate` 정렬 → Recharts `AreaChart`
+- `PortfolioNav[]` / `BenchmarkNavPoint[]` 수신 → `navDate` 기준 병합 → Recharts `AreaChart`
 - Y축: 원화 백만 단위(`M`) 포맷
-- 그라디언트 fill: `#3b82f6` 불투명도 0.3 → 0
+- 벤치마크는 `069500` 종가를 첫 관측일 기준 `1억원` 가상 NAV로 환산한 시계열
 - Client Component (`'use client'`) — Recharts 브라우저 의존
 
 ### Navigation
@@ -424,6 +425,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 | `api.recentAlerts(n)` | `GET /api/alert/recent?limit=n` | alerts 페이지에서 `force-dynamic` |
 | `api.dashboardStats()` | `GET /api/stats` | revalidate: 30 |
 | `api.costHistory(n)` | `GET /api/stats/cost/history?days=n` | revalidate: 30 |
+| `api.benchmarkNavHistory(n)` | `GET /api/paper-trading/benchmark/nav/history?limit=n` | revalidate: 30 |
 
 ### 아직 없는 API (plan.md 후속 항목 참조)
 

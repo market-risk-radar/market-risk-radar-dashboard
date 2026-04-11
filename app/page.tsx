@@ -216,9 +216,10 @@ function GateCard({ gate }: { gate: GateInfo }) {
 }
 
 export default async function OverviewPage() {
-  const [navHistory, bNavHistory, perf, bStats, bPerf, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
+  const [navHistory, bNavHistory, benchmarkNavHistory, perf, bStats, bPerf, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
     api.navHistory(60).catch(() => []),
     api.bNavHistory(60).catch(() => []),
+    api.benchmarkNavHistory(60).catch(() => []),
     api.performance().catch(() => null),
     api.bStats().catch(() => null),
     api.bPerformance().catch(() => null),
@@ -240,7 +241,7 @@ export default async function OverviewPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Overview</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">Portfolio A/B 요약 및 Portfolio A NAV 추이</p>
+        <p className="text-sm text-zinc-500 mt-0.5">Portfolio A/B 요약 및 A/B/KOSPI(1억원 기준) 비교</p>
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-4">
@@ -336,13 +337,19 @@ export default async function OverviewPage() {
               <span className="w-2 h-2 rounded-full bg-amber-400" />
               Portfolio B
             </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-sky-400" />
+              KOSPI(1억 기준)
+            </span>
           </div>
         </div>
-        {navHistory.length > 0 || bNavHistory.length > 0 ? (
+        <p className="text-xs text-zinc-600 mb-3">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
+        {navHistory.length > 0 || bNavHistory.length > 0 || benchmarkNavHistory.length > 0 ? (
           <NavChart
             datasets={[
               { key: 'portfolioA', label: 'Portfolio A', color: '#3b82f6', data: navHistory },
               { key: 'portfolioB', label: 'Portfolio B', color: '#f59e0b', data: bNavHistory },
+              { key: 'benchmark', label: 'KOSPI(1억 기준)', color: '#38bdf8', data: benchmarkNavHistory },
             ].filter((dataset) => dataset.data.length > 0)}
           />
         ) : (
