@@ -304,7 +304,10 @@ api.trades(100)  // GET /api/paper-trading/trades?limit=100
 
 **API 호출**
 ```typescript
-api.dashboardStats()  // GET /api/stats
+Promise.all([
+  api.dashboardStats(),  // GET /api/stats
+  api.costHistory(30),   // GET /api/stats/cost/history?days=30
+])
 ```
 
 **렌더링 구조**
@@ -312,6 +315,7 @@ api.dashboardStats()  // GET /api/stats
 2. 파이프라인 퍼널 (`PipelineFunnel`): 수집 → Gate1 통과 → 분류 성공 → 알림 발송 (CSS 비율바, ingest.total 기준)
 3. 소스 타입 비율 (`SourceTypeBar`): NEWS(파랑) / DART(황) 비율바
 4. LLM 분류 상세: 전체/성공/실패/대기/평균임팩트 리스트
+5. 비용 추이 차트 (`CostHistoryChart`): Claude 비용 30일 라인차트
 
 ---
 
@@ -419,12 +423,13 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 | `api.alertStats()` | `GET /api/alert/stats` | revalidate: 30 |
 | `api.recentAlerts(n)` | `GET /api/alert/recent?limit=n` | alerts 페이지에서 `force-dynamic` |
 | `api.dashboardStats()` | `GET /api/stats` | revalidate: 30 |
+| `api.costHistory(n)` | `GET /api/stats/cost/history?days=n` | revalidate: 30 |
 
-### 아직 없는 API (plan.md S-1~S-3 참조)
+### 아직 없는 API (plan.md 후속 항목 참조)
 
 | 필요 엔드포인트 | 용도 | 백엔드 작업 난이도 |
 |---------------|------|-----------------|
 | `/api/paper-trading/b/nav/history` | Portfolio B NAV 추이 | 완료 (Overview A/B 비교 차트 반영) |
 | `/api/paper-trading/b/performance` | Portfolio B Sharpe/MDD/alpha | 완료 |
-| `/api/stats/cost/history?days=30` | 일별 Claude 비용 추이 | 낮음 (llm_run 날짜별 집계) |
+| `/api/stats/cost/history?days=30` | 일별 Claude 비용 추이 | 완료 |
 | `/api/signal/candidates` (event_return JOIN) | 신호 × 실현 수익 연결 | 완료 |

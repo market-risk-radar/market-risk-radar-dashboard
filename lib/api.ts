@@ -193,6 +193,11 @@ export interface DashboardStats {
   };
 }
 
+export interface CostHistoryPoint {
+  date: string;
+  costUsd: number;
+}
+
 // ── Normalizers (API returns many numeric fields as strings) ─────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -271,6 +276,14 @@ function normalizeDashboardStats(raw: any): DashboardStats {
       alertDeliveryRate: raw.summary?.alertDeliveryRate ?? '—',
       estimatedDailyCostUsd: n(raw.summary?.estimatedDailyCostUsd),
     },
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeCostHistoryPoint(raw: any): CostHistoryPoint {
+  return {
+    date: raw.date,
+    costUsd: n(raw.costUsd),
   };
 }
 
@@ -425,4 +438,7 @@ export const api = {
       .then((rows) => rows.map(normalizeRecentAlert)),
   dashboardStats: () =>
     get<unknown>('/api/stats').then(normalizeDashboardStats),
+  costHistory: (days = 30) =>
+    get<unknown[]>(`/api/stats/cost/history?days=${days}`)
+      .then((rows) => rows.map(normalizeCostHistoryPoint)),
 };

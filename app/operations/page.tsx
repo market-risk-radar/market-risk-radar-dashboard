@@ -1,5 +1,6 @@
 import { api, DashboardStats } from '@/lib/api';
 import StatCard from '@/components/StatCard';
+import CostHistoryChart from '@/components/CostHistoryChart';
 
 function normalizeTimestamp(raw: string): string {
   const match = raw.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
@@ -128,7 +129,10 @@ function SourceTypeBar({ stats }: { stats: DashboardStats }) {
 // ── 메인 페이지 ──────────────────────────────────────────────────────────────
 
 export default async function OperationsPage() {
-  const stats = await api.dashboardStats().catch(() => null);
+  const [stats, costHistory] = await Promise.all([
+    api.dashboardStats().catch(() => null),
+    api.costHistory(30).catch(() => []),
+  ]);
 
   if (!stats) {
     return (
@@ -227,6 +231,20 @@ export default async function OperationsPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-semibold text-zinc-300">Claude 비용 추이 (최근 30일)</p>
+          <span className="text-xs text-zinc-600">USD / 일</span>
+        </div>
+        {costHistory.length > 0 ? (
+          <CostHistoryChart data={costHistory} />
+        ) : (
+          <div className="h-60 flex items-center justify-center text-zinc-600 text-sm">
+            비용 데이터 없음
+          </div>
+        )}
       </div>
     </div>
   );

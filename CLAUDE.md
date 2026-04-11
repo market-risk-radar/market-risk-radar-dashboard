@@ -46,9 +46,14 @@ app/
     loading.tsx
     page.tsx              # event_return 카테고리별 수익률 테이블
 
+  operations/
+    loading.tsx
+    page.tsx              # 파이프라인 운영 현황 + Claude 비용 30일 차트
+
 components/
   Navigation.tsx          # 좌측 고정 사이드바 (Client Component)
   NavChart.tsx            # Recharts AreaChart 래퍼 (Client Component)
+  CostHistoryChart.tsx    # Recharts LineChart 래퍼 (Client Component)
   StatCard.tsx            # 통계 카드 UI
 
 lib/
