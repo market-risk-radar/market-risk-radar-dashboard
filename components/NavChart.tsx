@@ -9,13 +9,13 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { PortfolioNav } from '@/lib/api';
+import { BenchmarkNavPoint, PortfolioNav } from '@/lib/api';
 
 export interface NavDataset {
   key: string;
   label: string;
   color: string;
-  data: PortfolioNav[];
+  data: Array<PortfolioNav | BenchmarkNavPoint>;
 }
 
 interface Props {
