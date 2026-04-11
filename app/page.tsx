@@ -61,6 +61,7 @@ interface GateInfo {
 
 function computeGates(
   perf: Awaited<ReturnType<typeof api.performance>> | null,
+  bPerf: Awaited<ReturnType<typeof api.bPerformance>> | null,
   signalStats: SignalTagStats[],
   estimatedDailyCostUsd: number | null,
   rebalanceCount: Awaited<ReturnType<typeof api.rebalanceCount>> | null,
@@ -88,8 +89,13 @@ function computeGates(
   const contractWin = signalStats.find((s) => s.category === 'CONTRACT_WIN');
   const g3Alpha = contractWin?.avgAlpha5d ?? null;
 
+  // G4/G5: Portfolio B 성과
+  const bTradingDays = bPerf?.tradingDays ?? 0;
+  const bSharpe = bPerf?.initialized ? bPerf.sharpeRatio : null;
+
   // G5: MDD
   const mddAbs = perf ? Math.abs(perf.maxDrawdown) : null;
+  const bMddAbs = bPerf?.initialized ? Math.abs(bPerf.maxDrawdown) : null;
 
   // G6: 비용
   const cost = estimatedDailyCostUsd;
@@ -132,22 +138,40 @@ function computeGates(
       id: 'G4',
       label: 'Portfolio B Sharpe',
       target: '≥ 0.5 (3개월+)',
-      status: 'pending',
-      current: 'B NAV 축적 중',
+      status:
+        bTradingDays < 60
+          ? 'pending'
+          : bSharpe !== null
+            ? bSharpe >= GATE_THRESHOLDS.sharpe
+              ? 'pass'
+              : 'fail'
+            : 'pending',
+      current:
+        bTradingDays < 60
+          ? `표본 축적 중 (${bTradingDays}일 / 60일 기준)`
+          : bSharpe !== null
+            ? bSharpe.toFixed(2)
+            : '—',
     },
     {
       id: 'G5',
       label: 'MDD',
       target: 'A/B 모두 < 30%',
       status:
-        mddAbs !== null
-          ? mddAbs < GATE_THRESHOLDS.mdd
-            ? 'watch' // B 미집계 → 조건부 watch
+        mddAbs !== null && bMddAbs !== null
+          ? mddAbs < GATE_THRESHOLDS.mdd && bMddAbs < GATE_THRESHOLDS.mdd
+            ? 'pass'
             : 'fail'
-          : 'pending',
+          : mddAbs !== null
+            ? mddAbs < GATE_THRESHOLDS.mdd
+              ? 'watch'
+              : 'fail'
+            : 'pending',
       current:
-        mddAbs !== null ? `A: ${(mddAbs * 100).toFixed(1)}%` : '—',
-      note: 'Portfolio B MDD 미집계',
+        mddAbs !== null
+          ? `A: ${(mddAbs * 100).toFixed(1)}% / B: ${bMddAbs !== null ? `${(bMddAbs * 100).toFixed(1)}%` : '집계중'}`
+          : '—',
+      note: bMddAbs === null ? 'Portfolio B NAV 축적 중' : undefined,
     },
     {
       id: 'G6',
@@ -192,10 +216,11 @@ function GateCard({ gate }: { gate: GateInfo }) {
 }
 
 export default async function OverviewPage() {
-  const [navHistory, perf, bStats, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
+  const [navHistory, perf, bStats, bPerf, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
     api.navHistory(60).catch(() => []),
     api.performance().catch(() => null),
     api.bStats().catch(() => null),
+    api.bPerformance().catch(() => null),
     api.signalStats().catch(() => []),
     api.dashboardStats().catch(() => null),
     api.rebalanceCount().catch(() => null),
@@ -203,6 +228,7 @@ export default async function OverviewPage() {
 
   const gates = computeGates(
     perf,
+    bPerf,
     signalStats,
     dashboardStats?.summary.estimatedDailyCostUsd ?? null,
     rebalanceCount,
@@ -289,9 +315,9 @@ export default async function OverviewPage() {
             trend={bStats ? trend(bStats.closedPnl) : 'neutral'}
           />
           <StatCard
-            label="청산 / 손절"
-            value={bStats ? `${bStats.closedCount} / ${bStats.stoppedCount}` : '—'}
-            sub="closed / stopped"
+            label="샤프 / MDD"
+            value={bPerf?.initialized ? `${bPerf.sharpeRatio?.toFixed(2) ?? '—'} / ${drawdownPct(bPerf.maxDrawdown)}` : '—'}
+            sub={bPerf?.initialized ? `closed ${bStats?.closedCount ?? 0} / stopped ${bStats?.stoppedCount ?? 0}` : 'B NAV 축적 중'}
             trend="neutral"
           />
         </div>
