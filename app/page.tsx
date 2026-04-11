@@ -250,6 +250,14 @@ export default async function OverviewPage() {
   const aWindowReturn = calcWindowReturn(navHistory);
   const bWindowReturn = calcWindowReturn(bNavHistory);
   const benchmarkWindowReturn = calcWindowReturn(benchmarkNavHistory);
+  const aExcessReturn =
+    aWindowReturn !== null && benchmarkWindowReturn !== null
+      ? aWindowReturn - benchmarkWindowReturn
+      : null;
+  const bExcessReturn =
+    bWindowReturn !== null && benchmarkWindowReturn !== null
+      ? bWindowReturn - benchmarkWindowReturn
+      : null;
 
   return (
     <div className="space-y-6">
@@ -370,6 +378,16 @@ export default async function OverviewPage() {
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
             <p className="text-xs text-zinc-500">KOSPI(1억 기준) 60일 누적</p>
             <p className="text-lg font-semibold text-white mt-1">{pct(benchmarkWindowReturn)}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
+            <p className="text-xs text-zinc-500">A-KOSPI 60일 초과수익</p>
+            <p className="text-lg font-semibold text-white mt-1">{pct(aExcessReturn)}</p>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
+            <p className="text-xs text-zinc-500">B-KOSPI 60일 초과수익</p>
+            <p className="text-lg font-semibold text-white mt-1">{pct(bExcessReturn)}</p>
           </div>
         </div>
         {navHistory.length > 0 || bNavHistory.length > 0 || benchmarkNavHistory.length > 0 ? (
