@@ -36,7 +36,7 @@ app/
 
   signals/
     loading.tsx
-    page.tsx              # signal_candidate 목록 + 실현 수익률(ret_1d/5d, alpha_5d) + 카테고리별 통계
+    page.tsx              # signal_candidate 목록 + 실현 수익률(ret_1d/5d, alpha_5d) + 카테고리별 통계(표본 부족 배지)
 
   alerts/
     loading.tsx
@@ -44,7 +44,7 @@ app/
 
   event-returns/
     loading.tsx
-    page.tsx              # event_return 카테고리별 수익률 테이블
+    page.tsx              # event_return 카테고리별 수익률 테이블(표본 부족 배지)
 
   operations/
     loading.tsx

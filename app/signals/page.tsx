@@ -17,6 +17,8 @@ const CATEGORY_COLOR: Record<string, string> = {
   DILUTION:          'bg-purple-900 text-purple-300',
 };
 
+const MIN_SAMPLE_EVENTS = 50;
+
 function categoryBadge(cat: string) {
   return (
     <span
@@ -26,6 +28,24 @@ function categoryBadge(cat: string) {
       )}
     >
       {cat}
+    </span>
+  );
+}
+
+function sampleStatus(eventCount: number): 'ok' | 'low' {
+  return eventCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
+}
+
+function sampleBadge(eventCount: number) {
+  const status = sampleStatus(eventCount);
+  return (
+    <span
+      className={clsx(
+        'text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap',
+        status === 'ok' ? 'bg-emerald-900 text-emerald-300' : 'bg-amber-900 text-amber-300',
+      )}
+    >
+      {status === 'ok' ? '표본 충분' : '표본 부족'}
     </span>
   );
 }
@@ -66,12 +86,26 @@ export default async function SignalsPage() {
       {/* Stats by category */}
       {stats.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
-          <p className="text-sm font-semibold text-zinc-300 mb-4">카테고리별 통계</p>
+          <div className="mb-4">
+            <p className="text-sm font-semibold text-zinc-300">카테고리별 통계</p>
+            <p className="text-xs text-zinc-600 mt-0.5">방향일치율과 alpha 해석은 기본적으로 표본 50건 이상을 기준으로 본다.</p>
+          </div>
           <div className="space-y-3 md:hidden">
             {stats.map((s, i) => (
-              <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+              <div
+                key={i}
+                className={clsx(
+                  'rounded-lg border p-4 space-y-3',
+                  sampleStatus(s.eventCount) === 'ok'
+                    ? 'border-zinc-800 bg-zinc-950/60'
+                    : 'border-amber-800/80 bg-amber-950/20',
+                )}
+              >
                 <div className="flex items-start justify-between gap-3">
-                  <div>{s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div>{s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}</div>
+                    {sampleBadge(s.eventCount)}
+                  </div>
                   <span className="text-xs text-zinc-500">{s.eventCount}건</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -111,7 +145,10 @@ export default async function SignalsPage() {
                 {stats.map((s, i) => (
                   <tr key={i} className="hover:bg-zinc-800/50">
                     <td className="py-2.5 pr-4">
-                      {s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}
+                      <div className="flex items-center gap-2">
+                        {s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}
+                        {sampleBadge(s.eventCount)}
+                      </div>
                     </td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{s.eventCount}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch1dRate)}</td>

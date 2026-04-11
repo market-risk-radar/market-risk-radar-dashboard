@@ -70,7 +70,7 @@ app/
 
   signals/
     loading.tsx
-    page.tsx                # signal_candidate 목록 + 카테고리별 통계
+    page.tsx                # signal_candidate 목록 + 카테고리별 통계(표본 부족 배지)
 
   alerts/
     loading.tsx
@@ -78,7 +78,7 @@ app/
 
   event-returns/
     loading.tsx
-    page.tsx                # event_return 카테고리별 수익률 테이블
+    page.tsx                # event_return 카테고리별 수익률 테이블(표본 부족 배지)
 
   trades/
     loading.tsx
@@ -244,8 +244,12 @@ Promise.all([
 | 기타 | 회색 (`bg-zinc-800`) |
 
 **렌더링 구조**
-1. 카테고리별 통계 테이블: 이벤트 수, 방향일치 1d/5d, α 1d/5d
+1. 카테고리별 통계 테이블: 이벤트 수, 방향일치 1d/5d, α 1d/5d, 표본 부족 배지
 2. signal_candidate 목록: 종목(이름+코드), 카테고리 뱃지, 방향(▲/▼), confidence%, ret_1d, ret_5d, α_5d, 날짜
+
+**표본 경고 규칙**
+- `eventCount < 50` → `표본 부족` amber 배지
+- `eventCount >= 50` → `표본 충분` emerald 배지
 
 ---
 
@@ -287,8 +291,12 @@ api.signalStats()  // GET /api/signal/stats  (event_return 집계 포함)
 
 **렌더링 구조**
 1. 요약 카드 × 3: 총 이벤트, 평균 방향일치 5d (G2 목표 ≥55% 비교), 평균 α 5d
-2. 카테고리별 수익률 테이블 (eventCount 내림차순 정렬)
+2. 카테고리별 수익률 테이블 (eventCount 내림차순 정렬, 표본 부족 배지 포함)
    - 방향일치 5d: 진행바 (`dmBar`) — 55% 이상 시 초록, 미만 시 회색
+
+**표본 경고 규칙**
+- `eventCount < 50` → `표본 부족` amber 배지 + 카드/행 강조
+- `eventCount >= 50` → `표본 충분` emerald 배지
 
 ---
 

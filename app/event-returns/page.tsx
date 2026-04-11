@@ -1,6 +1,8 @@
 import { api } from '@/lib/api';
 import { clsx } from 'clsx';
 
+const MIN_SAMPLE_EVENTS = 50;
+
 function weightedAverage(
   rows: Array<{ eventCount: number; value: number | null }>,
 ): number | null {
@@ -42,6 +44,24 @@ function dmBar(v: number | null) {
   );
 }
 
+function sampleStatus(eventCount: number): 'ok' | 'low' {
+  return eventCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
+}
+
+function sampleBadge(eventCount: number) {
+  const status = sampleStatus(eventCount);
+  return (
+    <span
+      className={clsx(
+        'text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap',
+        status === 'ok' ? 'bg-emerald-900 text-emerald-300' : 'bg-amber-900 text-amber-300',
+      )}
+    >
+      {status === 'ok' ? '표본 충분' : '표본 부족'}
+    </span>
+  );
+}
+
 export default async function EventReturnsPage() {
   const stats = await api.signalStats().catch(() => []);
   const filled = stats.filter((s) => s.eventCount > 0);
@@ -78,7 +98,7 @@ export default async function EventReturnsPage() {
           <p className={clsx('text-2xl font-bold', avgDm5d != null && avgDm5d >= 0.55 ? 'text-emerald-400' : 'text-zinc-300')}>
             {avgDm5d != null ? (avgDm5d * 100).toFixed(1) + '%' : '—'}
           </p>
-          <p className="text-xs text-zinc-600 mt-0.5">G2 목표: ≥ 55%</p>
+          <p className="text-xs text-zinc-600 mt-0.5">G2 목표: ≥ 55% / 카테고리 해석은 표본 50건 이상 기준</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">평균 α 5d</p>
@@ -90,15 +110,29 @@ export default async function EventReturnsPage() {
 
       {/* Table */}
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
-        <p className="text-sm font-semibold text-zinc-300 mb-4">카테고리별 수익률</p>
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-zinc-300">카테고리별 수익률</p>
+          <p className="text-xs text-zinc-600 mt-0.5">eventCount 50건 미만 카테고리는 표본 부족으로 표시한다.</p>
+        </div>
         <div className="space-y-3 md:hidden">
           {filled
             .sort((a, b) => b.eventCount - a.eventCount)
             .map((s, i) => (
-              <div key={i} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+              <div
+                key={i}
+                className={clsx(
+                  'rounded-lg border p-4 space-y-3',
+                  sampleStatus(s.eventCount) === 'ok'
+                    ? 'border-zinc-800 bg-zinc-950/60'
+                    : 'border-amber-800/80 bg-amber-950/20',
+                )}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-medium text-white">{s.category ?? '—'}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-white">{s.category ?? '—'}</p>
+                      {sampleBadge(s.eventCount)}
+                    </div>
                     {s.rawTags.length > 0 && (
                       <p className="text-xs text-zinc-600 line-clamp-2">
                         {s.rawTags.slice(0, 3).join(', ')}
@@ -151,7 +185,10 @@ export default async function EventReturnsPage() {
                 .map((s, i) => (
                   <tr key={i} className="hover:bg-zinc-800/50">
                     <td className="py-3 pr-4">
-                      <p className="font-medium text-white">{s.category ?? '—'}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-white">{s.category ?? '—'}</p>
+                        {sampleBadge(s.eventCount)}
+                      </div>
                       {s.rawTags.length > 0 && (
                         <p className="text-xs text-zinc-600 truncate max-w-40">
                           {s.rawTags.slice(0, 3).join(', ')}

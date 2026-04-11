@@ -15,9 +15,9 @@
 |--------|------|------|----------|
 | Overview | `/` | ✅ 완료 | Portfolio A 성과 8개 지표 + **A/B/KOSPI NAV 60일 비교 차트** + **60일 누적/초과수익률 요약(표본 일수/표본 부족 배지 포함)** + Portfolio B 요약 + **G1~G6 실전 전환 게이트 패널** |
 | Positions | `/positions` | ✅ 완료 | Portfolio A 리밸런싱 포지션 + Portfolio B 신호 기반 포지션 (청산일·손절가 포함) |
-| Signals | `/signals` | ✅ 완료 | signal_candidate 목록 + 카테고리별 α/방향일치 통계 (8개 카테고리 배지 색상 완비) |
+| Signals | `/signals` | ✅ 완료 | signal_candidate 목록 + 카테고리별 α/방향일치 통계 + 표본 부족 배지 |
 | Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (채널 필터, 상세 모달 포함) |
-| Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + G2 목표 진행바 |
+| Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + G2 목표 진행바 + 표본 부족 배지 |
 | Trades | `/trades` | ✅ 완료 | BUY/SELL 체결 내역 + Portfolio A/B 클라이언트 필터 |
 | Operations | `/operations` | ✅ 완료 | 파이프라인 퍼널 + 6개 KPI 카드 + 소스 타입 비율 + LLM 분류 상세 + Claude 비용 30일 차트 |
 
@@ -31,6 +31,7 @@
 | 스켈레톤 | 7개 페이지 전부 `loading.tsx` (TTFB ~200ms에 즉시 표시) |
 | 반응형 네비게이션 | 데스크탑 고정 사이드바 + 모바일 햄버거 오버레이 |
 | G1~G6 판정 | 임계값 프론트 상수 하드코딩, G1은 `api.rebalanceCount()` 정확 집계, 나머지는 API 데이터 사용 |
+| 표본 경고 | Overview는 `20일`, Signals/Event Returns는 `50건` 미만 시 `표본 부족` 배지 표시 |
 
 ---
 
