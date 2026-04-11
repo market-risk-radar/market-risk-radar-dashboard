@@ -1,6 +1,6 @@
 # Dashboard Research — 구현 현황
 
-> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-10  
+> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-11  
 > 이 문서는 **"어떻게 동작하나?"** 에 답한다.  
 > 향후 계획 → `plan.md` | 백엔드 구현 → `../market-risk-radar/research.md`
 
@@ -99,7 +99,7 @@ components/
   TradesTable.tsx           # 거래 테이블 + A/B 필터 (Client Component)
 
 lib/
-  api.ts                    # 백엔드 API 클라이언트 + 10개 TypeScript 타입 + normalizer
+  api.ts                    # 백엔드 API 클라이언트 + 11개 TypeScript 타입 + normalizer
 ```
 
 ---
@@ -158,7 +158,7 @@ Promise.all([
   api.bStats(),            // GET /api/paper-trading/b/stats
   api.signalStats(),       // GET /api/signal/stats  (G2/G3 계산용)
   api.dashboardStats(),    // GET /api/stats         (G6 계산용)
-  api.trades(5000),        // GET /api/paper-trading/trades?limit=5000 (G1 근사 집계용)
+  api.rebalanceCount(),    // GET /api/paper-trading/rebalance-count   (G1 정확 집계용)
 ])
 ```
 
@@ -183,7 +183,7 @@ const GATE_THRESHOLDS = {
 
 | 게이트 | 판정 소스 | 로직 |
 |--------|---------|------|
-| G1 | `trades(5000)` | Portfolio A 거래 발생일 distinct 수로 근사 집계 |
+| G1 | `rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` 정확 집계 |
 | G2 | `signalStats` | eventCount ≥ 50인 카테고리 중 dm5d 최고값 ≥ 0.55 |
 | G3 | `signalStats` | CONTRACT_WIN `avgAlpha5d` ≥ 0 |
 | G4 | — | 항상 `pending` (B Sharpe API 미구현) |
@@ -239,7 +239,7 @@ Promise.all([
 
 **렌더링 구조**
 1. 카테고리별 통계 테이블: 이벤트 수, 방향일치 1d/5d, α 1d/5d
-2. signal_candidate 목록: 종목(이름+코드), 카테고리 뱃지, 방향(▲/▼), confidence%, signalScore, 날짜
+2. signal_candidate 목록: 종목(이름+코드), 카테고리 뱃지, 방향(▲/▼), confidence%, 날짜
 
 ---
 
@@ -369,7 +369,7 @@ data: PortfolioNav[]
 | `Performance` | `/api/paper-trading/performance` 집계 | Portfolio A 전용 |
 | `PaperPosition` | `paper_position` 테이블 | B 전용 컬럼: `targetExitDate`, `stopLossPrice`, `status` |
 | `PaperTrade` | `paper_trade` 테이블 | `portfolioType` 포함 |
-| `SignalCandidate` | `signal_candidate` 테이블 | `signalScore`, `category` 포함 |
+| `SignalCandidate` | `signal_candidate` 테이블 | `confidence`, `category` 포함 (`signalScore`는 저장되지만 UI 비노출) |
 | `SignalTagStats` | `/api/signal/stats` 집계 | `directionMatch*Rate`, `avgAlpha*` |
 | `AlertStats` | `/api/alert/stats` 집계 | 누계 통계 |
 | `RecentAlert` | `/api/alert/recent` | 제목, 채널, 발송 상태 포함 |

@@ -63,15 +63,10 @@ function computeGates(
   perf: Awaited<ReturnType<typeof api.performance>> | null,
   signalStats: SignalTagStats[],
   estimatedDailyCostUsd: number | null,
-  trades: Awaited<ReturnType<typeof api.trades>>,
+  rebalanceCount: Awaited<ReturnType<typeof api.rebalanceCount>> | null,
 ): GateInfo[] {
-  // G1: Portfolio A 리밸런싱 횟수 — A 포트폴리오 거래가 발생한 고유 날짜 수
-  const g1RebalanceDates = new Set(
-    trades
-      .filter((t) => t.portfolioType === 'A')
-      .map((t) => t.tradeDate),
-  );
-  const g1Count = g1RebalanceDates.size;
+  // G1: Portfolio A 리밸런싱 횟수 — paper_trade distinct trade_date
+  const g1Count = rebalanceCount?.rebalanceCount ?? 0;
 
   // G2: direction_match_5d ≥ 55% (이벤트 50건 이상 기준)
   const g2Eligible = signalStats.filter(
@@ -197,20 +192,20 @@ function GateCard({ gate }: { gate: GateInfo }) {
 }
 
 export default async function OverviewPage() {
-  const [navHistory, perf, bStats, signalStats, dashboardStats, trades] = await Promise.all([
+  const [navHistory, perf, bStats, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
     api.navHistory(60).catch(() => []),
     api.performance().catch(() => null),
     api.bStats().catch(() => null),
     api.signalStats().catch(() => []),
     api.dashboardStats().catch(() => null),
-    api.trades(5000).catch(() => []),
+    api.rebalanceCount().catch(() => null),
   ]);
 
   const gates = computeGates(
     perf,
     signalStats,
     dashboardStats?.summary.estimatedDailyCostUsd ?? null,
-    trades,
+    rebalanceCount,
   );
   const passCount = gates.filter((g) => g.status === 'pass').length;
 

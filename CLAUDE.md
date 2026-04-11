@@ -52,7 +52,7 @@ components/
   StatCard.tsx            # 통계 카드 UI
 
 lib/
-  api.ts                  # 백엔드 API 클라이언트 + TypeScript 타입 정의
+  api.ts                  # 백엔드 API 클라이언트 + TypeScript 타입 정의 (G1: rebalance-count 포함)
 ```
 
 ## 핵심 패턴
