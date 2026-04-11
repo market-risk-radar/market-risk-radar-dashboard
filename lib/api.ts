@@ -47,6 +47,7 @@ export interface Performance {
   avgWin: number | null;
   avgLoss: number | null;
   profitFactor: number | null;
+  tradingDays: number;
   benchmarkReturn: number | null;
   alpha: number | null;
 }
@@ -328,6 +329,7 @@ function normalizePerformance(raw: any): Performance {
     avgWin: nNull(raw.avgWin),
     avgLoss: nNull(raw.avgLoss),
     profitFactor: nNull(raw.profitFactor),
+    tradingDays: n(raw.tradingDays),
     benchmarkReturn: nNull(raw.benchmarkReturn),
     alpha: nNull(raw.alpha),
   };
