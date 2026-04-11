@@ -252,7 +252,66 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
             표시할 알림이 없습니다
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="space-y-3 md:hidden">
+              {filtered.map((alert) => (
+                <button
+                  key={alert.alertId}
+                  type="button"
+                  onClick={() => setSelected(alert)}
+                  className="w-full text-left rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {alert.relatedTickers.length > 0 && (
+                          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-zinc-800 text-zinc-300">
+                            {alert.relatedTickers.slice(0, 2).join(', ')}
+                            {alert.relatedTickers.length > 2 && ` +${alert.relatedTickers.length - 2}`}
+                          </span>
+                        )}
+                        <span className="text-xs text-zinc-600">{alert.sourceType}</span>
+                      </div>
+                      <p className="font-medium text-white leading-snug line-clamp-3">{alert.title}</p>
+                    </div>
+                    <span
+                      className={clsx(
+                        'text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0',
+                        STATUS_STYLE[alert.latestDeliveryStatus] ?? STATUS_STYLE.PENDING,
+                      )}
+                    >
+                      {alert.latestDeliveryStatus}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-zinc-500">채널</p>
+                      <p className="text-zinc-200 break-all">{alert.slackChannelName ?? alert.sectorCode}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500">시각</p>
+                      <p className="text-zinc-400">{toKSTShort(alert.sentAt ?? alert.createdAt)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500">임팩트</p>
+                      <p
+                        className={clsx(
+                          'font-semibold',
+                          alert.impactScore >= 80 && 'text-emerald-400',
+                          alert.impactScore >= 60 && alert.impactScore < 80 && 'text-white',
+                          alert.impactScore < 60 && 'text-zinc-500',
+                        )}
+                      >
+                        {alert.impactScore}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -318,7 +377,8 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </div>
 

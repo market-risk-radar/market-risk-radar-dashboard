@@ -109,8 +109,9 @@ function computeGates(
   // G1: Portfolio A 리밸런싱 횟수 — paper_trade distinct trade_date
   const g1Count = rebalanceCount?.rebalanceCount ?? 0;
 
-  // G2: direction_match_5d ≥ 55% (이벤트 50건 이상 기준)
-  const g2Eligible = signalStats.filter(
+  // G2: direction_match_5d ≥ 55% (표준 카테고리, 이벤트 50건 이상 기준)
+  const categorizedStats = signalStats.filter((s) => s.category !== null);
+  const g2Eligible = categorizedStats.filter(
     (s) => s.eventCount >= GATE_THRESHOLDS.minEventCount,
   );
   const g2Best = g2Eligible.reduce<SignalTagStats | null>(
@@ -122,8 +123,8 @@ function computeGates(
     null,
   );
   const g2Dm = g2Best?.directionMatch5dRate ?? null;
-  const bestEventCount = signalStats.reduce((max, s) => Math.max(max, s.eventCount), 0);
-  const g2CategoryLabel = g2Best?.category ?? 'UNCLASSIFIED';
+  const bestEventCount = categorizedStats.reduce((max, s) => Math.max(max, s.eventCount), 0);
+  const g2CategoryLabel = g2Best?.category ?? '표준 카테고리';
 
   // G3: alpha_5d 평균 ≥ 0 — CONTRACT_WIN 우선, 없으면 전체 평균
   const contractWin = signalStats.find((s) => s.category === 'CONTRACT_WIN');
@@ -161,7 +162,7 @@ function computeGates(
       current:
         g2Dm !== null
           ? `${(g2Dm * 100).toFixed(1)}% (${g2CategoryLabel})`
-          : `표본 부족 (최다 ${bestEventCount}건 / 50건 기준)`,
+          : `표본 부족 (표준 카테고리 최다 ${bestEventCount}건 / 50건 기준)`,
     },
     {
       id: 'G3',

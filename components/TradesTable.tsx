@@ -58,7 +58,57 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
           표시할 거래가 없습니다
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <>
+          <div className="space-y-3 md:hidden">
+            {filteredTrades.map((trade) => (
+              <div key={trade.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className={clsx(
+                          'text-xs px-2 py-0.5 rounded-full font-medium',
+                          trade.portfolioType === 'A' && 'bg-zinc-800 text-zinc-300',
+                          trade.portfolioType === 'B' && 'bg-blue-900 text-blue-300',
+                        )}
+                      >
+                        {trade.portfolioType}
+                      </span>
+                      <span
+                        className={clsx(
+                          'text-xs px-2 py-0.5 rounded-full font-medium',
+                          trade.side === 'BUY' && 'bg-emerald-950 text-emerald-300',
+                          trade.side === 'SELL' && 'bg-red-950 text-red-300',
+                        )}
+                      >
+                        {trade.side}
+                      </span>
+                    </div>
+                    <p className="font-medium text-white mt-2">{trade.name}</p>
+                    <p className="text-xs text-zinc-500">{trade.ticker}</p>
+                  </div>
+                  <p className="text-xs text-zinc-500 text-right">{trade.tradeDate}</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  <div>
+                    <p className="text-xs text-zinc-500">수량</p>
+                    <p className="text-zinc-200">{trade.qty.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">체결가</p>
+                    <p className="text-zinc-200">{formatPrice(trade.fillPrice)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">금액</p>
+                    <p className="text-zinc-200">{formatPrice(trade.amount)}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -116,7 +166,8 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
