@@ -90,6 +90,9 @@ export interface SignalCandidate {
   confidence: number;
   gate1Score: number;
   signalScore: number;
+  ret1d: number | null;
+  ret5d: number | null;
+  alpha5d: number | null;
   createdAt: string;
 }
 
@@ -302,6 +305,9 @@ function normalizeSignalCandidate(raw: any): SignalCandidate {
     confidence: n(raw.confidence),
     gate1Score: n(raw.gate1Score),
     signalScore: n(raw.signalScore),
+    ret1d: nNull(raw.ret1d),
+    ret5d: nNull(raw.ret5d),
+    alpha5d: nNull(raw.alpha5d),
     createdAt: raw.createdAt,
   };
 }

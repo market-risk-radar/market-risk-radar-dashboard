@@ -99,12 +99,15 @@ export default async function SignalsPage() {
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
+              <thead>
                 <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
                   <th className="text-left py-2 pr-4">종목</th>
                   <th className="text-left py-2 pr-4">카테고리</th>
                   <th className="text-right py-2 pr-4">방향</th>
                   <th className="text-right py-2 pr-4">Confidence</th>
+                  <th className="text-right py-2 pr-4">Ret 1d</th>
+                  <th className="text-right py-2 pr-4">Ret 5d</th>
+                  <th className="text-right py-2 pr-4">α 5d</th>
                   <th className="text-right py-2">날짜</th>
                 </tr>
             </thead>
@@ -121,6 +124,15 @@ export default async function SignalsPage() {
                   </td>
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {(c.confidence * 100).toFixed(0)}%
+                  </td>
+                  <td className="py-2.5 pr-4 text-right text-zinc-300">
+                    {pctOrDash(c.ret1d)}
+                  </td>
+                  <td className="py-2.5 pr-4 text-right text-zinc-300">
+                    {pctOrDash(c.ret5d)}
+                  </td>
+                  <td className={clsx('py-2.5 pr-4 text-right', alphaTextColor(c.alpha5d))}>
+                    {pctOrDash(c.alpha5d)}
                   </td>
                   <td className="py-2.5 text-right text-zinc-500 text-xs">{c.signalDate}</td>
                 </tr>
