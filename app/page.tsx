@@ -34,6 +34,11 @@ function calcWindowReturn(
   return (last - first) / first;
 }
 
+function sampleDaysLabel(days: number | null | undefined): string {
+  if (!days || days <= 0) return '표본 없음';
+  return `표본 ${days}일`;
+}
+
 function PortfolioBadge({ type }: { type: 'A' | 'B' }) {
   return (
     <span
@@ -258,6 +263,9 @@ export default async function OverviewPage() {
     bWindowReturn !== null && benchmarkWindowReturn !== null
       ? bWindowReturn - benchmarkWindowReturn
       : null;
+  const aSampleDays = perf?.tradingDays ?? navHistory.length;
+  const bSampleDays = bPerf?.tradingDays ?? bNavHistory.length;
+  const benchmarkSampleDays = benchmarkNavHistory.length;
 
   return (
     <div className="space-y-6">
@@ -370,24 +378,29 @@ export default async function OverviewPage() {
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
             <p className="text-xs text-zinc-500">Portfolio A 60일 누적</p>
             <p className="text-lg font-semibold text-white mt-1">{pct(aWindowReturn)}</p>
+            <p className="text-xs text-zinc-600 mt-1">{sampleDaysLabel(aSampleDays)}</p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
             <p className="text-xs text-zinc-500">Portfolio B 60일 누적</p>
             <p className="text-lg font-semibold text-white mt-1">{pct(bWindowReturn)}</p>
+            <p className="text-xs text-zinc-600 mt-1">{sampleDaysLabel(bSampleDays)}</p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
             <p className="text-xs text-zinc-500">KOSPI(1억 기준) 60일 누적</p>
             <p className="text-lg font-semibold text-white mt-1">{pct(benchmarkWindowReturn)}</p>
+            <p className="text-xs text-zinc-600 mt-1">{sampleDaysLabel(benchmarkSampleDays)}</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
             <p className="text-xs text-zinc-500">A-KOSPI 60일 초과수익</p>
             <p className="text-lg font-semibold text-white mt-1">{pct(aExcessReturn)}</p>
+            <p className="text-xs text-zinc-600 mt-1">{sampleDaysLabel(Math.min(aSampleDays, benchmarkSampleDays))}</p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3">
             <p className="text-xs text-zinc-500">B-KOSPI 60일 초과수익</p>
             <p className="text-lg font-semibold text-white mt-1">{pct(bExcessReturn)}</p>
+            <p className="text-xs text-zinc-600 mt-1">{sampleDaysLabel(Math.min(bSampleDays, benchmarkSampleDays))}</p>
           </div>
         </div>
         {navHistory.length > 0 || bNavHistory.length > 0 || benchmarkNavHistory.length > 0 ? (
