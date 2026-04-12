@@ -1,6 +1,6 @@
 # Dashboard — 개발 계획
 
-> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-11  
+> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-12  
 > 백엔드 로드맵 → `/Users/jys/market-risk-radar/market-risk-radar/plan.md`  
 > 이 문서는 **"지금 어디까지 왔고, 다음에 뭘 할지"** 에 답한다.
 > 운영 배포는 로컬 빌드가 아니라 Git 커밋 이후 Vercel 자동 배포를 기준으로 한다.
@@ -17,7 +17,7 @@
 | Positions | `/positions` | ✅ 완료 | Portfolio A 리밸런싱 포지션 + Portfolio B 신호 기반 포지션 (청산일·손절가 포함) |
 | Signals | `/signals` | ✅ 완료 | signal_candidate 목록 + 카테고리별 α/방향일치 통계 + 표본 부족 배지 |
 | Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (채널 필터, 상세 모달 포함) |
-| Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + G2 목표 진행바 + 표본 부족 배지 |
+| Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + 대표 rawTags + G2 목표 진행바 + 표본 부족 배지 |
 | Trades | `/trades` | ✅ 완료 | BUY/SELL 체결 내역 + Portfolio A/B 클라이언트 필터 |
 | Operations | `/operations` | ✅ 완료 | 파이프라인 퍼널 + 6개 KPI 카드 + 소스 타입 비율 + LLM 분류 상세 + Claude 비용 30일 차트 |
 
@@ -42,7 +42,7 @@
 | 게이트 | 조건 | 현재 판정 | 데이터 소스 | 비고 |
 |--------|------|---------|------------|------|
 | G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `watch` 또는 `pass` (정확 집계) | `api.rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` |
-| G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `watch` (표본 부족) | `api.signalStats()` | CONTRACT_WIN 3건 |
+| G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `watch` (표본 부족) | `api.signalStats()` | BUYBACK 44건으로 아직 표본 부족 |
 | G3 alpha_5d ≥ 0 | CONTRACT_WIN 기준 | `pass` (+3.93%) | `api.signalStats()` | ✅ 달성 |
 | G4 Portfolio B Sharpe ≥ 0.5 | 3개월 이상 기간 | `pending` 또는 실측값 | `api.bPerformance()` | 60거래일 미만이면 표본 축적 중 |
 | G5 MDD < 30% | A/B 모두 | `watch` / `pass` / `fail` | `api.performance()` + `api.bPerformance()` | B NAV 축적 시 실측 반영 |

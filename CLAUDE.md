@@ -44,7 +44,7 @@ app/
 
   event-returns/
     loading.tsx
-    page.tsx              # event_return 카테고리별 수익률 테이블(표본 부족 배지)
+    page.tsx              # event_return 카테고리별 수익률 테이블(표본 부족 배지 + 대표 rawTags)
 
   operations/
     loading.tsx
