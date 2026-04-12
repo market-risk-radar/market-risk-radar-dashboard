@@ -62,6 +62,27 @@ function sampleBadge(eventCount: number) {
   );
 }
 
+function rawTagChips(tags: string[], limit = 5) {
+  const visible = tags.slice(0, limit);
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {visible.map((tag) => (
+        <span
+          key={tag}
+          className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300"
+        >
+          {tag}
+        </span>
+      ))}
+      {tags.length > limit && (
+        <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-500">
+          +{tags.length - limit}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default async function EventReturnsPage() {
   const stats = await api.signalStats().catch(() => []);
   const filled = stats.filter((s) => s.eventCount > 0);
@@ -113,6 +134,7 @@ export default async function EventReturnsPage() {
         <div className="mb-4">
           <p className="text-sm font-semibold text-zinc-300">카테고리별 수익률</p>
           <p className="text-xs text-zinc-600 mt-0.5">eventCount 50건 미만 카테고리는 표본 부족으로 표시한다.</p>
+          <p className="text-xs text-zinc-600 mt-0.5">대표 태그는 해당 카테고리로 정규화된 원시 event tag 예시다.</p>
         </div>
         <div className="space-y-3 md:hidden">
           {filled
@@ -133,11 +155,7 @@ export default async function EventReturnsPage() {
                       <p className="font-medium text-white">{s.category ?? '—'}</p>
                       {sampleBadge(s.eventCount)}
                     </div>
-                    {s.rawTags.length > 0 && (
-                      <p className="text-xs text-zinc-600 line-clamp-2">
-                        {s.rawTags.slice(0, 3).join(', ')}
-                      </p>
-                    )}
+                    {s.rawTags.length > 0 && <div className="mt-2">{rawTagChips(s.rawTags, 4)}</div>}
                   </div>
                   <span className="text-xs text-zinc-500 whitespace-nowrap">{s.eventCount}건</span>
                 </div>
@@ -171,6 +189,7 @@ export default async function EventReturnsPage() {
             <thead>
               <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
                 <th className="text-left py-2 pr-4">카테고리</th>
+                <th className="text-left py-2 pr-4">대표 태그</th>
                 <th className="text-right py-2 pr-4">이벤트</th>
                 <th className="py-2 pr-4">방향일치 5d</th>
                 <th className="text-right py-2 pr-4">수익률 1d</th>
@@ -189,11 +208,9 @@ export default async function EventReturnsPage() {
                         <p className="font-medium text-white">{s.category ?? '—'}</p>
                         {sampleBadge(s.eventCount)}
                       </div>
-                      {s.rawTags.length > 0 && (
-                        <p className="text-xs text-zinc-600 truncate max-w-40">
-                          {s.rawTags.slice(0, 3).join(', ')}
-                        </p>
-                      )}
+                    </td>
+                    <td className="py-3 pr-4 min-w-52">
+                      {s.rawTags.length > 0 ? rawTagChips(s.rawTags, 5) : <span className="text-zinc-600 text-xs">—</span>}
                     </td>
                     <td className="py-3 pr-4 text-right text-zinc-300">{s.eventCount}</td>
                     <td className="py-3 pr-4 min-w-32">{dmBar(s.directionMatch5dRate)}</td>

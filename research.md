@@ -78,7 +78,7 @@ app/
 
   event-returns/
     loading.tsx
-    page.tsx                # event_return 카테고리별 수익률 테이블(표본 부족 배지)
+    page.tsx                # event_return 카테고리별 수익률 테이블(대표 rawTags + 표본 부족 배지)
 
   trades/
     loading.tsx
@@ -291,12 +291,18 @@ api.signalStats()  // GET /api/signal/stats  (event_return 집계 포함)
 
 **렌더링 구조**
 1. 요약 카드 × 3: 총 이벤트, 평균 방향일치 5d (G2 목표 ≥55% 비교), 평균 α 5d
-2. 카테고리별 수익률 테이블 (eventCount 내림차순 정렬, 표본 부족 배지 포함)
+2. 카테고리별 수익률 테이블 (eventCount 내림차순 정렬, 대표 rawTags/표본 부족 배지 포함)
+   - `대표 태그` 컬럼: 해당 카테고리로 정규화된 원시 event tag 예시를 칩 형태로 표시
    - 방향일치 5d: 진행바 (`dmBar`) — 55% 이상 시 초록, 미만 시 회색
 
 **표본 경고 규칙**
 - `eventCount < 50` → `표본 부족` amber 배지 + 카드/행 강조
 - `eventCount >= 50` → `표본 충분` emerald 배지
+
+**현재 해석 포인트 (2026-04-12)**
+- `BUYBACK 44건`이 최대 표본이지만 아직 50건 미만이라 G2는 계속 `watch`
+- `CONTRACT_WIN`은 라이선스 계약 분리 후 `direction_match_5d 80.0%`, `alpha_5d +1.37%`로 개선
+- `대표 태그`는 카테고리 내부 이질성 점검과 미분류 원인 확인용 보조 정보다
 
 ---
 
