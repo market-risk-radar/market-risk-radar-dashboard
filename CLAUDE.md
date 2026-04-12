@@ -32,7 +32,7 @@ app/
 
   positions/
     loading.tsx           # 스켈레톤
-    page.tsx              # Portfolio A(리밸런싱) + B(신호 기반) 포지션
+    page.tsx              # Portfolio A(리밸런싱, 기준단가) + B(신호 기반, 진입가) 포지션
 
   signals/
     loading.tsx
