@@ -212,8 +212,8 @@ Promise.all([
 ```
 
 **렌더링 구조**
-- `PositionTableA`: 종목, 수량, 평균단가, 평가금액(만원), 기준일
-- `PositionTableB`: 종목, 평균단가, 손절가(빨강), 청산 예정일 + D-N 잔여일, 상태 뱃지
+- `PositionTableA`: 종목, 수량, 기준단가, 평가금액(만원), 기준일
+- `PositionTableB`: 종목, 진입가, 손절가(빨강), 청산 예정일 + D-N 잔여일, 상태 뱃지
   - `daysUntil()`: targetExitDate → 오늘 기준 잔여 일수 계산
   - 잔여 ≤ 1일: 노랑 강조 (`text-amber-400`)
 

@@ -22,7 +22,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
                 <p className="text-zinc-200">{p.qty.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">평균단가</p>
+                <p className="text-xs text-zinc-500">기준단가</p>
                 <p className="text-zinc-200">{p.avgPrice.toLocaleString()}원</p>
               </div>
               <div>
@@ -43,7 +43,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
           <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
             <th className="text-left py-2 pr-4">종목</th>
             <th className="text-right py-2 pr-4">수량</th>
-            <th className="text-right py-2 pr-4">평균단가</th>
+            <th className="text-right py-2 pr-4">기준단가</th>
             <th className="text-right py-2 pr-4">평가금액</th>
             <th className="text-right py-2">기준일</th>
           </tr>
@@ -103,7 +103,7 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-xs text-zinc-500">평균단가</p>
+                  <p className="text-xs text-zinc-500">진입가</p>
                   <p className="text-zinc-200">{p.avgPrice.toLocaleString()}원</p>
                 </div>
                 <div>
@@ -133,7 +133,7 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
         <thead>
           <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
             <th className="text-left py-2 pr-4">종목</th>
-            <th className="text-right py-2 pr-4">평균단가</th>
+            <th className="text-right py-2 pr-4">진입가</th>
             <th className="text-right py-2 pr-4">손절가</th>
             <th className="text-right py-2 pr-4">청산 예정</th>
             <th className="text-right py-2">상태</th>
