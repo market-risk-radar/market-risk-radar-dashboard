@@ -83,6 +83,10 @@ function rawTagChips(tags: string[], limit = 5) {
   );
 }
 
+function categoryLabel(category: string | null) {
+  return category ?? '미분류/기타';
+}
+
 export default async function EventReturnsPage() {
   const stats = await api.signalStats().catch(() => []);
   const filled = stats.filter((s) => s.eventCount > 0);
@@ -134,7 +138,7 @@ export default async function EventReturnsPage() {
         <div className="mb-4">
           <p className="text-sm font-semibold text-zinc-300">카테고리별 수익률</p>
           <p className="text-xs text-zinc-600 mt-0.5">eventCount 50건 미만 카테고리는 표본 부족으로 표시한다.</p>
-          <p className="text-xs text-zinc-600 mt-0.5">대표 태그는 해당 카테고리로 정규화된 원시 event tag 예시다.</p>
+          <p className="text-xs text-zinc-600 mt-0.5">대표 태그는 해당 카테고리로 정규화된 원시 event tag 예시이며, 미분류/기타는 상위 미매핑 tag 예시다.</p>
         </div>
         <div className="space-y-3 md:hidden">
           {filled
@@ -152,7 +156,7 @@ export default async function EventReturnsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-white">{s.category ?? '—'}</p>
+                      <p className="font-medium text-white">{categoryLabel(s.category)}</p>
                       {sampleBadge(s.eventCount)}
                     </div>
                     {s.rawTags.length > 0 && <div className="mt-2">{rawTagChips(s.rawTags, 4)}</div>}
@@ -205,7 +209,7 @@ export default async function EventReturnsPage() {
                   <tr key={i} className="hover:bg-zinc-800/50">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-white">{s.category ?? '—'}</p>
+                        <p className="font-medium text-white">{categoryLabel(s.category)}</p>
                         {sampleBadge(s.eventCount)}
                       </div>
                     </td>
