@@ -86,6 +86,14 @@ export interface PaperTrade {
   createdAt: string;
 }
 
+export interface PaginatedTrades {
+  items: PaperTrade[];
+  total: number;
+  page: number;
+  limit: number;
+  hasNext: boolean;
+}
+
 export interface SignalCandidate {
   id: number;
   sourceItemId: string;
@@ -429,9 +437,21 @@ export const api = {
   positions: () =>
     get<unknown[]>('/api/paper-trading/positions')
       .then((rows) => rows.map(normalizePosition)),
-  trades: (limit = 50) =>
-    get<unknown[]>(`/api/paper-trading/trades?limit=${limit}`)
-      .then((rows) => rows.map(normalizeTrade)),
+  trades: (limit = 50, page = 1) =>
+    get<{
+      items: unknown[];
+      total: unknown;
+      page: unknown;
+      limit: unknown;
+      hasNext: unknown;
+    }>(`/api/paper-trading/trades?limit=${limit}&page=${page}`)
+      .then((raw) => ({
+        items: raw.items.map(normalizeTrade),
+        total: n(raw.total),
+        page: n(raw.page),
+        limit: n(raw.limit),
+        hasNext: Boolean(raw.hasNext),
+      })),
   rebalanceCount: () =>
     get<unknown>('/api/paper-trading/rebalance-count')
       .then(normalizeRebalanceCount),
