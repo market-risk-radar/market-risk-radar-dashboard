@@ -205,6 +205,10 @@ export interface CostHistoryPoint {
   costUsd: number;
 }
 
+function sortByNavDateAsc<T extends { navDate: string }>(rows: T[]): T[] {
+  return [...rows].sort((a, b) => a.navDate.localeCompare(b.navDate));
+}
+
 // ── Normalizers (API returns many numeric fields as strings) ─────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -418,7 +422,7 @@ function normalizeRecentAlert(raw: any): RecentAlert {
 export const api = {
   navHistory: (limit = 60) =>
     get<unknown[]>(`/api/paper-trading/nav/history?limit=${limit}`)
-      .then((rows) => rows.map(normalizeNav)),
+      .then((rows) => sortByNavDateAsc(rows.map(normalizeNav))),
   performance: () =>
     get<unknown>('/api/paper-trading/performance')
       .then(normalizePerformance),
@@ -439,10 +443,10 @@ export const api = {
       .then(normalizePortfolioBStats),
   bNavHistory: (limit = 60) =>
     get<unknown[]>(`/api/paper-trading/b/nav/history?limit=${limit}`)
-      .then((rows) => rows.map(normalizeNav)),
+      .then((rows) => sortByNavDateAsc(rows.map(normalizeNav))),
   benchmarkNavHistory: (limit = 60) =>
     get<unknown[]>(`/api/paper-trading/benchmark/nav/history?limit=${limit}`)
-      .then((rows) => rows.map(normalizeBenchmarkNav)),
+      .then((rows) => sortByNavDateAsc(rows.map(normalizeBenchmarkNav))),
   bPerformance: () =>
     get<unknown>('/api/paper-trading/b/performance')
       .then(normalizePortfolioBPerformance),
