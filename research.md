@@ -82,7 +82,7 @@ app/
 
   trades/
     loading.tsx
-    page.tsx                # 체결 내역 (A/B 클라이언트 필터)
+    page.tsx                # 체결 내역 (A/B 클라이언트 필터 + page/limit 쿼리)
 
   operations/
     loading.tsx
@@ -100,7 +100,7 @@ components/
   CostHistoryChart.tsx      # Claude 비용 추이 라인차트 (Client Component, Operations 전용)
 
 lib/
-  api.ts                    # 백엔드 API 클라이언트 + 14개 TypeScript 타입 + normalizer
+  api.ts                    # 백엔드 API 클라이언트 + PaginatedTrades 포함 타입 + normalizer
 ```
 
 ---
@@ -313,11 +313,13 @@ api.signalStats()  // GET /api/signal/stats  (event_return 집계 포함)
 
 **API 호출**
 ```typescript
-api.trades(100)  // GET /api/paper-trading/trades?limit=100
+api.trades(limit, page)  // GET /api/paper-trading/trades?limit=50|100|200&page=N
 ```
 
 **렌더링 구조**
 - 상단 카드 4개: 최근 체결 수, BUY 수, SELL 수, 총 체결 금액
+- 조회 건수 선택: `50 / 100 / 200` 링크 버튼 (`searchParams.limit`)
+- 서버 페이지네이션: `이전 / 다음` 링크 버튼 (`searchParams.page`)
 - `TradesTable` (Client Component): A/B 탭 필터 + 거래 내역 테이블
 
 ---
@@ -401,6 +403,7 @@ datasets: Array<{ key: string; label: string; color: string; data: PortfolioNav[
 | `Performance` | `/api/paper-trading/performance` 집계 | Portfolio A 전용 |
 | `PaperPosition` | `paper_position` 테이블 | B 전용 컬럼: `targetExitDate`, `stopLossPrice`, `status` |
 | `PaperTrade` | `paper_trade` 테이블 | `portfolioType` 포함 |
+| `PaginatedTrades` | `/api/paper-trading/trades` | `items`, `total`, `page`, `limit`, `hasNext` |
 | `SignalCandidate` | `signal_candidate` 테이블 | `confidence`, `category` 포함 (`signalScore`는 저장되지만 UI 비노출) |
 | `SignalTagStats` | `/api/signal/stats` 집계 | `directionMatch*Rate`, `avgAlpha*` |
 | `AlertStats` | `/api/alert/stats` 집계 | 누계 통계 |
@@ -445,7 +448,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 | `api.navHistory(n)` | `GET /api/paper-trading/nav/history?limit=n` | revalidate: 30, 프론트에서 `navDate ASC` 정렬 |
 | `api.performance()` | `GET /api/paper-trading/performance` | revalidate: 30 |
 | `api.positions()` | `GET /api/paper-trading/positions` | revalidate: 30 |
-| `api.trades(n)` | `GET /api/paper-trading/trades?limit=n` | revalidate: 30 |
+| `api.trades(limit, page)` | `GET /api/paper-trading/trades?limit=n&page=m` | revalidate: 30 |
 | `api.bPositions()` | `GET /api/paper-trading/b/positions` | revalidate: 30 |
 | `api.bStats()` | `GET /api/paper-trading/b/stats` | revalidate: 30 |
 | `api.signalCandidates(n)` | `GET /api/signal/candidates?limit=n` | revalidate: 30 |

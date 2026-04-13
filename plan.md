@@ -18,7 +18,7 @@
 | Signals | `/signals` | ✅ 완료 | signal_candidate 목록 + 카테고리별 α/방향일치 통계 + 표본 부족 배지 |
 | Alerts | `/alerts` | ✅ 완료 | 발송 통계 4개 카드 + 최근 50건 알림 목록 (채널 필터, 상세 모달 포함) |
 | Event Returns | `/event-returns` | ✅ 완료 | 카테고리별 수익률·방향일치율 테이블 + 대표 rawTags + G2 목표 진행바 + 표본 부족 배지 |
-| Trades | `/trades` | ✅ 완료 | BUY/SELL 체결 내역 + Portfolio A/B 클라이언트 필터 |
+| Trades | `/trades` | ✅ 완료 | BUY/SELL 체결 내역 + Portfolio A/B 클라이언트 필터 + 최근 50/100/200건 조회 선택 |
 | Operations | `/operations` | ✅ 완료 | 파이프라인 퍼널 + 6개 KPI 카드 + 소스 타입 비율 + LLM 분류 상세 + Claude 비용 30일 차트 |
 
 ### 1-B. 완료된 기반 작업
