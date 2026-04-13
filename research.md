@@ -166,6 +166,8 @@ Promise.all([
 ])
 ```
 
+`api.navHistory()`, `api.bNavHistory()`, `api.benchmarkNavHistory()`는 백엔드가 최신순으로 반환하는 이력을 프론트에서 `navDate` 오름차순으로 정렬한 뒤 60일 누적수익률 카드와 차트에 사용한다.
+
 **렌더링 구조**
 1. Portfolio A 섹션: StatCard × 8 (총수익률, NAV, MDD, Sharpe, alpha, 승률, 평균수익, 평균손실)
 2. Portfolio B 섹션: StatCard × 4 (오픈포지션, 총 거래, 실현손익, Sharpe/MDD)
@@ -439,7 +441,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 
 | 프론트 API 메서드 | 백엔드 엔드포인트 | 캐시 전략 |
 |-----------------|----------------|---------|
-| `api.navHistory(n)` | `GET /api/paper-trading/nav/history?limit=n` | revalidate: 30 |
+| `api.navHistory(n)` | `GET /api/paper-trading/nav/history?limit=n` | revalidate: 30, 프론트에서 `navDate ASC` 정렬 |
 | `api.performance()` | `GET /api/paper-trading/performance` | revalidate: 30 |
 | `api.positions()` | `GET /api/paper-trading/positions` | revalidate: 30 |
 | `api.trades(n)` | `GET /api/paper-trading/trades?limit=n` | revalidate: 30 |
@@ -451,7 +453,8 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 | `api.recentAlerts(n)` | `GET /api/alert/recent?limit=n` | alerts 페이지에서 `force-dynamic` |
 | `api.dashboardStats()` | `GET /api/stats` | revalidate: 30 |
 | `api.costHistory(n)` | `GET /api/stats/cost/history?days=n` | revalidate: 30 |
-| `api.benchmarkNavHistory(n)` | `GET /api/paper-trading/benchmark/nav/history?limit=n` | revalidate: 30 |
+| `api.bNavHistory(n)` | `GET /api/paper-trading/b/nav/history?limit=n` | revalidate: 30, 프론트에서 `navDate ASC` 정렬 |
+| `api.benchmarkNavHistory(n)` | `GET /api/paper-trading/benchmark/nav/history?limit=n` | revalidate: 30, 프론트에서 `navDate ASC` 정렬 |
 
 ### 아직 없는 API (plan.md 후속 항목 참조)
 
