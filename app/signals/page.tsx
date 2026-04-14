@@ -71,10 +71,14 @@ function formatSignalDate(value: string) {
 }
 
 export default async function SignalsPage() {
-  const [candidates, stats] = await Promise.all([
-    api.signalCandidates(50).catch(() => []),
-    api.signalStats().catch(() => []),
+  const [candidatesResult, statsResult] = await Promise.allSettled([
+    api.signalCandidates(50),
+    api.signalStats(),
   ]);
+  const candidates = candidatesResult.status === 'fulfilled' ? candidatesResult.value : [];
+  const stats = statsResult.status === 'fulfilled' ? statsResult.value : [];
+  const hasError =
+    candidatesResult.status === 'rejected' || statsResult.status === 'rejected';
 
   return (
     <div className="space-y-6">
@@ -82,6 +86,12 @@ export default async function SignalsPage() {
         <h2 className="text-xl font-bold text-white">Signals</h2>
         <p className="text-sm text-zinc-500 mt-0.5">signal_candidate 목록 및 카테고리 통계</p>
       </div>
+
+      {hasError && (
+        <div className="bg-red-950/30 border border-red-900 rounded-lg p-4 text-sm text-red-200">
+          일부 시그널 데이터를 불러오지 못했습니다. API 연결 또는 접근 제어 상태를 확인하세요.
+        </div>
+      )}
 
       {/* Stats by category */}
       {stats.length > 0 && (
@@ -172,7 +182,10 @@ export default async function SignalsPage() {
         <p className="text-sm font-semibold text-zinc-300 mb-4">
           최근 시그널 후보 ({candidates.length}건)
         </p>
-        <div className="space-y-3 md:hidden">
+        {candidates.length === 0 && (
+          <div className="text-sm text-zinc-600 py-8 text-center">표시할 시그널 후보가 없습니다</div>
+        )}
+        {candidates.length > 0 && <div className="space-y-3 md:hidden">
           {candidates.map((c) => (
             <div key={c.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
               <div className="flex items-start justify-between gap-3">
@@ -209,8 +222,8 @@ export default async function SignalsPage() {
               </div>
             </div>
           ))}
-        </div>
-        <div className="hidden md:block overflow-x-auto">
+        </div>}
+        {candidates.length > 0 && <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -252,7 +265,7 @@ export default async function SignalsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div>}
       </div>
     </div>
   );
