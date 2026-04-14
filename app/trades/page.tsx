@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import Pagination from '@/components/Pagination';
 import TradesTable from '@/components/TradesTable';
 
 const LIMIT_OPTIONS = [50, 100, 200] as const;
@@ -31,8 +32,6 @@ export default async function TradesPage({
   }));
   const trades = result.items;
   const totalPages = Math.max(Math.ceil(result.total / result.limit), 1);
-  const prevPage = Math.max(result.page - 1, 1);
-  const nextPage = result.page + 1;
 
   const buyCount = trades.filter((trade) => trade.side === 'BUY').length;
   const sellCount = trades.filter((trade) => trade.side === 'SELL').length;
@@ -98,30 +97,11 @@ export default async function TradesPage({
           <p className="text-xs text-zinc-500">
             전체 {result.total.toLocaleString()}건 · 페이지 {result.page} / {totalPages}
           </p>
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/trades?limit=${result.limit}&page=${prevPage}`}
-              aria-disabled={result.page <= 1}
-              className={
-                result.page <= 1
-                  ? 'pointer-events-none rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-600'
-                  : 'rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white'
-              }
-            >
-              이전
-            </Link>
-            <Link
-              href={`/trades?limit=${result.limit}&page=${nextPage}`}
-              aria-disabled={!result.hasNext}
-              className={
-                !result.hasNext
-                  ? 'pointer-events-none rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-600'
-                  : 'rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white'
-              }
-            >
-              다음
-            </Link>
-          </div>
+          <Pagination
+            page={result.page}
+            totalPages={totalPages}
+            buildHref={(pageNumber) => `/trades?limit=${result.limit}&page=${pageNumber}`}
+          />
         </div>
       </div>
     </div>

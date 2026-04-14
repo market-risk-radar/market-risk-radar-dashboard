@@ -94,6 +94,7 @@ app/
 components/
   Navigation.tsx            # 좌측 고정 사이드바 (Client Component, usePathname)
   NavChart.tsx              # Recharts AreaChart 래퍼 (Client Component)
+  Pagination.tsx            # 공용 숫자형 페이지네이션 (처음/이전/숫자/다음/마지막)
   StatCard.tsx              # 통계 카드 UI (Server Component)
   AlertsTable.tsx           # 알림 테이블 + 채널 필터 + 상세 모달 (Client Component)
   TradesTable.tsx           # 거래 테이블 + A/B 필터 (Client Component)
@@ -319,7 +320,7 @@ api.trades(limit, page)  // GET /api/paper-trading/trades?limit=50|100|200&page=
 **렌더링 구조**
 - 상단 카드 4개: 최근 체결 수, BUY 수, SELL 수, 총 체결 금액
 - 조회 건수 선택: `50 / 100 / 200` 링크 버튼 (`searchParams.limit`)
-- 서버 페이지네이션: `이전 / 다음` 링크 버튼 (`searchParams.page`)
+- 서버 페이지네이션: 공용 `Pagination` 컴포넌트로 `처음 / 이전 / 숫자 버튼 / 다음 / 마지막` (`searchParams.page`)
 - `TradesTable` (Client Component): A/B 탭 필터 + 거래 내역 테이블
 
 ---
