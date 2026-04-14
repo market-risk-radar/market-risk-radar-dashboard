@@ -60,7 +60,7 @@ export interface Performance {
 }
 
 export interface PaperPosition {
-  id: number;
+  rowKey: string;
   ticker: string;
   name: string;
   qty: number;
@@ -250,7 +250,7 @@ function normalizeBenchmarkNav(raw: any): BenchmarkNavPoint {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizePosition(raw: any): PaperPosition {
   return {
-    id: n(raw.id),
+    rowKey: `${raw.portfolioType ?? ''}:${raw.asOfDate ?? ''}:${raw.ticker ?? ''}`,
     ticker: raw.ticker,
     name: raw.name ?? raw.ticker,
     qty: n(raw.qty),

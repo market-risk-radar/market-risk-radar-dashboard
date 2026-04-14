@@ -11,7 +11,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
     <>
       <div className="space-y-3 md:hidden">
         {positions.map((p) => (
-          <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+          <div key={p.rowKey} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
             <div>
               <p className="font-medium text-white">{p.name || p.ticker}</p>
               <p className="text-xs text-zinc-500">{p.ticker}</p>
@@ -50,7 +50,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
         </thead>
         <tbody className="divide-y divide-zinc-800">
           {positions.map((p) => (
-            <tr key={p.id} className="hover:bg-zinc-800/50 transition-colors">
+            <tr key={p.rowKey} className="hover:bg-zinc-800/50 transition-colors">
               <td className="py-2.5 pr-4">
                 <p className="font-medium text-white">{p.name || p.ticker}</p>
                 <p className="text-xs text-zinc-500">{p.ticker}</p>
@@ -75,10 +75,11 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
 // ── Portfolio B 테이블 ────────────────────────────────────────────────────────
 function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
-  const target = new Date(dateStr);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const target = new Date(`${dateStr}T00:00:00+09:00`);
+  const todayKst = new Date(
+    new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' }) + 'T00:00:00+09:00',
+  );
+  return Math.round((target.getTime() - todayKst.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 function PositionTableB({ positions }: { positions: PaperPosition[] }) {
@@ -91,7 +92,7 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
         {positions.map((p) => {
           const remaining = daysUntil(p.targetExitDate);
           return (
-            <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
+            <div key={p.rowKey} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-medium text-white">{p.name || p.ticker}</p>
@@ -143,7 +144,7 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
           {positions.map((p) => {
             const remaining = daysUntil(p.targetExitDate);
             return (
-              <tr key={p.id} className="hover:bg-zinc-800/50 transition-colors">
+              <tr key={p.rowKey} className="hover:bg-zinc-800/50 transition-colors">
                 <td className="py-2.5 pr-4">
                   <p className="font-medium text-white">{p.name || p.ticker}</p>
                   <p className="text-xs text-zinc-500">{p.ticker}</p>

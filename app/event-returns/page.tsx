@@ -88,7 +88,10 @@ function categoryLabel(category: string | null) {
 }
 
 export default async function EventReturnsPage() {
-  const stats = await api.signalStats().catch(() => []);
+  const statsResult = await api.signalStats()
+    .then((value) => ({ ok: true as const, value }))
+    .catch(() => ({ ok: false as const, value: [] }));
+  const stats = statsResult.value;
   const filled = stats.filter((s) => s.eventCount > 0);
 
   const totalEvents = filled.reduce((s, r) => s + r.eventCount, 0);
@@ -111,6 +114,12 @@ export default async function EventReturnsPage() {
         <h2 className="text-xl font-bold text-white">Event Returns</h2>
         <p className="text-sm text-zinc-500 mt-0.5">이벤트 유형별 수익 통계 (event_return)</p>
       </div>
+
+      {!statsResult.ok && (
+        <div className="bg-red-950/30 border border-red-900 rounded-lg p-4 text-sm text-red-200">
+          event_return 통계를 불러오지 못했습니다. API 연결 또는 접근 제어 상태를 확인하세요.
+        </div>
+      )}
 
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -140,7 +149,10 @@ export default async function EventReturnsPage() {
           <p className="text-xs text-zinc-600 mt-0.5">eventCount 50건 미만 카테고리는 표본 부족으로 표시한다.</p>
           <p className="text-xs text-zinc-600 mt-0.5">대표 태그는 해당 카테고리로 정규화된 원시 event tag 예시이며, 미분류/기타는 상위 미매핑 tag 예시다.</p>
         </div>
-        <div className="space-y-3 md:hidden">
+        {filled.length === 0 && (
+          <div className="text-sm text-zinc-600 py-8 text-center">표시할 event_return 통계가 없습니다</div>
+        )}
+        {filled.length > 0 && <div className="space-y-3 md:hidden">
           {filled
             .sort((a, b) => b.eventCount - a.eventCount)
             .map((s, i) => (
@@ -187,8 +199,8 @@ export default async function EventReturnsPage() {
                 </div>
               </div>
             ))}
-        </div>
-        <div className="hidden md:block overflow-x-auto">
+        </div>}
+        {filled.length > 0 && <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
@@ -226,7 +238,7 @@ export default async function EventReturnsPage() {
                 ))}
             </tbody>
           </table>
-        </div>
+        </div>}
       </div>
     </div>
   );
