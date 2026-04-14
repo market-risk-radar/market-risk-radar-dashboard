@@ -29,13 +29,18 @@ export default async function TradesPage({
     page,
     limit,
     hasNext: false,
+    totalAmount: 0,
+    buyAmount: 0,
+    sellAmount: 0,
+    netAmount: 0,
   }));
   const trades = result.items;
   const totalPages = Math.max(Math.ceil(result.total / result.limit), 1);
+  const netAmountTone =
+    result.netAmount > 0 ? 'text-emerald-400' : result.netAmount < 0 ? 'text-red-400' : 'text-white';
 
   const buyCount = trades.filter((trade) => trade.side === 'BUY').length;
   const sellCount = trades.filter((trade) => trade.side === 'SELL').length;
-  const totalAmount = trades.reduce((sum, trade) => sum + trade.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -44,7 +49,7 @@ export default async function TradesPage({
         <p className="text-sm text-zinc-500 mt-0.5">최근 체결 내역과 Portfolio A/B 필터, 조회 건수 선택</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">최근 체결</p>
           <p className="text-2xl font-bold text-white">{trades.length}</p>
@@ -64,8 +69,16 @@ export default async function TradesPage({
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">총 체결 금액</p>
-          <p className="text-2xl font-bold text-white">{totalAmount.toLocaleString()}원</p>
-          <p className="text-xs text-zinc-500 mt-1">현재 페이지 {trades.length}건 합계</p>
+          <p className="text-2xl font-bold text-white">{result.totalAmount.toLocaleString()}원</p>
+          <p className="text-xs text-zinc-500 mt-1">전체 체결 기준, 매수+매도 합계</p>
+        </div>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">순매수 금액</p>
+          <p className={`text-2xl font-bold ${netAmountTone}`}>
+            {result.netAmount > 0 ? '+' : ''}
+            {result.netAmount.toLocaleString()}원
+          </p>
+          <p className="text-xs text-zinc-500 mt-1">전체 체결 기준, 매수-매도 차이</p>
         </div>
       </div>
 
