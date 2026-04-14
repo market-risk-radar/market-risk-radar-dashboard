@@ -92,6 +92,10 @@ export interface PaginatedTrades {
   page: number;
   limit: number;
   hasNext: boolean;
+  totalAmount: number;
+  buyAmount: number;
+  sellAmount: number;
+  netAmount: number;
 }
 
 export interface SignalCandidate {
@@ -444,6 +448,10 @@ export const api = {
       page: unknown;
       limit: unknown;
       hasNext: unknown;
+      totalAmount: unknown;
+      buyAmount: unknown;
+      sellAmount: unknown;
+      netAmount: unknown;
     }>(`/api/paper-trading/trades?limit=${limit}&page=${page}`)
       .then((raw) => ({
         items: raw.items.map(normalizeTrade),
@@ -451,6 +459,10 @@ export const api = {
         page: n(raw.page),
         limit: n(raw.limit),
         hasNext: Boolean(raw.hasNext),
+        totalAmount: n(raw.totalAmount),
+        buyAmount: n(raw.buyAmount),
+        sellAmount: n(raw.sellAmount),
+        netAmount: n(raw.netAmount),
       })),
   rebalanceCount: () =>
     get<unknown>('/api/paper-trading/rebalance-count')
