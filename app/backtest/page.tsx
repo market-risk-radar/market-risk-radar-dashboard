@@ -162,13 +162,15 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
 // ── page ─────────────────────────────────────────────────────────────────────
 
 export default async function BacktestPage() {
-  const [res1d, res5d] = await Promise.allSettled([
+  const [res1d, res5d, resCW] = await Promise.allSettled([
     api.backtest({ holdDays: 1 }),
     api.backtest({ holdDays: 5 }),
+    api.backtest({ holdDays: 5, minConfidence: 0.65, category: 'CONTRACT_WIN' }),
   ]);
 
   const bt1d = res1d.status === 'fulfilled' ? res1d.value : null;
   const bt5d = res5d.status === 'fulfilled' ? res5d.value : null;
+  const btCW = resCW.status === 'fulfilled' ? resCW.value : null;
   const hasError = res1d.status === 'rejected' || res5d.status === 'rejected';
 
   return (
@@ -189,25 +191,50 @@ export default async function BacktestPage() {
       {/* 해석 가이드 */}
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-500 space-y-1">
         <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + 방향일치율 55%+ 달성 카테고리만 신호 유효. D+1과 D+5를 나란히 비교해 어느 구간이 더 설득력 있는지 확인한다.</p>
-        <p><span className="text-zinc-400 font-medium">현재 기준:</span> EARNINGS_BEAT → D+1 단기 반응, CONTRACT_WIN → D+5 (minConf 0.65 실제 운용 기준 별도 확인 권장)</p>
+        <p><span className="text-zinc-400 font-medium">현재 기준:</span> EARNINGS_BEAT alpha_5d 음수 전환 → D+1 단기 반응 유효성 우선 검증 중. CONTRACT_WIN → D+5 (실제 운용 기준 minConf 0.65 패널 별도 표시)</p>
       </div>
 
-      {/* Summary panels */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {bt1d ? (
-          <SummaryPanel result={bt1d} label="D+1 보유 요약" />
-        ) : (
+      {/* Summary panels — 전체 화이트리스트 D+1 / D+5 */}
+      <div>
+        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">전체 화이트리스트 (minConf 0.75)</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {bt1d ? (
+            <SummaryPanel result={bt1d} label="D+1 보유 요약" />
+          ) : (
           <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 flex items-center justify-center text-zinc-600 text-sm">
             D+1 데이터 없음
           </div>
         )}
-        {bt5d ? (
-          <SummaryPanel result={bt5d} label="D+5 보유 요약" />
-        ) : (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 flex items-center justify-center text-zinc-600 text-sm">
-            D+5 데이터 없음
+          {bt5d ? (
+            <SummaryPanel result={bt5d} label="D+5 보유 요약" />
+          ) : (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 flex items-center justify-center text-zinc-600 text-sm">
+              D+5 데이터 없음
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CONTRACT_WIN 실제 운용 기준 패널 */}
+      <div>
+        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+          CONTRACT_WIN 실제 운용 기준 (minConf 0.65 · D+5)
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {btCW ? (
+            <SummaryPanel result={btCW} label="CONTRACT_WIN — Portfolio B 동일 조건" />
+          ) : (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 flex items-center justify-center text-zinc-600 text-sm">
+              CONTRACT_WIN 데이터 없음
+            </div>
+          )}
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-500 space-y-2 flex flex-col justify-center">
+            <p className="text-zinc-300 font-medium text-sm">왜 별도 확인이 필요한가</p>
+            <p>Portfolio B는 DART CONTRACT_WIN 공시에 한해 <span className="text-zinc-300">minConf 0.65</span>로 진입 허용.</p>
+            <p>전체 화이트리스트 패널(minConf 0.75)은 CONTRACT_WIN 표본을 과소 계상해 결과가 왜곡될 수 있음.</p>
+            <p>이 패널이 실제 Portfolio B 운용 규칙과 정합적인 검증 기준이다.</p>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Category breakdown — D+5 기준 */}
