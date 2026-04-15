@@ -217,6 +217,40 @@ export interface CostHistoryPoint {
   costUsd: number;
 }
 
+export interface BacktestCategoryRow {
+  category: string;
+  count: number;
+  withReturn: number;
+  winRate: number | null;
+  avgAlpha: number | null;
+  avgRet: number | null;
+  directionMatchRate: number | null;
+}
+
+export interface BacktestResult {
+  params: {
+    category?: string;
+    minConfidence: number;
+    minGate1: number;
+    holdDays: number;
+    fromDate?: string;
+    toDate?: string;
+  };
+  summary: {
+    totalSignals: number;
+    withReturn: number;
+    winRate: number | null;
+    avgAlpha: number | null;
+    avgRet: number | null;
+    medianAlpha: number | null;
+    maxAlpha: number | null;
+    minAlpha: number | null;
+    directionMatchRate: number | null;
+    sharpeProxy: number | null;
+  };
+  byCategory: BacktestCategoryRow[];
+}
+
 function sortByNavDateAsc<T extends { navDate: string }>(rows: T[]): T[] {
   return [...rows].sort((a, b) => a.navDate.localeCompare(b.navDate));
 }
@@ -497,4 +531,21 @@ export const api = {
   costHistory: (days = 30) =>
     get<unknown[]>(`/api/stats/cost/history?days=${days}`)
       .then((rows) => rows.map(normalizeCostHistoryPoint)),
+  backtest: (params: {
+    holdDays?: 1 | 5 | 20;
+    minConfidence?: number;
+    minGate1?: number;
+    category?: string;
+    fromDate?: string;
+    toDate?: string;
+  } = {}) => {
+    const q = new URLSearchParams();
+    if (params.holdDays != null) q.set('holdDays', String(params.holdDays));
+    if (params.minConfidence != null) q.set('minConfidence', String(params.minConfidence));
+    if (params.minGate1 != null) q.set('minGate1', String(params.minGate1));
+    if (params.category) q.set('category', params.category);
+    if (params.fromDate) q.set('fromDate', params.fromDate);
+    if (params.toDate) q.set('toDate', params.toDate);
+    return get<BacktestResult>(`/api/signal/backtest?${q.toString()}`);
+  },
 };

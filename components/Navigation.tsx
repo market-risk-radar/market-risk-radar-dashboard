@@ -11,6 +11,7 @@ import {
   TrendingUp,
   History,
   Activity,
+  BarChart2,
   Menu,
   X,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const NAV = [
   { href: '/signals',       label: 'Signals',       icon: Zap },
   { href: '/alerts',        label: 'Alerts',        icon: Bell },
   { href: '/event-returns', label: 'Event Returns', icon: TrendingUp },
+  { href: '/backtest',      label: 'Backtest',      icon: BarChart2 },
   { href: '/trades',        label: 'Trades',        icon: History },
   { href: '/operations',    label: 'Operations',    icon: Activity },
 ];
