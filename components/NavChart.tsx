@@ -94,7 +94,6 @@ export default function NavChart({ datasets }: Props) {
             strokeWidth={2}
             fill={`url(#navGrad-${dataset.key})`}
             dot={false}
-            connectNulls
             activeDot={{ r: 4, fill: dataset.color }}
           />
         ))}

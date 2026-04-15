@@ -46,13 +46,28 @@ function SummaryPanel({ result, label }: { result: BacktestResult; label: string
   const coverage = summary.totalSignals > 0
     ? ((summary.withReturn / summary.totalSignals) * 100).toFixed(0)
     : '—';
+  const scopeLabel = params.category ? params.category : '화이트리스트 전체';
 
   const stats = [
     { label: '총 신호', value: String(summary.totalSignals), sub: `수익률 집계 ${summary.withReturn}건 (${coverage}%)` },
-    { label: '승률 (α>0)', value: pct(summary.winRate, 0), color: alphaColor(summary.winRate ? summary.winRate - 0.5 : null) },
+    {
+      label: '승률 (α>0)',
+      value: pct(summary.winRate, 0),
+      color: alphaColor(
+        summary.winRate !== null ? summary.winRate - 0.5 : null,
+      ),
+    },
     { label: '평균 Alpha', value: pct(summary.avgAlpha), color: alphaColor(summary.avgAlpha) },
     { label: '중앙값 Alpha', value: pct(summary.medianAlpha), color: alphaColor(summary.medianAlpha) },
-    { label: '방향일치율', value: pct(summary.directionMatchRate, 0), color: alphaColor(summary.directionMatchRate ? summary.directionMatchRate - 0.5 : null) },
+    {
+      label: '방향일치율',
+      value: pct(summary.directionMatchRate, 0),
+      color: alphaColor(
+        summary.directionMatchRate !== null
+          ? summary.directionMatchRate - 0.5
+          : null,
+      ),
+    },
     { label: 'Sharpe 근사', value: num(summary.sharpeProxy), color: alphaColor(summary.sharpeProxy) },
     { label: 'Max Alpha', value: pct(summary.maxAlpha), color: 'text-emerald-400' },
     { label: 'Min Alpha', value: pct(summary.minAlpha), color: 'text-red-400' },
@@ -63,7 +78,7 @@ function SummaryPanel({ result, label }: { result: BacktestResult; label: string
       <div className="mb-4">
         <p className="text-sm font-semibold text-zinc-300">{label}</p>
         <p className="text-xs text-zinc-600 mt-0.5">
-          minConf {params.minConfidence} · minGate1 {params.minGate1} · 화이트리스트 전체
+          minConf {params.minConfidence} · minGate1 {params.minGate1} · {scopeLabel}
         </p>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -102,7 +117,14 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div>
                 <p className="text-xs text-zinc-500">승률</p>
-                <p className={clsx('font-medium', alphaColor(r.winRate ? r.winRate - 0.5 : null))}>{pct(r.winRate, 0)}</p>
+                <p
+                  className={clsx(
+                    'font-medium',
+                    alphaColor(r.winRate !== null ? r.winRate - 0.5 : null),
+                  )}
+                >
+                  {pct(r.winRate, 0)}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-zinc-500">평균 α</p>
@@ -137,7 +159,12 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
                 <td className="py-2.5 pr-4"><CategoryBadge cat={r.category} /></td>
                 <td className="py-2.5 pr-4 text-right text-zinc-400">{r.count}</td>
                 <td className="py-2.5 pr-4 text-right text-zinc-400">{r.withReturn}</td>
-                <td className={clsx('py-2.5 pr-4 text-right font-medium', alphaColor(r.winRate ? r.winRate - 0.5 : null))}>
+                <td
+                  className={clsx(
+                    'py-2.5 pr-4 text-right font-medium',
+                    alphaColor(r.winRate !== null ? r.winRate - 0.5 : null),
+                  )}
+                >
                   {pct(r.winRate, 0)}
                 </td>
                 <td className={clsx('py-2.5 pr-4 text-right font-medium', alphaColor(r.avgAlpha))}>
@@ -175,11 +202,26 @@ export default async function BacktestPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Backtest</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">
-          signal_candidate × event_return 기반 경량 백테스트 — 화이트리스트 전체, minConf 0.75, minGate1 90
-        </p>
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(18,24,32,0.9),rgba(10,13,18,0.88))] px-6 py-6 shadow-[0_32px_80px_rgba(0,0,0,0.24)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Backtest</p>
+          <h2 className="mt-3 text-3xl font-bold text-white">Lightweight strategy probe</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+            signal_candidate × event_return 조합으로 D+1, D+5 구간의 알파와 방향일치율을 빠르게 점검하는 화면.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">D+1</p>
+            <p className="mt-2 text-3xl font-bold text-white">{bt1d?.summary.totalSignals ?? '—'}</p>
+            <p className="mt-1 text-xs text-zinc-500">전체 화이트리스트 신호 수</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">D+5</p>
+            <p className="mt-2 text-3xl font-bold text-white">{bt5d?.summary.totalSignals ?? '—'}</p>
+            <p className="mt-1 text-xs text-zinc-500">전체 화이트리스트 신호 수</p>
+          </div>
+        </div>
       </div>
 
       {hasError && (
@@ -189,7 +231,7 @@ export default async function BacktestPage() {
       )}
 
       {/* 해석 가이드 */}
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-500 space-y-1">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.74),rgba(10,14,19,0.78))] px-4 py-4 text-xs text-zinc-500 space-y-1 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
         <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + 방향일치율 55%+ 달성 카테고리만 신호 유효. D+1과 D+5를 나란히 비교해 어느 구간이 더 설득력 있는지 확인한다.</p>
         <p><span className="text-zinc-400 font-medium">현재 기준:</span> EARNINGS_BEAT alpha_5d 음수 전환 → D+1 단기 반응 유효성 우선 검증 중. CONTRACT_WIN → D+5 (실제 운용 기준 minConf 0.65 패널 별도 표시)</p>
       </div>

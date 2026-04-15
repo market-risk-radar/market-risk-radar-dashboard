@@ -32,6 +32,18 @@ function categoryBadge(cat: string) {
   );
 }
 
+function categoryCell(category: string | null) {
+  if (category === null) {
+    return (
+      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-zinc-900 text-zinc-400">
+        미분류/기타
+      </span>
+    );
+  }
+
+  return categoryBadge(category);
+}
+
 function sampleStatus(eventCount: number): 'ok' | 'low' {
   return eventCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
 }
@@ -82,9 +94,26 @@ export default async function SignalsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Signals</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">signal_candidate 목록 및 카테고리 통계</p>
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(18,24,32,0.9),rgba(10,13,18,0.88))] px-6 py-6 shadow-[0_32px_80px_rgba(0,0,0,0.24)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Signals</p>
+          <h2 className="mt-3 text-3xl font-bold text-white">Signal validation surface</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+            최근 signal_candidate와 카테고리별 방향일치율, alpha를 함께 확인하는 검증 화면.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Candidates</p>
+            <p className="mt-2 text-3xl font-bold text-white">{candidates.length}</p>
+            <p className="mt-1 text-xs text-zinc-500">최근 시그널 후보 수</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Categories</p>
+            <p className="mt-2 text-3xl font-bold text-white">{stats.length}</p>
+            <p className="mt-1 text-xs text-zinc-500">카테고리 통계 행 수</p>
+          </div>
+        </div>
       </div>
 
       {hasError && (
@@ -95,8 +124,9 @@ export default async function SignalsPage() {
 
       {/* Stats by category */}
       {stats.length > 0 && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+        <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
           <div className="mb-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 mb-2">Category Stats</p>
             <p className="text-sm font-semibold text-zinc-300">카테고리별 통계</p>
             <p className="text-xs text-zinc-600 mt-0.5">방향일치율과 alpha 해석은 기본적으로 표본 50건 이상을 기준으로 본다.</p>
           </div>
@@ -113,7 +143,7 @@ export default async function SignalsPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <div>{s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}</div>
+                    <div>{categoryCell(s.category)}</div>
                     {sampleBadge(s.eventCount)}
                   </div>
                   <span className="text-xs text-zinc-500">{s.eventCount}건</span>
@@ -156,7 +186,7 @@ export default async function SignalsPage() {
                   <tr key={i} className="hover:bg-zinc-800/50">
                     <td className="py-2.5 pr-4">
                       <div className="flex items-center gap-2">
-                        {s.category ? categoryBadge(s.category) : <span className="text-zinc-600">—</span>}
+                        {categoryCell(s.category)}
                         {sampleBadge(s.eventCount)}
                       </div>
                     </td>
@@ -178,7 +208,7 @@ export default async function SignalsPage() {
       )}
 
       {/* Candidate list */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(16,21,29,0.9),rgba(10,13,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <p className="text-sm font-semibold text-zinc-300 mb-4">
           최근 시그널 후보 ({candidates.length}건)
         </p>

@@ -126,9 +126,16 @@ function computeGates(
   const bestEventCount = categorizedStats.reduce((max, s) => Math.max(max, s.eventCount), 0);
   const g2CategoryLabel = g2Best?.category ?? '표준 카테고리';
 
-  // G3: alpha_5d 평균 ≥ 0 — CONTRACT_WIN 우선, 없으면 전체 평균
+  // G3: alpha_5d 평균 ≥ 0 — CONTRACT_WIN 우선, 없으면 집계 가능한 전체 평균
   const contractWin = signalStats.find((s) => s.category === 'CONTRACT_WIN');
-  const g3Alpha = contractWin?.avgAlpha5d ?? null;
+  const fallbackAlphaRows = signalStats.filter((s) => s.avgAlpha5d !== null);
+  const fallbackAlpha =
+    fallbackAlphaRows.length > 0
+      ? fallbackAlphaRows.reduce((sum, s) => sum + (s.avgAlpha5d ?? 0), 0) /
+        fallbackAlphaRows.length
+      : null;
+  const g3Alpha = contractWin?.avgAlpha5d ?? fallbackAlpha;
+  const g3Label = contractWin?.avgAlpha5d != null ? 'CONTRACT_WIN' : '전체 평균';
 
   // G4/G5: Portfolio B 성과
   const bTradingDays = bPerf?.tradingDays ?? 0;
@@ -172,7 +179,7 @@ function computeGates(
         g3Alpha !== null ? (g3Alpha >= 0 ? 'pass' : 'fail') : 'watch',
       current:
         g3Alpha !== null
-          ? `${g3Alpha >= 0 ? '+' : ''}${(g3Alpha * 100).toFixed(2)}% (CONTRACT_WIN)`
+          ? `${g3Alpha >= 0 ? '+' : ''}${(g3Alpha * 100).toFixed(2)}% (${g3Label})`
           : '데이터 축적 중',
     },
     {
@@ -301,12 +308,31 @@ export default async function OverviewPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Overview</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">Portfolio A/B 요약 및 A/B/KOSPI(1억원 기준) 비교</p>
+      <div className="grid gap-4 lg:grid-cols-[1.45fr_0.85fr]">
+        <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(18,24,32,0.9),rgba(10,13,18,0.88))] px-6 py-6 shadow-[0_32px_80px_rgba(0,0,0,0.24)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Overview</p>
+          <h2 className="mt-3 text-3xl font-bold text-white">Portfolio command center</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+            Portfolio A/B 성과, KOSPI 대비 초과수익, 실전 전환 게이트를 한 화면에서 확인하는 운영 대시보드.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Gate Progress</p>
+            <p className="mt-2 text-3xl font-bold text-white">{passCount}/6</p>
+            <p className="mt-1 text-xs text-zinc-500">실전 전환 게이트 달성 수</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Daily Cost</p>
+            <p className="mt-2 text-3xl font-bold text-white">
+              {dashboardStats ? `$${dashboardStats.summary.estimatedDailyCostUsd.toFixed(2)}` : '—'}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">Claude 기준 예상 일비용</p>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-4">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.88),rgba(10,14,19,0.9))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)] space-y-4">
         <div className="flex items-center gap-2">
           <PortfolioBadge type="A" />
           <div>
@@ -361,7 +387,7 @@ export default async function OverviewPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-4">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.88),rgba(10,14,19,0.9))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)] space-y-4">
         <div className="flex items-center gap-2">
           <PortfolioBadge type="B" />
           <div>
@@ -387,10 +413,14 @@ export default async function OverviewPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <p className="text-sm font-semibold text-zinc-300">NAV 히스토리 (최근 60일)</p>
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(16,21,29,0.9),rgba(10,13,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Nav History</p>
+            <p className="mt-2 text-lg font-semibold text-zinc-100">최근 60일 NAV 비교</p>
+            <p className="mt-1 text-xs text-zinc-500">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
               Portfolio A
@@ -405,7 +435,6 @@ export default async function OverviewPage() {
             </span>
           </div>
         </div>
-        <p className="text-xs text-zinc-600 mb-3">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(aSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
@@ -484,7 +513,7 @@ export default async function OverviewPage() {
       )}
 
       {/* G1~G6 실전 전환 게이트 */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-sm font-semibold text-zinc-200">실전 전환 게이트 (G1~G6)</p>

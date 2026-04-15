@@ -93,16 +93,19 @@ export default async function EventReturnsPage() {
     .catch(() => ({ ok: false as const, value: [] }));
   const stats = statsResult.value;
   const filled = stats.filter((s) => s.eventCount > 0);
+  const eligibleSummaryRows = filled.filter(
+    (s) => s.category !== null && s.eventCount >= MIN_SAMPLE_EVENTS,
+  );
 
   const totalEvents = filled.reduce((s, r) => s + r.eventCount, 0);
   const avgDm5d = weightedAverage(
-    filled.map((row) => ({
+    eligibleSummaryRows.map((row) => ({
       eventCount: row.eventCount,
       value: row.directionMatch5dRate,
     })),
   );
   const avgAlpha5d = weightedAverage(
-    filled.map((row) => ({
+    eligibleSummaryRows.map((row) => ({
       eventCount: row.eventCount,
       value: row.avgAlpha5d,
     })),
@@ -110,9 +113,26 @@ export default async function EventReturnsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Event Returns</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">이벤트 유형별 수익 통계 (event_return)</p>
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(18,24,32,0.9),rgba(10,13,18,0.88))] px-6 py-6 shadow-[0_32px_80px_rgba(0,0,0,0.24)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Event Returns</p>
+          <h2 className="mt-3 text-3xl font-bold text-white">Category return matrix</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+            event_return 기반 카테고리별 수익률과 방향일치율을 표본 기준과 함께 검토하는 화면.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Events</p>
+            <p className="mt-2 text-3xl font-bold text-white">{totalEvents}</p>
+            <p className="mt-1 text-xs text-zinc-500">집계 포함 총 이벤트 수</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Eligible</p>
+            <p className="mt-2 text-3xl font-bold text-white">{eligibleSummaryRows.length}</p>
+            <p className="mt-1 text-xs text-zinc-500">표본 기준 통과 카테고리 수</p>
+          </div>
+        </div>
       </div>
 
       {!statsResult.ok && (
@@ -123,28 +143,34 @@ export default async function EventReturnsPage() {
 
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">총 이벤트</p>
-          <p className="text-2xl font-bold text-white">{totalEvents}</p>
-        </div>
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+          <div className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
+            <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">총 이벤트</p>
+            <p className="text-2xl font-bold text-white">{totalEvents}</p>
+          </div>
+        <div className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">평균 방향일치 5d</p>
           <p className={clsx('text-2xl font-bold', avgDm5d != null && avgDm5d >= 0.55 ? 'text-emerald-400' : 'text-zinc-300')}>
             {avgDm5d != null ? (avgDm5d * 100).toFixed(1) + '%' : '—'}
           </p>
-          <p className="text-xs text-zinc-600 mt-0.5">G2 목표: ≥ 55% / 카테고리 해석은 표본 50건 이상 기준</p>
+          <p className="text-xs text-zinc-600 mt-0.5">
+            G2 목표: ≥ 55% / 표준 카테고리 + 표본 50건 이상만 반영
+          </p>
         </div>
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+        <div className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">평균 α 5d</p>
           <p className={clsx('text-2xl font-bold', avgAlpha5d != null && avgAlpha5d >= 0 ? 'text-emerald-400' : 'text-red-400')}>
             {avgAlpha5d != null ? (avgAlpha5d >= 0 ? '+' : '') + (avgAlpha5d * 100).toFixed(2) + '%' : '—'}
+          </p>
+          <p className="text-xs text-zinc-600 mt-0.5">
+            표준 카테고리 + 표본 50건 이상만 반영
           </p>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <div className="mb-4">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 mb-2">Return Table</p>
           <p className="text-sm font-semibold text-zinc-300">카테고리별 수익률</p>
           <p className="text-xs text-zinc-600 mt-0.5">eventCount 50건 미만 카테고리는 표본 부족으로 표시한다.</p>
           <p className="text-xs text-zinc-600 mt-0.5">대표 태그는 해당 카테고리로 정규화된 원시 event tag 예시이며, 미분류/기타는 상위 미매핑 tag 예시다.</p>

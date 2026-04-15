@@ -154,11 +154,27 @@ export default async function OperationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Operations</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">
-          파이프라인 운영 현황 · 기준 {timestampLabel}
-        </p>
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(18,24,32,0.9),rgba(10,13,18,0.88))] px-6 py-6 shadow-[0_32px_80px_rgba(0,0,0,0.24)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Operations</p>
+          <h2 className="mt-3 text-3xl font-bold text-white">Pipeline control board</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+            수집부터 분류, 알림, 비용까지 전체 운영 파이프라인을 한 번에 확인하는 상태판.
+          </p>
+          <p className="mt-4 text-xs text-zinc-500">기준 시각 {timestampLabel}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Ingest</p>
+            <p className="mt-2 text-3xl font-bold text-white">{stats.ingest.todayCount.toLocaleString()}</p>
+            <p className="mt-1 text-xs text-zinc-500">오늘 수집 건수</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Delivery</p>
+            <p className="mt-2 text-3xl font-bold text-white">{stats.alert.deliveryRate}</p>
+            <p className="mt-1 text-xs text-zinc-500">Slack 알림 발송률</p>
+          </div>
+        </div>
       </div>
 
       {/* KPI 카드 */}
@@ -202,19 +218,22 @@ export default async function OperationsPage() {
       </div>
 
       {/* 파이프라인 퍼널 */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
-        <p className="text-sm font-semibold text-zinc-300 mb-5">파이프라인 퍼널 (전체 누계)</p>
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 mb-2">Pipeline Funnel</p>
+        <p className="text-sm font-semibold text-zinc-300 mb-5">전체 누계 전환률</p>
         <PipelineFunnel stats={stats} />
       </div>
 
       {/* 소스 타입 + LLM 분류 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+        <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 mb-2">Source Mix</p>
           <p className="text-sm font-semibold text-zinc-300 mb-4">소스 타입 비율</p>
           <SourceTypeBar stats={stats} />
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+        <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 mb-2">Classifier</p>
           <p className="text-sm font-semibold text-zinc-300 mb-4">LLM 분류 상세</p>
           <div className="space-y-2 text-sm">
             {[
@@ -233,9 +252,12 @@ export default async function OperationsPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(16,21,29,0.9),rgba(10,13,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold text-zinc-300">Claude 비용 추이 (최근 30일)</p>
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Cost Curve</p>
+            <p className="mt-1 text-sm font-semibold text-zinc-300">Claude 비용 추이 (최근 30일)</p>
+          </div>
           <span className="text-xs text-zinc-600">USD / 일</span>
         </div>
         {costHistory.length > 0 ? (
