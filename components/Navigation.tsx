@@ -40,14 +40,24 @@ export default function Navigation() {
         href={href}
         onClick={() => setOpen(false)}
         className={clsx(
-          'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+          'group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200',
           active
-            ? 'bg-blue-600 text-white'
-            : 'text-zinc-400 hover:text-white hover:bg-zinc-800',
+            ? 'bg-white/[0.06] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.2)]'
+            : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white',
         )}
       >
-        <Icon size={16} />
-        {label}
+        <span
+          className={clsx(
+            'flex h-8 w-8 items-center justify-center rounded-lg border',
+            active
+              ? 'border-orange-400/30 bg-orange-500/12 text-orange-200'
+              : 'border-white/6 bg-white/[0.03] text-zinc-500 group-hover:border-white/12 group-hover:text-zinc-200',
+          )}
+        >
+          <Icon size={16} />
+        </span>
+        <span className="flex-1">{label}</span>
+        {active && <span className="h-2 w-2 rounded-full bg-orange-300 shadow-[0_0_16px_rgba(253,186,116,0.8)]" />}
       </Link>
     );
   });
@@ -55,26 +65,26 @@ export default function Navigation() {
   return (
     <>
       {/* Mobile top bar */}
-      <header className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 gap-3">
+      <header className="md:hidden fixed top-0 inset-x-0 z-40 flex h-14 items-center gap-3 border-b border-white/8 bg-[rgba(10,14,19,0.82)] px-4 backdrop-blur-xl">
         <button
           onClick={() => setOpen(true)}
-          className="text-zinc-400 hover:text-white p-1"
+          className="rounded-lg border border-white/8 bg-white/[0.03] p-2 text-zinc-300 hover:text-white"
           aria-label="메뉴 열기"
         >
           <Menu size={20} />
         </button>
         <div>
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest leading-none">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-orange-200/70 leading-none">
             Market Risk
           </p>
-          <p className="text-white font-bold text-sm leading-tight">Radar Dashboard</p>
+          <p className="text-sm font-bold leading-tight text-white">Radar Dashboard</p>
         </div>
       </header>
 
       {/* Mobile overlay */}
       {open && (
         <div
-          className="md:hidden fixed inset-0 z-40 bg-black/60"
+          className="md:hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
           onClick={() => setOpen(false)}
         />
       )}
@@ -83,29 +93,40 @@ export default function Navigation() {
       <aside
         className={clsx(
           'fixed inset-y-0 left-0 z-50 w-56 bg-zinc-900 border-r border-zinc-800 flex flex-col',
+          'md:w-64',
+          'border-r border-white/8 bg-[linear-gradient(180deg,rgba(16,20,27,0.96),rgba(9,12,17,0.94))] backdrop-blur-2xl',
           'transition-transform duration-200',
           open ? 'translate-x-0' : '-translate-x-full',
           'md:translate-x-0',
         )}
       >
-        <div className="px-5 py-5 border-b border-zinc-800 flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-white/8 px-5 py-5">
           <div>
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-orange-200/70">
               Market Risk
             </p>
-            <h1 className="text-white font-bold text-lg leading-tight">Radar Dashboard</h1>
+            <h1 className="text-lg font-bold leading-tight text-white">Radar Dashboard</h1>
+            <p className="mt-1 text-xs text-zinc-500">signal • portfolio • ops</p>
           </div>
           <button
-            className="md:hidden text-zinc-400 hover:text-white p-1"
+            className="md:hidden rounded-lg border border-white/8 bg-white/[0.03] p-2 text-zinc-300 hover:text-white"
             onClick={() => setOpen(false)}
             aria-label="메뉴 닫기"
           >
             <X size={16} />
           </button>
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">{navLinks}</nav>
-        <div className="px-5 py-4 border-t border-zinc-800">
-          <p className="text-xs text-zinc-600">theorynx.com</p>
+        <div className="px-5 pt-4">
+          <div className="rounded-2xl border border-orange-400/10 bg-[linear-gradient(135deg,rgba(241,103,37,0.14),rgba(241,103,37,0.03))] px-4 py-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-orange-200/80">Control Surface</p>
+            <p className="mt-1 text-sm font-semibold text-zinc-100">KOSPI risk monitor</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-400">A/B performance, signal validation, alert operations in one surface.</p>
+          </div>
+        </div>
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">{navLinks}</nav>
+        <div className="border-t border-white/8 px-5 py-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">Theorynx</p>
+          <p className="mt-1 text-xs text-zinc-500">dashboard.theorynx.com</p>
         </div>
       </aside>
     </>

@@ -201,15 +201,33 @@ export default async function PositionsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Positions</h2>
-        <p className="text-sm text-zinc-500 mt-0.5">Portfolio A / B 보유 현황</p>
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(18,24,32,0.9),rgba(10,13,18,0.88))] px-6 py-6 shadow-[0_32px_80px_rgba(0,0,0,0.24)]">
+          <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Positions</p>
+          <h2 className="mt-3 text-3xl font-bold text-white">Open exposure monitor</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+            Portfolio A 리밸런싱 포지션과 Portfolio B 신호 기반 포지션을 동시에 확인하는 화면.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">A Open</p>
+            <p className="mt-2 text-3xl font-bold text-white">{openA.length}</p>
+            <p className="mt-1 text-xs text-zinc-500">Portfolio A 오픈 종목 수</p>
+          </div>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">B Open</p>
+            <p className="mt-2 text-3xl font-bold text-white">{bStats?.openPositions ?? bPositions.length}</p>
+            <p className="mt-1 text-xs text-zinc-500">Portfolio B 오픈 종목 수</p>
+          </div>
+        </div>
       </div>
 
       {/* Portfolio A */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <div className="flex items-center justify-between mb-4">
           <div>
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Portfolio A</p>
             <p className="text-sm font-semibold text-white">Portfolio A</p>
             <p className="text-xs text-zinc-500">리밸런싱 기반</p>
           </div>
@@ -222,9 +240,10 @@ export default async function PositionsPage() {
       </div>
 
       {/* Portfolio B */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <div className="flex items-center justify-between mb-4">
           <div>
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Portfolio B</p>
             <p className="text-sm font-semibold text-white">Portfolio B</p>
             <p className="text-xs text-zinc-500">신호 기반 롱 · D+5 기계적 청산 · -10% 손절</p>
           </div>
