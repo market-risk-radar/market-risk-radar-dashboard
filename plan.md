@@ -120,16 +120,22 @@ GET /api/paper-trading/benchmark/nav/history?limit=60
 
 ## 4. 중기 계획 (Phase 4 연계)
 
-### M-1. 백테스트 결과 페이지 (`/backtest`)
+### M-1. 백테스트 결과 페이지 (`/backtest`) ✅ 완료 (2026-04-15)
 
-**배경**: Phase 4-A에서 경량 백테스팅 결과가 나오면 대시보드에서 시각화 필요.
+**완료 내용**:
+- `app/backtest/page.tsx` — D+1 / D+5 요약 패널 나란히 + 카테고리별 분해 테이블 (holdDays별 2개)
+- `app/backtest/loading.tsx` — 스켈레톤 로더
+- `lib/api.ts` — `BacktestResult`, `BacktestCategoryRow` 타입 + `api.backtest()` 추가
+- Navigation에 Backtest 메뉴 항목 추가 (Signals 다음)
+
+**표시 내용**: 승률, 평균 alpha, 중앙값 alpha, 방향일치율, Sharpe 근사, Max/Min Alpha + 카테고리별 분해
+**주의**: Max Drawdown·수익 곡선은 현재 백엔드 API가 집계 통계만 반환 — 개별 거래 시계열 필요 시 Phase 4-A 확장 후 추가
 
 | 항목 | 내용 |
 |------|------|
 | 신규 페이지 | `/backtest` |
-| 표시 내용 | 전략별 승률, 평균 alpha, Max Drawdown, 수익 곡선 |
-| 의존성 | 백엔드 Phase 4-A API 확정 후 설계 |
-| 예상 시점 | Phase 4-A 완료 후 |
+| ISR | 30s revalidate |
+| 의존성 | `GET /api/signal/backtest` (Phase 4-A scaffold 완료) |
 
 ### M-2. 포트폴리오 성과 비교 고도화
 
