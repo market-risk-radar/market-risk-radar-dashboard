@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   Briefcase,
@@ -14,6 +15,8 @@ import {
   BarChart2,
   Menu,
   X,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -31,6 +34,8 @@ const NAV = [
 export default function Navigation() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+  const isAdmin = (session as { role?: string } | null)?.role === 'ADMIN';
 
   const navLinks = NAV.map(({ href, label, icon: Icon }) => {
     const active = path === href;
@@ -124,9 +129,54 @@ export default function Navigation() {
           </div>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">{navLinks}</nav>
+        {/* 관리자 메뉴 */}
+        {isAdmin && (
+          <div className="border-t border-white/8 px-3 pt-2 pb-0">
+            <Link
+              href="/admin/users"
+              onClick={() => setOpen(false)}
+              className={clsx(
+                'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all',
+                path === '/admin/users'
+                  ? 'bg-white/[0.06] text-white'
+                  : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300',
+              )}
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/6 bg-white/[0.03]">
+                <ShieldCheck size={14} />
+              </span>
+              사용자 관리
+            </Link>
+          </div>
+        )}
+
+        {/* 유저 정보 + 로그아웃 */}
         <div className="border-t border-white/8 px-5 py-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">Theorynx</p>
-          <p className="mt-1 text-xs text-zinc-500">dashboard.theorynx.com</p>
+          {session?.user && (
+            <div className="mb-3 flex items-center gap-2.5">
+              {session.user.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={session.user.image}
+                  alt={session.user.name ?? ''}
+                  className="h-7 w-7 rounded-full border border-white/10"
+                />
+              )}
+              <div className="min-w-0">
+                <p className="truncate text-xs font-medium text-zinc-300">
+                  {session.user.name ?? '—'}
+                </p>
+                <p className="truncate text-[10px] text-zinc-600">{session.user.email}</p>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex w-full items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 transition"
+          >
+            <LogOut size={12} />
+            로그아웃
+          </button>
         </div>
       </aside>
     </>
