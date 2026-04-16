@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
   const url = `${base}/api/paper-trading/performance`;
+  const internalSecret = process.env.AUTH_INTERNAL_SECRET;
 
   const headers: HeadersInit =
     process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
@@ -11,6 +12,10 @@ export async function GET() {
           'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET,
         }
       : {};
+
+  if (internalSecret) {
+    headers['X-Internal-Secret'] = internalSecret;
+  }
 
   let status: number | string = 'unknown';
   let error: string | null = null;

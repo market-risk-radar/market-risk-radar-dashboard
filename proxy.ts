@@ -1,17 +1,49 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/pending', '/api/auth'];
-
 export default auth((req) => {
   const { pathname } = req.nextUrl;
+  const session = req.auth;
 
-  // 공개 경로는 무조건 통과
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+  // Auth.js 내부 라우트는 항상 통과
+  if (pathname.startsWith('/api/auth')) {
     return NextResponse.next();
   }
 
-  const session = req.auth;
+  // 로그인 페이지: 비인증만 접근, 이미 로그인된 사용자는 상태별로 적절한 화면으로 이동
+  if (pathname === '/login') {
+    if (!session) {
+      return NextResponse.next();
+    }
+
+    if (session.authStatus === 'PENDING') {
+      return NextResponse.redirect(new URL('/pending', req.url));
+    }
+
+    if (session.authStatus === 'BLOCKED' || session.authStatus === 'ERROR') {
+      return NextResponse.next();
+    }
+
+    return NextResponse.redirect(new URL('/', req.url));
+  }
+
+  // 승인 대기 페이지: PENDING 세션만 접근 허용
+  if (pathname === '/pending') {
+    if (!session) {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+
+    if (session.authStatus === 'PENDING') {
+      return NextResponse.next();
+    }
+
+    if (session.authStatus === 'BLOCKED' || session.authStatus === 'ERROR') {
+      const error = session.authStatus.toLowerCase();
+      return NextResponse.redirect(new URL(`/login?error=${error}`, req.url));
+    }
+
+    return NextResponse.redirect(new URL('/', req.url));
+  }
 
   // 미인증
   if (!session) {
