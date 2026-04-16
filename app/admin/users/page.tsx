@@ -4,6 +4,13 @@ import { clsx } from 'clsx';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3000';
 const ADMIN_KEY = process.env.AUTH_ADMIN_KEY!;
+const CF_HEADERS: HeadersInit =
+  process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
+    ? {
+        'CF-Access-Client-Id': process.env.CF_ACCESS_CLIENT_ID,
+        'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET,
+      }
+    : {};
 
 interface AuthUser {
   id: string;
@@ -18,7 +25,7 @@ interface AuthUser {
 
 async function getUsers(): Promise<AuthUser[]> {
   const res = await fetch(`${BACKEND_URL}/api/auth/admin/users`, {
-    headers: { 'X-Admin-Key': ADMIN_KEY },
+    headers: { 'X-Admin-Key': ADMIN_KEY, ...CF_HEADERS },
     cache: 'no-store',
   });
   if (!res.ok) return [];
@@ -32,6 +39,7 @@ async function updateStatus(userId: string, status: 'APPROVED' | 'BLOCKED') {
     headers: {
       'Content-Type': 'application/json',
       'X-Admin-Key': ADMIN_KEY,
+      ...CF_HEADERS,
     },
     body: JSON.stringify({ status }),
     cache: 'no-store',
