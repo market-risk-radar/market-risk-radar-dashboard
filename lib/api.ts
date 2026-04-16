@@ -1,4 +1,5 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const INTERNAL_SECRET = process.env.AUTH_INTERNAL_SECRET;
 
 const n = (v: unknown) => (v == null ? 0 : Number(v));
 const nNull = (v: unknown) => (v == null ? null : Number(v));
@@ -11,10 +12,21 @@ const CF_HEADERS: HeadersInit =
       }
     : {};
 
+const INTERNAL_HEADERS: HeadersInit = INTERNAL_SECRET
+  ? { 'X-Internal-Secret': INTERNAL_SECRET }
+  : {};
+
+function buildHeaders(): HeadersInit {
+  return {
+    ...CF_HEADERS,
+    ...INTERNAL_HEADERS,
+  };
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     next: { revalidate: 30 },
-    headers: CF_HEADERS,
+    headers: buildHeaders(),
   });
   if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
   return res.json();
