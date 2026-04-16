@@ -3,6 +3,13 @@ import Google from 'next-auth/providers/google';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3000';
 const INTERNAL_SECRET = process.env.AUTH_INTERNAL_SECRET!;
+const CF_HEADERS: HeadersInit =
+  process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
+    ? {
+        'CF-Access-Client-Id': process.env.CF_ACCESS_CLIENT_ID,
+        'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET,
+      }
+    : {};
 
 // RTR 체크 주기: 15분 (access token 윈도우)
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
@@ -13,6 +20,7 @@ async function backendPost(path: string, body: object) {
     headers: {
       'Content-Type': 'application/json',
       'X-Internal-Secret': INTERNAL_SECRET,
+      ...CF_HEADERS,
     },
     body: JSON.stringify(body),
     cache: 'no-store',
