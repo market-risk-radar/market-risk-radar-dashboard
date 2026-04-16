@@ -1,8 +1,6 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
-
 const PUBLIC_PATHS = ['/login', '/pending', '/api/auth'];
 
 export default auth((req) => {
