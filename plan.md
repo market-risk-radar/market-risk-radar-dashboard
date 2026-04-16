@@ -1,6 +1,6 @@
 # Dashboard — 개발 계획
 
-> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-12  
+> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-16  
 > 백엔드 로드맵 → `/Users/jys/market-risk-radar/market-risk-radar/plan.md`  
 > 이 문서는 **"지금 어디까지 왔고, 다음에 뭘 할지"** 에 답한다.
 > 운영 배포는 로컬 빌드가 아니라 Git 커밋 이후 Vercel 자동 배포를 기준으로 한다.
@@ -35,15 +35,15 @@
 
 ---
 
-## 2. G1~G6 게이트 현재 판정 상태 (2026-04-10)
+## 2. G1~G6 게이트 현재 판정 상태 (2026-04-16)
 
 > Overview `/` 하단 패널에 표시됨. 아래는 계산 로직 및 현재 기대값.
 
 | 게이트 | 조건 | 현재 판정 | 데이터 소스 | 비고 |
 |--------|------|---------|------------|------|
 | G1 리밸런싱 무결성 | 10회 이상 SELL/BUY 정상 | `watch` 또는 `pass` (정확 집계) | `api.rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` |
-| G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `watch` (표본 부족) | `api.signalStats()` | BUYBACK 44건으로 아직 표본 부족 |
-| G3 alpha_5d ≥ 0 | CONTRACT_WIN 기준 | `pass` (+3.93%) | `api.signalStats()` | ✅ 달성 |
+| G2 방향일치율 5d ≥ 55% | 50건 이상 카테고리 기준 | `pass` | `api.signalStats()` | EARNINGS_BEAT 52건, 68.89% (2026-04-16 실측) |
+| G3 alpha_5d ≥ 0 | CONTRACT_WIN 기준 | `pass` (+1.43%) | `api.signalStats()` / `api.backtest()` | 실제 운용 기준 `holdDays=5`, `minConfidence=0.65` backtest 기준 ✅ |
 | G4 Portfolio B Sharpe ≥ 0.5 | 3개월 이상 기간 | `pending` 또는 실측값 | `api.bPerformance()` | 60거래일 미만이면 표본 축적 중 |
 | G5 MDD < 30% | A/B 모두 | `watch` / `pass` / `fail` | `api.performance()` + `api.bPerformance()` | B NAV 축적 시 실측 반영 |
 | G6 일비용 ≤ $3 | 최근 1개월 평균 | `pass` (~$1.4/일) | `api.dashboardStats()` | ✅ 달성 |
