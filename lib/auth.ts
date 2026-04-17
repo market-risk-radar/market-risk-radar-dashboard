@@ -11,9 +11,6 @@ const CF_HEADERS: HeadersInit =
       }
     : {};
 
-// RTR 체크 주기: 15분 (access token 윈도우)
-const CHECK_INTERVAL_MS = 15 * 60 * 1000;
-
 async function backendPost(path: string, body: object) {
   return fetch(`${BACKEND_URL}${path}`, {
     method: 'POST',
@@ -36,9 +33,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    // ── 최초 로그인 또는 주기적 갱신 시 실행 ─────────────────────────────
+    // ── 최초 Google OAuth 완료 시에만 실행 ────────────────────────────────
+    // 세션 유효성 검증은 middleware가 매 요청마다 Redis에서 직접 처리
     async jwt({ token, account, profile }) {
-      // 최초 Google OAuth 완료
       if (account?.provider === 'google' && profile) {
         const res = await backendPost('/api/auth/callback', {
           email: profile.email,
@@ -53,66 +50,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const data = await res.json();
 
         if (data.status !== 'APPROVED') {
-          // PENDING or BLOCKED: 토큰만 상태 기록 후 반환
           return { ...token, authStatus: data.status };
         }
 
         return {
           ...token,
           authStatus: 'APPROVED',
-          refreshToken: data.refreshToken,
+          sessionId: data.sessionId, // Redis 세션 키 (http-only 쿠키 내 JWT에만 존재)
           userId: data.userId,
           role: data.role,
-          checkedAt: Date.now(),
         };
       }
 
-      // PENDING/BLOCKED/ERROR: 백엔드 재확인 없이 상태 유지
-      if (token.authStatus !== 'APPROVED') return token;
-
-      // 15분 미경과: 백엔드 체크 생략 (서명 검증으로 충분)
-      if (Date.now() - (token.checkedAt as number) < CHECK_INTERVAL_MS) return token;
-
-      // ── RTR: refresh token 교체 ─────────────────────────────────────────
-      const res = await backendPost('/api/auth/refresh', {
-        refreshToken: token.refreshToken,
-      });
-
-      if (!res.ok) {
-        // 다른 기기 로그인으로 무효화됐거나 사용자 차단 → 강제 로그아웃
-        return null;
-      }
-
-      const data = await res.json();
-      return {
-        ...token,
-        refreshToken: data.refreshToken,
-        userId: data.userId,
-        role: data.role,
-        checkedAt: Date.now(),
-      };
+      return token;
     },
 
-    // ── 세션 객체로 변환 (클라이언트에 노출되는 값) ───────────────────────
+    // ── 클라이언트에 노출되는 세션 객체 (sessionId 제외) ──────────────────
     async session({ session, token }) {
       return {
         ...session,
         authStatus: token.authStatus as string | undefined,
         userId: token.userId as string | undefined,
         role: token.role as string | undefined,
+        // sessionId는 의도적으로 미노출 — middleware에서만 getToken()으로 접근
       };
     },
   },
 
   events: {
-    // 로그아웃 시 refresh token 폐기
+    // 로그아웃 시 Redis 세션 즉시 폐기
     async signOut(message) {
       const token = 'token' in message ? message.token : null;
-      if (!token?.refreshToken) return;
+      if (!token?.sessionId) return;
 
       await backendPost('/api/auth/session', {
-        refreshToken: token.refreshToken,
-      }).catch(() => {}); // 실패해도 로그아웃은 진행
+        sessionId: token.sessionId,
+      }).catch(() => {});
     },
   },
 
