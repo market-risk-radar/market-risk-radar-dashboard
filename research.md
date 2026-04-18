@@ -1,6 +1,6 @@
 # Dashboard Research — 구현 현황
 
-> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-11  
+> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-19  
 > 이 문서는 **"어떻게 동작하나?"** 에 답한다.  
 > 향후 계획 → `plan.md` | 백엔드 구현 → `../market-risk-radar/research.md`
 
@@ -89,10 +89,12 @@ app/
     page.tsx                # 파이프라인 운영 현황 (퍼널 + KPI + 비용)
 
   api/
+    auth/validate/route.ts  # JWT의 sessionId를 서버에서 검증하는 heartbeat용 엔드포인트
     health/route.ts         # 헬스체크 엔드포인트 (Vercel → NestJS 연결 확인용)
 
 components/
   Navigation.tsx            # 좌측 고정 사이드바 (Client Component, usePathname)
+  SessionGuard.tsx          # 30초 heartbeat + focus/visibility 재검증으로 세션 무효화 즉시 반영
   NavChart.tsx              # Recharts AreaChart 래퍼 (Client Component)
   Pagination.tsx            # 공용 숫자형 페이지네이션 (처음/이전/숫자/다음/마지막)
   StatCard.tsx              # 통계 카드 UI (Server Component)
@@ -115,6 +117,7 @@ lib/
 | `app/*/page.tsx` | Server Component (기본) | data fetch, 상태 없음 |
 | `components/StatCard.tsx` | Server Component | 순수 표시, 인터랙션 없음 |
 | `components/Navigation.tsx` | Client Component (`'use client'`) | `usePathname()` 훅 |
+| `components/SessionGuard.tsx` | Client Component (`'use client'`) | 주기적 세션 heartbeat + 포커스 복귀 재검증 |
 | `components/NavChart.tsx` | Client Component (`'use client'`) | Recharts (브라우저 DOM 의존) |
 | `components/TradesTable.tsx` | Client Component (`'use client'`) | A/B 필터 `useState` |
 
@@ -145,6 +148,22 @@ async function get<T>(path: string): Promise<T> {
 ```
 
 `loading.tsx` 파일 → Next.js App Router가 자동으로 `<Suspense fallback={<Loading />}>` 경계 생성
+
+### 인증 세션 heartbeat
+
+현재 인증은 NextAuth JWT + NestJS Redis 단일 세션 구조다.
+
+```typescript
+1. 클라이언트 `SessionGuard`가 30초마다 `/api/auth/validate` 호출
+2. Next.js 서버 라우트가 `getToken()`으로 JWT 쿠키에서 `sessionId` 추출
+3. NestJS `POST /api/auth/validate`로 현재 Redis 세션 유효성 재검증
+4. 401/403이면 `signOut({ redirect: false })` 후 `/login`으로 즉시 이동
+```
+
+- 루트 레이아웃에 전역 마운트되어 로그인 이후 모든 보호 페이지에서 동작
+- `window.focus` / `document.visibilitychange`에서도 즉시 재검증
+- 세션 무효화 감지 시 `/login?error=session_replaced`로 이동해 원인을 로그인 화면에 표시
+- 다른 기기에서 새 로그인해 기존 세션이 폐기되거나, 관리자 차단이 들어간 경우 탭 새로고침 없이 빠르게 로그아웃 반영
 
 ---
 
