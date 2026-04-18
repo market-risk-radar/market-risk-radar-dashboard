@@ -12,6 +12,23 @@ const CF_HEADERS: HeadersInit =
       }
     : {};
 
+async function validateSession(sessionId: string): Promise<Response | null> {
+  try {
+    return await fetch(`${BACKEND_URL}/api/auth/validate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': INTERNAL_SECRET,
+        ...CF_HEADERS,
+      },
+      body: JSON.stringify({ sessionId }),
+      cache: 'no-store',
+    });
+  } catch {
+    return null;
+  }
+}
+
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -34,6 +51,12 @@ export default async function middleware(req: NextRequest) {
     if (!token) return NextResponse.next();
     if (authStatus === 'PENDING') return NextResponse.redirect(new URL('/pending', req.url));
     if (authStatus === 'BLOCKED' || authStatus === 'ERROR') return NextResponse.next();
+    if (authStatus !== 'APPROVED' || !sessionId) return NextResponse.next();
+
+    const validateRes = await validateSession(sessionId);
+    if (!validateRes) return NextResponse.redirect(new URL('/', req.url));
+    if (!validateRes.ok) return NextResponse.next();
+
     return NextResponse.redirect(new URL('/', req.url));
   }
 
@@ -62,19 +85,8 @@ export default async function middleware(req: NextRequest) {
   // sessionId가 없으면 (이론상 불가) 로그인으로
   if (!sessionId) return NextResponse.redirect(new URL('/login', req.url));
 
-  let validateRes: Response;
-  try {
-    validateRes = await fetch(`${BACKEND_URL}/api/auth/validate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Internal-Secret': INTERNAL_SECRET,
-        ...CF_HEADERS,
-      },
-      body: JSON.stringify({ sessionId }),
-      cache: 'no-store',
-    });
-  } catch {
+  const validateRes = await validateSession(sessionId);
+  if (!validateRes) {
     // 백엔드 일시 불가 시 기존 세션 유지 (가용성 우선)
     return NextResponse.next();
   }
