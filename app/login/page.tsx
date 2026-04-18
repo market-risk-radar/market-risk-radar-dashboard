@@ -2,6 +2,7 @@ import { signIn } from '@/lib/auth';
 
 const ERROR_MESSAGES: Record<string, string> = {
   blocked: '접근이 차단된 계정입니다. 관리자에게 문의하세요.',
+  session_replaced: '다른 기기 또는 브라우저에서 다시 로그인되어 현재 세션이 종료되었습니다.',
   error: '로그인 중 오류가 발생했습니다. 다시 시도해주세요.',
 };
 
