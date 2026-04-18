@@ -2,6 +2,7 @@ import { getToken } from 'next-auth/jwt';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3000';
+const AUTH_SECRET = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 const INTERNAL_SECRET = process.env.AUTH_INTERNAL_SECRET!;
 const CF_HEADERS: HeadersInit =
   process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
@@ -18,7 +19,12 @@ export default async function middleware(req: NextRequest) {
   if (pathname.startsWith('/api/auth')) return NextResponse.next();
 
   // JWT 쿠키에서 raw token 추출 (sessionId는 session 객체에 미노출 → getToken 필요)
-  const token = await getToken({ req });
+  const token = await getToken({
+    req,
+    secret: AUTH_SECRET,
+    // Auth.js는 HTTPS에서 `__Secure-authjs.session-token` 쿠키를 사용한다.
+    secureCookie: req.nextUrl.protocol === 'https:',
+  });
   const authStatus = token?.authStatus as string | undefined;
   const sessionId = token?.sessionId as string | undefined;
   const role = token?.role as string | undefined;
