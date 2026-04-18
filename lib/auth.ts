@@ -27,6 +27,10 @@ async function backendPost(path: string, body: object) {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
 
+  // 리버스 프록시(Nginx/Cloudflare) 환경에서 필수
+  // AUTH_URL이 없으면 쿠키 이름(__Secure- prefix 여부)이 불일치해 token null 발생
+  trustHost: true,
+
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30일: 쿠키 수명
@@ -37,29 +41,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // 세션 유효성 검증은 middleware가 매 요청마다 Redis에서 직접 처리
     async jwt({ token, account, profile }) {
       if (account?.provider === 'google' && profile) {
-        const res = await backendPost('/api/auth/callback', {
-          email: profile.email,
-          name: profile.name,
-          avatarUrl: profile.picture,
-          providerId: profile.sub,
-          provider: 'google',
-        });
+        try {
+          const res = await backendPost('/api/auth/callback', {
+            email: profile.email,
+            name: profile.name,
+            avatarUrl: profile.picture,
+            providerId: profile.sub,
+            provider: 'google',
+          });
 
-        if (!res.ok) return { ...token, authStatus: 'ERROR' };
+          if (!res.ok) return { ...token, authStatus: 'ERROR' };
 
-        const data = await res.json();
+          const data = await res.json();
 
-        if (data.status !== 'APPROVED') {
-          return { ...token, authStatus: data.status };
+          if (data.status !== 'APPROVED') {
+            return { ...token, authStatus: data.status };
+          }
+
+          return {
+            ...token,
+            authStatus: 'APPROVED',
+            sessionId: data.sessionId, // Redis 세션 키 (http-only 쿠키 내 JWT에만 존재)
+            userId: data.userId,
+            role: data.role,
+          };
+        } catch {
+          return { ...token, authStatus: 'ERROR' };
         }
-
-        return {
-          ...token,
-          authStatus: 'APPROVED',
-          sessionId: data.sessionId, // Redis 세션 키 (http-only 쿠키 내 JWT에만 존재)
-          userId: data.userId,
-          role: data.role,
-        };
       }
 
       return token;
