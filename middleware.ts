@@ -12,6 +12,11 @@ const CF_HEADERS: HeadersInit =
       }
     : {};
 
+function maskSessionId(value: unknown) {
+  if (typeof value !== 'string' || value.length < 8) return null;
+  return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
 async function validateSession(sessionId: string): Promise<Response | null> {
   try {
     return await fetch(`${BACKEND_URL}/api/auth/validate`, {
@@ -58,12 +63,24 @@ export default async function middleware(req: NextRequest) {
 
   // ── /login ────────────────────────────────────────────────────────────────
   if (pathname === '/login') {
+    console.log('[auth.middleware] /login', {
+      hasToken: Boolean(token),
+      authStatus: authStatus ?? null,
+      sessionId: maskSessionId(sessionId),
+      isSecure,
+    });
+
     if (!token) return nextWithPathname(req);
     if (authStatus === 'PENDING') return NextResponse.redirect(new URL('/pending', req.url));
     if (authStatus === 'BLOCKED' || authStatus === 'ERROR') return nextWithPathname(req);
     if (authStatus !== 'APPROVED' || !sessionId) return nextWithPathname(req);
 
     const validateRes = await validateSession(sessionId);
+    console.log('[auth.middleware] /login validate', {
+      status: validateRes?.status ?? null,
+      ok: validateRes?.ok ?? null,
+      sessionId: maskSessionId(sessionId),
+    });
     if (!validateRes) return NextResponse.redirect(new URL('/', req.url));
     if (!validateRes.ok) return nextWithPathname(req);
 
@@ -97,8 +114,22 @@ export default async function middleware(req: NextRequest) {
 
   const validateRes = await validateSession(sessionId);
   if (!validateRes) {
+    console.warn('[auth.middleware] validate unavailable', {
+      pathname,
+      sessionId: maskSessionId(sessionId),
+    });
     // 백엔드 일시 불가 시 기존 세션 유지 (가용성 우선)
     return nextWithPathname(req);
+  }
+
+  if (!validateRes.ok) {
+    console.warn('[auth.middleware] validate failed', {
+      pathname,
+      status: validateRes.status,
+      authStatus: authStatus ?? null,
+      role: role ?? null,
+      sessionId: maskSessionId(sessionId),
+    });
   }
 
   if (validateRes.status === 403) {

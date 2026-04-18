@@ -11,6 +11,11 @@ const CF_HEADERS: HeadersInit =
       }
     : {};
 
+function maskSessionId(value: unknown) {
+  if (typeof value !== 'string' || value.length < 8) return null;
+  return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
 async function backendPost(path: string, body: object) {
   return fetch(`${BACKEND_URL}${path}`, {
     method: 'POST',
@@ -42,6 +47,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, account, profile }) {
       if (account?.provider === 'google' && profile) {
         try {
+          console.log('[auth.jwt] google callback start', {
+            email: profile.email,
+          });
+
           const res = await backendPost('/api/auth/callback', {
             email: profile.email,
             name: profile.name,
@@ -50,9 +59,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             provider: 'google',
           });
 
-          if (!res.ok) return { ...token, authStatus: 'ERROR' };
+          if (!res.ok) {
+            console.error('[auth.jwt] backend callback failed', {
+              email: profile.email,
+              status: res.status,
+            });
+            return { ...token, authStatus: 'ERROR' };
+          }
 
           const data = await res.json();
+          console.log('[auth.jwt] backend callback result', {
+            email: profile.email,
+            status: data.status ?? null,
+            role: data.role ?? null,
+            sessionId: maskSessionId(data.sessionId),
+          });
 
           if (data.status !== 'APPROVED') {
             return { ...token, authStatus: data.status };
@@ -65,7 +86,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             userId: data.userId,
             role: data.role,
           };
-        } catch {
+        } catch (error) {
+          console.error('[auth.jwt] callback exception', {
+            email: profile.email,
+            error: error instanceof Error ? error.message : String(error),
+          });
           return { ...token, authStatus: 'ERROR' };
         }
       }
