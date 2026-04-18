@@ -36,11 +36,14 @@ export default async function middleware(req: NextRequest) {
   if (pathname.startsWith('/api/auth')) return NextResponse.next();
 
   // JWT 쿠키에서 raw token 추출 (sessionId는 session 객체에 미노출 → getToken 필요)
+  // AUTH_URL 기준으로 secure 여부 판단 — req.nextUrl.protocol은 리버스 프록시 뒤에서 http:로 잘못 감지될 수 있음
+  const authUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? '';
+  const isSecure = authUrl.startsWith('https://') || req.nextUrl.protocol === 'https:';
   const token = await getToken({
     req,
     secret: AUTH_SECRET,
     // Auth.js는 HTTPS에서 `__Secure-authjs.session-token` 쿠키를 사용한다.
-    secureCookie: req.nextUrl.protocol === 'https:',
+    secureCookie: isSecure,
   });
   const authStatus = token?.authStatus as string | undefined;
   const sessionId = token?.sessionId as string | undefined;
