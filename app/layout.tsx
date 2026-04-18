@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
+import { headers } from 'next/headers';
 import './globals.css';
 import Navigation from '@/components/Navigation';
 import SessionProviderWrapper from '@/components/SessionProviderWrapper';
+
+// /login, /pending 페이지에는 사이드바 없음
+// (미들웨어가 x-pathname 헤더를 주입 → layout에서 읽음)
+const AUTH_PATHS = new Set(['/login', '/pending']);
 
 const bodySans = Space_Grotesk({
   variable: '--font-body-sans',
@@ -19,7 +24,12 @@ export const metadata: Metadata = {
   description: 'Portfolio monitoring dashboard',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers();
+  // 미들웨어가 모든 NextResponse.next() 응답에 x-pathname 헤더를 주입
+  const pathname = headersList.get('x-pathname') ?? '';
+  const isAuthPage = AUTH_PATHS.has(pathname);
+
   return (
     <html lang="ko" className={`${bodySans.variable} ${bodyMono.variable} h-full antialiased`}>
       <body className="dashboard-shell h-full text-white">
@@ -30,8 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="absolute left-[18%] top-24 h-56 w-56 rounded-full bg-orange-500/8 blur-3xl" />
             <div className="absolute right-[12%] top-40 h-72 w-72 rounded-full bg-emerald-400/6 blur-3xl" />
           </div>
-          <Navigation />
-          <main className="relative md:ml-64 min-h-screen p-4 md:p-8 pt-18 md:pt-8">
+          {!isAuthPage && <Navigation />}
+          <main className={`relative min-h-screen p-4 md:p-8 pt-18 ${isAuthPage ? '' : 'md:ml-64 md:pt-8'}`}>
             <div className="mx-auto max-w-[1440px]">{children}</div>
           </main>
         </SessionProviderWrapper>
