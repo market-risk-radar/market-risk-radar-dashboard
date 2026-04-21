@@ -72,6 +72,34 @@ function alphaTextColor(v: number | null) {
   return v >= 0 ? 'text-emerald-400' : 'text-red-400';
 }
 
+function rsiDisplay(v: number | null) {
+  if (v === null) return '—';
+  return v.toFixed(1);
+}
+
+function rsiTextColor(v: number | null) {
+  if (v === null) return 'text-zinc-500';
+  if (v >= 70) return 'text-red-400';
+  if (v <= 30) return 'text-emerald-400';
+  return 'text-zinc-300';
+}
+
+function volRatioDisplay(v: number | null) {
+  if (v === null) return '—';
+  return v.toFixed(1) + 'x';
+}
+
+function volRatioTextColor(v: number | null) {
+  if (v === null) return 'text-zinc-500';
+  if (v >= 2) return 'text-orange-400';
+  return 'text-zinc-300';
+}
+
+function high52wDisplay(v: number | null) {
+  if (v === null) return '—';
+  return (v * 100).toFixed(1) + '%';
+}
+
 function formatSignalDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -250,6 +278,20 @@ export default async function SignalsPage() {
                   <p className={alphaTextColor(c.alpha5d)}>{pctOrDash(c.alpha5d)}</p>
                 </div>
               </div>
+              <div className="grid grid-cols-3 gap-3 text-sm border-t border-zinc-800 pt-2">
+                <div>
+                  <p className="text-xs text-zinc-500">RSI(14)</p>
+                  <p className={rsiTextColor(c.rsi14)}>{rsiDisplay(c.rsi14)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">거래량비율</p>
+                  <p className={volRatioTextColor(c.volumeRatio)}>{volRatioDisplay(c.volumeRatio)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">52주고점</p>
+                  <p className="text-zinc-300">{high52wDisplay(c.high52wPct)}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>}
@@ -260,10 +302,13 @@ export default async function SignalsPage() {
                   <th className="text-left py-2 pr-4">종목</th>
                   <th className="text-left py-2 pr-4">카테고리</th>
                   <th className="text-right py-2 pr-4">방향</th>
-                  <th className="text-right py-2 pr-4">Confidence</th>
+                  <th className="text-right py-2 pr-4">Conf</th>
                   <th className="text-right py-2 pr-4">Ret 1d</th>
                   <th className="text-right py-2 pr-4">Ret 5d</th>
                   <th className="text-right py-2 pr-4">α 5d</th>
+                  <th className="text-right py-2 pr-4">RSI</th>
+                  <th className="text-right py-2 pr-4">Vol×</th>
+                  <th className="text-right py-2 pr-4">52w%</th>
                   <th className="text-right py-2">날짜</th>
                 </tr>
             </thead>
@@ -289,6 +334,15 @@ export default async function SignalsPage() {
                   </td>
                   <td className={clsx('py-2.5 pr-4 text-right', alphaTextColor(c.alpha5d))}>
                     {pctOrDash(c.alpha5d)}
+                  </td>
+                  <td className={clsx('py-2.5 pr-4 text-right', rsiTextColor(c.rsi14))}>
+                    {rsiDisplay(c.rsi14)}
+                  </td>
+                  <td className={clsx('py-2.5 pr-4 text-right', volRatioTextColor(c.volumeRatio))}>
+                    {volRatioDisplay(c.volumeRatio)}
+                  </td>
+                  <td className="py-2.5 pr-4 text-right text-zinc-300">
+                    {high52wDisplay(c.high52wPct)}
                   </td>
                   <td className="py-2.5 text-right text-zinc-500 text-xs">{formatSignalDate(c.signalDate)}</td>
                 </tr>
