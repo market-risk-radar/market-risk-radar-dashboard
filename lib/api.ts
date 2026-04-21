@@ -139,6 +139,9 @@ export interface SignalTagStats {
   eventCount: number;
   directionMatch1dRate: number | null;
   directionMatch5dRate: number | null;
+  /** LLM impact_direction 기준 초과수익(alpha) 방향일치율 */
+  alphaDirectionMatch1dRate: number | null;
+  alphaDirectionMatch5dRate: number | null;
   avgAlpha1d: number | null;
   avgAlpha5d: number | null;
   avgAlpha20d: number | null;
