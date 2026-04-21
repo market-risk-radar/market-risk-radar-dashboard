@@ -1,6 +1,7 @@
 import { api } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import AlertsTable from '@/components/AlertsTable';
+export const dynamic = 'force-dynamic';
 
 export default async function AlertsPage() {
   const [stats, recentAlerts] = await Promise.all([

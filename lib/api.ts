@@ -27,6 +27,7 @@ async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     next: { revalidate: 30 },
     headers: buildHeaders(),
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
   return res.json();

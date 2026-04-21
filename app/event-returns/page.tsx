@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import { clsx } from 'clsx';
+export const dynamic = 'force-dynamic';
 
 const MIN_SAMPLE_EVENTS = 50;
 

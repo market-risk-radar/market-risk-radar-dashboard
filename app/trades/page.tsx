@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import Pagination from '@/components/Pagination';
 import TradesTable from '@/components/TradesTable';
+export const dynamic = 'force-dynamic';
 
 const LIMIT_OPTIONS = [50, 100, 200] as const;
 
