@@ -2,6 +2,7 @@ import { api, SignalTagStats } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import NavChart from '@/components/NavChart';
 import { clsx } from 'clsx';
+export const dynamic = 'force-dynamic';
 
 function pct(v: number | null) {
   if (v === null) return '—';

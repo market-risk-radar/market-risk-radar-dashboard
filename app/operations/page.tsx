@@ -1,6 +1,7 @@
 import { api, DashboardStats } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import CostHistoryChart from '@/components/CostHistoryChart';
+export const dynamic = 'force-dynamic';
 
 function normalizeTimestamp(raw: string): string {
   const match = raw.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})$/);

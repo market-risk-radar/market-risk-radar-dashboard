@@ -1,5 +1,6 @@
 import { api, BacktestResult, BacktestCategoryRow } from '@/lib/api';
 import { clsx } from 'clsx';
+export const dynamic = 'force-dynamic';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 

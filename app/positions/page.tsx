@@ -2,6 +2,8 @@ import { api, PaperPosition } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import { clsx } from 'clsx';
 
+export const dynamic = 'force-dynamic';
+
 // ── Portfolio A 테이블 ────────────────────────────────────────────────────────
 function PositionTableA({ positions }: { positions: PaperPosition[] }) {
   if (positions.length === 0) {
