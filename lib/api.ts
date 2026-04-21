@@ -125,6 +125,10 @@ export interface SignalCandidate {
   ret1d: number | null;
   ret5d: number | null;
   alpha5d: number | null;
+  /** Phase 4-B: 기술지표 (신호 생성 시점, 구 신호는 null) */
+  rsi14: number | null;
+  volumeRatio: number | null;
+  high52wPct: number | null;
   createdAt: string;
 }
 
@@ -401,6 +405,9 @@ function normalizeSignalCandidate(raw: any): SignalCandidate {
     ret1d: nNull(raw.ret1d),
     ret5d: nNull(raw.ret5d),
     alpha5d: nNull(raw.alpha5d),
+    rsi14: nNull(raw.rsi14),
+    volumeRatio: nNull(raw.volumeRatio),
+    high52wPct: nNull(raw.high52wPct),
     createdAt: raw.createdAt,
   };
 }
