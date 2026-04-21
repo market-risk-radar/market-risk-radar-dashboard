@@ -187,6 +187,14 @@ export default async function SignalsPage() {
                     <p className="text-zinc-200">{pctOrDash(s.directionMatch5dRate)}</p>
                   </div>
                   <div>
+                    <p className="text-xs text-zinc-500">α방향일치 1d</p>
+                    <p className="text-zinc-200">{pctOrDash(s.alphaDirectionMatch1dRate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">α방향일치 5d</p>
+                    <p className="text-zinc-200">{pctOrDash(s.alphaDirectionMatch5dRate)}</p>
+                  </div>
+                  <div>
                     <p className="text-xs text-zinc-500">α 1d</p>
                     <p className={alphaTextColor(s.avgAlpha1d)}>{pctOrDash(s.avgAlpha1d)}</p>
                   </div>
@@ -206,6 +214,8 @@ export default async function SignalsPage() {
                   <th className="text-right py-2 pr-4">이벤트</th>
                   <th className="text-right py-2 pr-4">방향일치 1d</th>
                   <th className="text-right py-2 pr-4">방향일치 5d</th>
+                  <th className="text-right py-2 pr-4">α방향일치 1d</th>
+                  <th className="text-right py-2 pr-4">α방향일치 5d</th>
                   <th className="text-right py-2 pr-4">α 1d</th>
                   <th className="text-right py-2">α 5d</th>
                 </tr>
@@ -222,6 +232,8 @@ export default async function SignalsPage() {
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{s.eventCount}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch1dRate)}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch5dRate)}</td>
+                    <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.alphaDirectionMatch1dRate)}</td>
+                    <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.alphaDirectionMatch5dRate)}</td>
                     <td className={clsx('py-2.5 pr-4 text-right', alphaTextColor(s.avgAlpha1d))}>
                       {pctOrDash(s.avgAlpha1d)}
                     </td>
