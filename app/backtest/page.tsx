@@ -189,15 +189,17 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
 // ── page ─────────────────────────────────────────────────────────────────────
 
 export default async function BacktestPage() {
-  const [res1d, res5d, resCW] = await Promise.allSettled([
+  const [res1d, res5d, resCW, resEB] = await Promise.allSettled([
     api.backtest({ holdDays: 1 }),
     api.backtest({ holdDays: 5 }),
     api.backtest({ holdDays: 5, minConfidence: 0.65, category: 'CONTRACT_WIN' }),
+    api.backtest({ holdDays: 1, category: 'EARNINGS_BEAT' }),
   ]);
 
   const bt1d = res1d.status === 'fulfilled' ? res1d.value : null;
   const bt5d = res5d.status === 'fulfilled' ? res5d.value : null;
   const btCW = resCW.status === 'fulfilled' ? resCW.value : null;
+  const btEB = resEB.status === 'fulfilled' ? resEB.value : null;
   const hasError = res1d.status === 'rejected' || res5d.status === 'rejected';
 
   return (
@@ -275,6 +277,28 @@ export default async function BacktestPage() {
             <p>Portfolio B는 DART CONTRACT_WIN 공시에 한해 <span className="text-zinc-300">minConf 0.65</span>로 진입 허용.</p>
             <p>전체 화이트리스트 패널(minConf 0.75)은 CONTRACT_WIN 표본을 과소 계상해 결과가 왜곡될 수 있음.</p>
             <p>이 패널이 실제 Portfolio B 운용 규칙과 정합적인 검증 기준이다.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* EARNINGS_BEAT 실제 운용 기준 패널 */}
+      <div>
+        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+          EARNINGS_BEAT 실제 운용 기준 (minConf 0.75 · D+1)
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {btEB ? (
+            <SummaryPanel result={btEB} label="EARNINGS_BEAT — Portfolio B 동일 조건" />
+          ) : (
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 flex items-center justify-center text-zinc-600 text-sm">
+              EARNINGS_BEAT 데이터 없음
+            </div>
+          )}
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-500 space-y-2 flex flex-col justify-center">
+            <p className="text-zinc-300 font-medium text-sm">D+1 단기 반응 전략 근거</p>
+            <p>실증 데이터: EARNINGS_BEAT <span className="text-zinc-300">alpha_1d +1.16%</span> vs alpha_5d −0.94%.</p>
+            <p>D+5 구간에서 KOSPI 벤치마크에 밀리는 패턴 확인 → <span className="text-zinc-300">2026-04-15 holdDays 5→1 변경</span>.</p>
+            <p>방향은 맞지만(dm 66%) 절대 수익보다 초과수익(alpha)이 핵심 — D+1 포착이 효율적.</p>
           </div>
         </div>
       </div>
