@@ -63,13 +63,13 @@ function sampleBadge(eventCount: number) {
   );
 }
 
-function pctOrDash(v: number | null) {
-  if (v === null) return '—';
+function pctOrDash(v: number | null | undefined) {
+  if (v == null) return '—';
   return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
 }
 
-function alphaTextColor(v: number | null) {
-  if (v === null) return 'text-zinc-500';
+function alphaTextColor(v: number | null | undefined) {
+  if (v == null) return 'text-zinc-500';
   return v >= 0 ? 'text-emerald-400' : 'text-red-400';
 }
 
