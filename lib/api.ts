@@ -245,6 +245,7 @@ export interface BacktestCategoryRow {
   avgAlpha: number | null;
   avgRet: number | null;
   directionMatchRate: number | null;
+  alphaDirectionMatchRate: number | null;
 }
 
 export interface BacktestResult {

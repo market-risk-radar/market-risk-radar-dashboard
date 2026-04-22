@@ -115,7 +115,7 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
               <CategoryBadge cat={r.category} />
               <span className="text-xs text-zinc-500">{r.count}건 / 집계 {r.withReturn}건</span>
             </div>
-            <div className="grid grid-cols-3 gap-2 text-sm">
+            <div className="grid grid-cols-4 gap-2 text-sm">
               <div>
                 <p className="text-xs text-zinc-500">승률</p>
                 <p
@@ -135,6 +135,12 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
                 <p className="text-xs text-zinc-500">방향일치</p>
                 <p className="text-zinc-300">{pct(r.directionMatchRate, 0)}</p>
               </div>
+              <div>
+                <p className="text-xs text-zinc-500">α방향일치</p>
+                <p className={clsx('font-medium', alphaColor(r.alphaDirectionMatchRate !== null ? r.alphaDirectionMatchRate - 0.45 : null))}>
+                  {pct(r.alphaDirectionMatchRate, 0)}
+                </p>
+              </div>
             </div>
           </div>
         ))}
@@ -151,7 +157,8 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
               <th className="text-right py-2 pr-4">승률</th>
               <th className="text-right py-2 pr-4">평균 α</th>
               <th className="text-right py-2 pr-4">평균 Ret</th>
-              <th className="text-right py-2">방향일치</th>
+              <th className="text-right py-2 pr-4">방향일치</th>
+              <th className="text-right py-2">α방향일치</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
@@ -172,12 +179,15 @@ function CategoryTable({ rows, holdDays }: { rows: BacktestCategoryRow[]; holdDa
                   {pct(r.avgAlpha)}
                 </td>
                 <td className="py-2.5 pr-4 text-right text-zinc-400">{pct(r.avgRet)}</td>
-                <td className="py-2.5 text-right text-zinc-400">{pct(r.directionMatchRate, 0)}</td>
+                <td className="py-2.5 pr-4 text-right text-zinc-400">{pct(r.directionMatchRate, 0)}</td>
+                <td className={clsx('py-2.5 text-right font-medium', alphaColor(r.alphaDirectionMatchRate !== null ? r.alphaDirectionMatchRate - 0.45 : null))}>
+                  {pct(r.alphaDirectionMatchRate, 0)}
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-zinc-600 text-sm">집계된 카테고리가 없습니다</td>
+                <td colSpan={8} className="py-8 text-center text-zinc-600 text-sm">집계된 카테고리가 없습니다</td>
               </tr>
             )}
           </tbody>
