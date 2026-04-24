@@ -248,6 +248,19 @@ export interface BacktestCategoryRow {
   alphaDirectionMatchRate: number | null;
 }
 
+export interface RecentBTrade {
+  tradeDate: string;
+  ticker: string;
+  tickerName: string | null;
+  side: 'BUY' | 'SELL';
+  qty: number;
+  fillPrice: number;
+  reason: string;
+  pnl: number | null;
+  pnlPct: number | null;
+  createdAt: string;
+}
+
 export interface BacktestResult {
   params: {
     category?: string;
@@ -572,4 +585,6 @@ export const api = {
     if (params.toDate) q.set('toDate', params.toDate);
     return get<BacktestResult>(`/api/signal/backtest?${q.toString()}`);
   },
+  bRecentTrades: (days = 14) =>
+    get<RecentBTrade[]>(`/api/paper-trading/b/recent-trades?days=${days}`),
 };
