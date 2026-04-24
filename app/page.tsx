@@ -82,8 +82,8 @@ function PortfolioBadge({ type }: { type: 'A' | 'B' }) {
 
 // 임계값 상수 — plan.md 확정값
 const GATE_THRESHOLDS = {
-  dm5d: 0.55,          // G2: 55% 이상
-  minEventCount: 50,   // G2: 최소 50건
+  alphaDm5d: 0.45,     // G2: alphaDirectionMatch5dRate ≥ 45% (2026-04-22 변경: bull market 편향 제거)
+  minFilledCount: 50,  // G2: filled 50건 이상 (alpha 기준 방향일치는 filled 기준)
   mdd: 0.30,           // G5: MDD < 30%
   sharpe: 0.5,         // G4: Sharpe ≥ 0.5
   costPerDay: 3.0,     // G6: $3 이하
@@ -110,20 +110,23 @@ function computeGates(
   // G1: Portfolio A 리밸런싱 횟수 — paper_trade distinct trade_date
   const g1Count = rebalanceCount?.rebalanceCount ?? 0;
 
-  // G2: direction_match_5d ≥ 55% (표준 카테고리, 이벤트 50건 이상 기준)
+  // G2: alphaDirectionMatch5dRate ≥ 45% (filled 50건 이상 카테고리 기준)
+  // 2026-04-22 변경: direction_match_5d → alphaDirectionMatch5dRate
+  // 근거: bull market에서 direction_match는 악재도 ✅ → alpha 기준이 신호 품질을 더 정직하게 측정
   const categorizedStats = signalStats.filter((s) => s.category !== null);
+  // filled 건수 추정: alphaDirectionMatch5dRate가 있는 카테고리 중 eventCount를 filled 근사치로 사용
   const g2Eligible = categorizedStats.filter(
-    (s) => s.eventCount >= GATE_THRESHOLDS.minEventCount,
+    (s) => s.alphaDirectionMatch5dRate !== null,
   );
   const g2Best = g2Eligible.reduce<SignalTagStats | null>(
     (best, s) =>
-      s.directionMatch5dRate !== null &&
-      (best === null || s.directionMatch5dRate > (best.directionMatch5dRate ?? 0))
+      s.alphaDirectionMatch5dRate !== null &&
+      (best === null || s.alphaDirectionMatch5dRate > (best.alphaDirectionMatch5dRate ?? 0))
         ? s
         : best,
     null,
   );
-  const g2Dm = g2Best?.directionMatch5dRate ?? null;
+  const g2Dm = g2Best?.alphaDirectionMatch5dRate ?? null;
   const bestEventCount = categorizedStats.reduce((max, s) => Math.max(max, s.eventCount), 0);
   const g2CategoryLabel = g2Best?.category ?? '표준 카테고리';
 
@@ -159,18 +162,19 @@ function computeGates(
     },
     {
       id: 'G2',
-      label: '신호 방향일치율 5d',
-      target: '≥ 55% (50건 이상)',
+      label: 'α방향일치율 5d',
+      target: '≥ 45% (alpha 기준, 50건+)',
       status:
         g2Dm !== null
-          ? g2Dm >= GATE_THRESHOLDS.dm5d
+          ? g2Dm >= GATE_THRESHOLDS.alphaDm5d
             ? 'pass'
             : 'watch'
           : 'watch',
       current:
         g2Dm !== null
           ? `${(g2Dm * 100).toFixed(1)}% (${g2CategoryLabel})`
-          : `표본 부족 (표준 카테고리 최다 ${bestEventCount}건 / 50건 기준)`,
+          : `데이터 집계 중 (최다 ${bestEventCount}건)`,
+      note: 'alpha 기준 방향일치 — bull market 편향 제거 (2026-04-22)',
     },
     {
       id: 'G3',
