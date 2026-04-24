@@ -1,6 +1,7 @@
-import { api, DashboardStats } from '@/lib/api';
+import { api, DashboardStats, RecentBTrade } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import CostHistoryChart from '@/components/CostHistoryChart';
+import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
 function normalizeTimestamp(raw: string): string {
@@ -127,12 +128,57 @@ function SourceTypeBar({ stats }: { stats: DashboardStats }) {
   );
 }
 
+// ── Portfolio B 실행 로그 ────────────────────────────────────────────────────
+
+function BTradeRow({ trade }: { trade: RecentBTrade }) {
+  const isBuy = trade.side === 'BUY';
+  const reason = trade.reason.replace('B_ENTRY:', '').replace('B_', '');
+  return (
+    <tr className="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/30 transition-colors">
+      <td className="py-2.5 pr-4 text-xs text-zinc-500 tabular-nums whitespace-nowrap">{trade.tradeDate}</td>
+      <td className="py-2.5 pr-4">
+        <span className="text-sm font-medium text-zinc-200">{trade.tickerName ?? trade.ticker}</span>
+        <span className="ml-1.5 text-xs text-zinc-600">{trade.ticker}</span>
+      </td>
+      <td className="py-2.5 pr-4">
+        <span className={clsx(
+          'text-xs font-semibold px-2 py-0.5 rounded-full',
+          isBuy ? 'bg-blue-900/60 text-blue-300' : 'bg-amber-900/60 text-amber-300',
+        )}>
+          {trade.side}
+        </span>
+      </td>
+      <td className="py-2.5 pr-4 text-xs text-zinc-400 tabular-nums text-right">{Number(trade.qty).toLocaleString()}주</td>
+      <td className="py-2.5 pr-4 text-xs text-zinc-300 tabular-nums text-right">{Number(trade.fillPrice).toLocaleString()}원</td>
+      <td className="py-2.5 pr-4 text-xs text-zinc-500">{reason}</td>
+      <td className="py-2.5 text-xs tabular-nums text-right">
+        {trade.pnl != null ? (
+          <span className={clsx(
+            'font-semibold',
+            trade.pnl >= 0 ? 'text-emerald-400' : 'text-red-400',
+          )}>
+            {trade.pnl >= 0 ? '+' : ''}{Number(trade.pnl).toLocaleString()}원
+            {trade.pnlPct != null && (
+              <span className="ml-1 text-zinc-500">
+                ({trade.pnlPct >= 0 ? '+' : ''}{Number(trade.pnlPct).toFixed(2)}%)
+              </span>
+            )}
+          </span>
+        ) : (
+          <span className="text-zinc-700">—</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
 // ── 메인 페이지 ──────────────────────────────────────────────────────────────
 
 export default async function OperationsPage() {
-  const [stats, costHistory] = await Promise.all([
+  const [stats, costHistory, bRecentTrades] = await Promise.all([
     api.dashboardStats().catch(() => null),
     api.costHistory(30).catch(() => []),
+    api.bRecentTrades(14).catch(() => []),
   ]);
 
   if (!stats) {
@@ -266,6 +312,39 @@ export default async function OperationsPage() {
         ) : (
           <div className="h-60 flex items-center justify-center text-zinc-600 text-sm">
             비용 데이터 없음
+          </div>
+        )}
+      </div>
+
+      {/* Portfolio B 실행 로그 */}
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">B Execution Log</p>
+            <p className="mt-1 text-sm font-semibold text-zinc-300">Portfolio B 실행 이력 (최근 14일)</p>
+          </div>
+          <span className="text-xs text-zinc-600">{bRecentTrades.length}건</span>
+        </div>
+        {bRecentTrades.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-zinc-700">
+                  {['날짜', '종목', '구분', '수량', '체결가', '사유', 'P&L'].map((h) => (
+                    <th key={h} className="pb-2 pr-4 text-xs font-medium text-zinc-500 uppercase tracking-wider last:pr-0">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {bRecentTrades.map((t, i) => (
+                  <BTradeRow key={i} trade={t} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="py-10 text-center text-zinc-600 text-sm">
+            최근 14일 거래 없음
           </div>
         )}
       </div>
