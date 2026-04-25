@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { api, type SignalTagStats } from '@/lib/api';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
@@ -45,12 +45,12 @@ function categoryCell(category: string | null) {
   return categoryBadge(category);
 }
 
-function sampleStatus(eventCount: number): 'ok' | 'low' {
-  return eventCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
+function sampleStatus(filledCount: number): 'ok' | 'low' {
+  return filledCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
 }
 
-function sampleBadge(eventCount: number) {
-  const status = sampleStatus(eventCount);
+function sampleBadge(filledCount: number) {
+  const status = sampleStatus(filledCount);
   return (
     <span
       className={clsx(
@@ -60,6 +60,45 @@ function sampleBadge(eventCount: number) {
     >
       {status === 'ok' ? '표본 충분' : '표본 부족'}
     </span>
+  );
+}
+
+function g2Badge(g2Eligible: boolean, g2Pass: boolean) {
+  if (!g2Eligible) {
+    return (
+      <span className="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap bg-zinc-800 text-zinc-400">
+        G2 대기
+      </span>
+    );
+  }
+
+  if (g2Pass) {
+    return (
+      <span className="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap bg-emerald-900 text-emerald-300">
+        G2 통과
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap bg-amber-900 text-amber-300">
+      G2 미통과
+    </span>
+  );
+}
+
+function compareSignalTagStats(a: SignalTagStats, b: SignalTagStats) {
+  const g2Score = (row: SignalTagStats) => {
+    if (row.g2Pass) return 2;
+    if (row.g2Eligible) return 1;
+    return 0;
+  };
+
+  return (
+    g2Score(b) - g2Score(a) ||
+    b.filledCount - a.filledCount ||
+    b.eventCount - a.eventCount ||
+    categoryLabel(a.category).localeCompare(categoryLabel(b.category))
   );
 }
 
@@ -118,6 +157,7 @@ export default async function SignalsPage() {
   ]);
   const candidates = candidatesResult.status === 'fulfilled' ? candidatesResult.value : [];
   const stats = statsResult.status === 'fulfilled' ? statsResult.value : [];
+  const sortedStats = [...stats].sort(compareSignalTagStats);
   const hasError =
     candidatesResult.status === 'rejected' || statsResult.status === 'rejected';
 
@@ -157,15 +197,15 @@ export default async function SignalsPage() {
           <div className="mb-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 mb-2">Category Stats</p>
             <p className="text-sm font-semibold text-zinc-300">카테고리별 통계</p>
-            <p className="text-xs text-zinc-600 mt-0.5">방향일치율과 alpha 해석은 기본적으로 표본 50건 이상을 기준으로 본다.</p>
+            <p className="text-xs text-zinc-600 mt-0.5">표본 배지는 filled 50건 기준이고, G2 상태는 API의 `g2Eligible` / `g2Pass`를 그대로 따른다.</p>
           </div>
           <div className="space-y-3 md:hidden">
-            {stats.map((s, i) => (
+            {sortedStats.map((s, i) => (
               <div
                 key={i}
                 className={clsx(
                   'rounded-lg border p-4 space-y-3',
-                  sampleStatus(s.eventCount) === 'ok'
+                  sampleStatus(s.filledCount) === 'ok'
                     ? 'border-zinc-800 bg-zinc-950/60'
                     : 'border-amber-800/80 bg-amber-950/20',
                 )}
@@ -173,9 +213,10 @@ export default async function SignalsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <div>{categoryCell(s.category)}</div>
-                    {sampleBadge(s.eventCount)}
+                    {sampleBadge(s.filledCount)}
+                    {g2Badge(s.g2Eligible, s.g2Pass)}
                   </div>
-                  <span className="text-xs text-zinc-500">{s.eventCount}건</span>
+                  <span className="text-xs text-zinc-500">event {s.eventCount} / filled {s.filledCount}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
@@ -221,15 +262,16 @@ export default async function SignalsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
-                {stats.map((s, i) => (
+                {sortedStats.map((s, i) => (
                   <tr key={i} className="hover:bg-zinc-800/50">
                     <td className="py-2.5 pr-4">
                       <div className="flex items-center gap-2">
                         {categoryCell(s.category)}
-                        {sampleBadge(s.eventCount)}
+                        {sampleBadge(s.filledCount)}
+                        {g2Badge(s.g2Eligible, s.g2Pass)}
                       </div>
                     </td>
-                    <td className="py-2.5 pr-4 text-right text-zinc-300">{s.eventCount}</td>
+                    <td className="py-2.5 pr-4 text-right text-zinc-300">{s.eventCount} / {s.filledCount}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch1dRate)}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.directionMatch5dRate)}</td>
                     <td className="py-2.5 pr-4 text-right text-zinc-300">{pctOrDash(s.alphaDirectionMatch1dRate)}</td>
