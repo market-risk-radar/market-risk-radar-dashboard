@@ -1,6 +1,6 @@
 # Dashboard Research — 구현 현황
 
-> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-19  
+> 작성일: 2026-04-10 / 최종 업데이트: 2026-04-25  
 > 이 문서는 **"어떻게 동작하나?"** 에 답한다.  
 > 향후 계획 → `plan.md` | 백엔드 구현 → `../market-risk-radar/research.md`
 
@@ -70,7 +70,7 @@ app/
 
   signals/
     loading.tsx
-    page.tsx                # signal_candidate 목록 + 카테고리별 통계(표본 부족 배지)
+    page.tsx                # signal_candidate 목록 + 카테고리별 통계(`event / filled`, 표본 부족/G2 상태 배지)
 
   alerts/
     loading.tsx
@@ -196,29 +196,30 @@ Promise.all([
 5. NAV 차트: `NavChart` (Portfolio A/B/KOSPI 60일 비교 AreaChart)
 6. 하단 메타: 기간, CAGR, Profit Factor
 7. **G1~G6 게이트 패널**: GateCard × 6, 달성 카운터 뱃지
+8. **G2 카테고리 요약**: `g2Pass` 상위 3개, `g2Eligible && !g2Pass` 상위 3개를 게이트 패널 아래에 표시
 
 **G1~G6 판정 로직** (`computeGates()`)
 
 ```typescript
 const GATE_THRESHOLDS = {
-  dm5d: 0.55,          // G2
-  minEventCount: 50,   // G2: 표본 최소 기준
-  mdd: 0.30,           // G5
-  sharpe: 0.5,         // G4
-  costPerDay: 3.0,     // G6
+  mdd: 0.30,       // G5
+  sharpe: 0.5,     // G4
+  costPerDay: 3.0, // G6
 };
 ```
 
 | 게이트 | 판정 소스 | 로직 |
 |--------|---------|------|
 | G1 | `rebalanceCount()` | Portfolio A `paper_trade` distinct `tradeDate` 정확 집계 |
-| G2 | `signalStats` | eventCount ≥ 50인 카테고리 중 dm5d 최고값 ≥ 0.55 |
+| G2 | `signalStats` | `g2Eligible` / `g2Pass` 서버 판정을 사용하고, 카드 문구는 `카테고리 / α방향일치 5d / filled` 형식 |
 | G3 | `signalStats` | CONTRACT_WIN `avgAlpha5d` ≥ 0 |
 | G4 | `bPerformance` | 60거래일 이상이면 Sharpe ≥ 0.5 판정, 미만이면 `pending` |
 | G5 | `performance` + `bPerformance` | A/B 모두 `maxDrawdown < 0.30`이면 `pass`, B 표본 부족 시 `watch` |
 | G6 | `dashboardStats` | `estimatedDailyCostUsd` ≤ 3.0 |
 
 GateStatus: `'pass'`(초록) / `'watch'`(노랑) / `'fail'`(빨강) / `'pending'`(회색)
+
+G2는 더 이상 프론트 임계값 상수로 판정하지 않는다. 프론트는 `/api/signal/stats`가 내려주는 `g2Eligible`, `g2Pass`, `alphaDirectionMatch5dRate`, `filledCount`를 그대로 소비한다.
 
 ---
 
@@ -266,12 +267,19 @@ Promise.all([
 | 기타 | 회색 (`bg-zinc-800`) |
 
 **렌더링 구조**
-1. 카테고리별 통계 테이블: 이벤트 수, 방향일치 1d/5d, α 1d/5d, 표본 부족 배지
+1. 카테고리별 통계 테이블: `eventCount / filledCount`, 방향일치 1d/5d, α방향일치 1d/5d, α 1d/5d, 표본 부족/G2 상태 배지, `g2Pass > g2Eligible > 나머지` 우선 정렬
+   - `eventCount`: dedup 이후 카테고리 이벤트 수
+   - `filledCount`: `alpha_5d`가 실제 채워진 이벤트 수
 2. signal_candidate 목록: 종목(이름+코드), 카테고리 뱃지, 방향(▲/▼), confidence%, ret_1d, ret_5d, α_5d, 날짜
 
 **표본 경고 규칙**
-- `eventCount < 50` → `표본 부족` amber 배지
-- `eventCount >= 50` → `표본 충분` emerald 배지
+- `filledCount < 50` → `표본 부족` amber 배지
+- `filledCount >= 50` → `표본 충분` emerald 배지
+
+**G2 상태 규칙**
+- `g2Eligible = false` → `G2 대기`
+- `g2Eligible = true` and `g2Pass = false` → `G2 미통과`
+- `g2Pass = true` → `G2 통과`
 
 ---
 
@@ -312,19 +320,20 @@ api.signalStats()  // GET /api/signal/stats  (event_return 집계 포함)
 ```
 
 **렌더링 구조**
-1. 요약 카드 × 3: 총 이벤트, 평균 방향일치 5d (G2 목표 ≥55% 비교), 평균 α 5d
-2. 카테고리별 수익률 테이블 (eventCount 내림차순 정렬, 대표 rawTags/표본 부족 배지 포함)
+1. 요약 카드 × 3: 총 이벤트, 평균 α방향일치 5d (G2 목표 ≥45% 비교, `filledCount` 가중), 평균 α 5d
+2. 카테고리별 수익률 테이블 (`g2Pass > g2Eligible > 나머지` 우선 정렬 후 `filledCount`, `eventCount` 순 정렬, 대표 rawTags/표본 부족 배지 포함)
    - `대표 태그` 컬럼: 해당 카테고리로 정규화된 원시 event tag 예시를 칩 형태로 표시
    - `미분류/기타` 행은 상위 미매핑 raw tag 예시를 함께 표시
-   - 방향일치 5d: 진행바 (`dmBar`) — 55% 이상 시 초록, 미만 시 회색
+   - α방향일치 5d: 진행바 (`dmBar`) — 45% 이상 시 초록, 미만 시 회색
 
 **표본 경고 규칙**
-- `eventCount < 50` → `표본 부족` amber 배지 + 카드/행 강조
-- `eventCount >= 50` → `표본 충분` emerald 배지
+- `filledCount < 50` → `표본 부족` amber 배지 + 카드/행 강조
+- `filledCount >= 50` → `표본 충분` emerald 배지
 
-**현재 해석 포인트 (2026-04-12)**
-- `BUYBACK 44건`이 최대 표본이지만 아직 50건 미만이라 G2는 계속 `watch`
-- `CONTRACT_WIN`은 라이선스 계약 분리 후 `direction_match_5d 80.0%`, `alpha_5d +1.37%`로 개선
+**현재 해석 포인트 (2026-04-25)**
+- G2는 절대수익 `direction_match_5d`가 아니라 `alphaDirectionMatch5dRate` 기준으로 본다
+- G2 표본 최소 기준은 `eventCount`가 아니라 실제 `alpha_5d`가 채워진 `filledCount`를 사용한다
+- Event Returns 페이지도 Overview와 동일하게 alpha 기준 G2 문구를 사용한다
 - `대표 태그`는 카테고리 내부 이질성 점검과 미분류 원인 확인용 보조 정보다
 
 ---
@@ -425,7 +434,8 @@ datasets: Array<{ key: string; label: string; color: string; data: PortfolioNav[
 | `PaperTrade` | `paper_trade` 테이블 | `portfolioType` 포함 |
 | `PaginatedTrades` | `/api/paper-trading/trades` | `items`, `total`, `page`, `limit`, `hasNext` |
 | `SignalCandidate` | `signal_candidate` 테이블 | `confidence`, `category` 포함 (`signalScore`는 저장되지만 UI 비노출) |
-| `SignalTagStats` | `/api/signal/stats` 집계 | `directionMatch*Rate`, `avgAlpha*` |
+| `SignalTagStats` | `/api/signal/stats` 집계 | `eventCount`, `filledCount`, `g2Eligible`, `g2Pass`, `directionMatch*Rate`, `alphaDirectionMatch*Rate`, `avgAlpha*` |
+|  |  | 계약: `eventCount` = `(ticker, eventDate, resolvedCategory)` dedup 이후 이벤트 수 / `filledCount` = 그중 `alpha_5d`까지 실제 채워진 이벤트 수 / `g2Eligible` = G2 판정 가능 여부 / `g2Pass` = G2 통과 여부 |
 | `AlertStats` | `/api/alert/stats` 집계 | 누계 통계 |
 | `RecentAlert` | `/api/alert/recent` | 제목, 채널, 발송 상태 포함 |
 | `PortfolioBStats` | `/api/paper-trading/b/stats` | `closedPnl`, `stoppedCount` |

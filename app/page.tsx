@@ -4,6 +4,17 @@ import NavChart from '@/components/NavChart';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
+function compareSignalTagStats(a: SignalTagStats, b: SignalTagStats) {
+  return (
+    Number(b.g2Pass) - Number(a.g2Pass) ||
+    Number(b.g2Eligible) - Number(a.g2Eligible) ||
+    b.filledCount - a.filledCount ||
+    b.eventCount - a.eventCount ||
+    (b.alphaDirectionMatch5dRate ?? -1) - (a.alphaDirectionMatch5dRate ?? -1) ||
+    (a.category ?? '미분류/기타').localeCompare(b.category ?? '미분류/기타')
+  );
+}
+
 function pct(v: number | null) {
   if (v === null) return '—';
   return (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%';
@@ -82,8 +93,6 @@ function PortfolioBadge({ type }: { type: 'A' | 'B' }) {
 
 // 임계값 상수 — plan.md 확정값
 const GATE_THRESHOLDS = {
-  alphaDm5d: 0.45,     // G2: alphaDirectionMatch5dRate ≥ 45% (2026-04-22 변경: bull market 편향 제거)
-  minFilledCount: 50,  // G2: filled 50건 이상 (alpha 기준 방향일치는 filled 기준)
   mdd: 0.30,           // G5: MDD < 30%
   sharpe: 0.5,         // G4: Sharpe ≥ 0.5
   costPerDay: 3.0,     // G6: $3 이하
@@ -114,9 +123,8 @@ function computeGates(
   // 2026-04-22 변경: direction_match_5d → alphaDirectionMatch5dRate
   // 근거: bull market에서 direction_match는 악재도 ✅ → alpha 기준이 신호 품질을 더 정직하게 측정
   const categorizedStats = signalStats.filter((s) => s.category !== null);
-  // filled 건수 추정: alphaDirectionMatch5dRate가 있는 카테고리 중 eventCount를 filled 근사치로 사용
   const g2Eligible = categorizedStats.filter(
-    (s) => s.alphaDirectionMatch5dRate !== null,
+    (s) => s.g2Eligible,
   );
   const g2Best = g2Eligible.reduce<SignalTagStats | null>(
     (best, s) =>
@@ -127,7 +135,8 @@ function computeGates(
     null,
   );
   const g2Dm = g2Best?.alphaDirectionMatch5dRate ?? null;
-  const bestEventCount = categorizedStats.reduce((max, s) => Math.max(max, s.eventCount), 0);
+  const g2Pass = g2Best?.g2Pass ?? false;
+  const bestFilledCount = categorizedStats.reduce((max, s) => Math.max(max, s.filledCount), 0);
   const g2CategoryLabel = g2Best?.category ?? '표준 카테고리';
 
   // G3: alpha_5d 평균 ≥ 0 — CONTRACT_WIN 우선, 없으면 집계 가능한 전체 평균
@@ -166,15 +175,15 @@ function computeGates(
       target: '≥ 45% (alpha 기준, 50건+)',
       status:
         g2Dm !== null
-          ? g2Dm >= GATE_THRESHOLDS.alphaDm5d
+          ? g2Pass
             ? 'pass'
             : 'watch'
           : 'watch',
       current:
         g2Dm !== null
-          ? `${(g2Dm * 100).toFixed(1)}% (${g2CategoryLabel})`
-          : `데이터 집계 중 (최다 ${bestEventCount}건)`,
-      note: 'alpha 기준 방향일치 — bull market 편향 제거 (2026-04-22)',
+          ? `${g2CategoryLabel} / α방향일치 5d ${(g2Dm * 100).toFixed(1)}% / filled ${g2Best?.filledCount ?? 0}건`
+          : `데이터 집계 중 / 최다 filled ${bestFilledCount}건`,
+      note: '최상위 표준 카테고리 기준',
     },
     {
       id: 'G3',
@@ -268,6 +277,46 @@ function GateCard({ gate }: { gate: GateInfo }) {
   );
 }
 
+function G2CategoryChip({
+  label,
+  alphaDirectionMatch5dRate,
+  filledCount,
+  state,
+}: {
+  label: string;
+  alphaDirectionMatch5dRate: number | null;
+  filledCount: number;
+  state: 'pass' | 'watch';
+}) {
+  return (
+    <div
+      className={clsx(
+        'rounded-lg border px-3 py-2',
+        state === 'pass'
+          ? 'border-emerald-800 bg-emerald-950/20'
+          : 'border-amber-800/80 bg-amber-950/20',
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-white">{label}</p>
+        <span
+          className={clsx(
+            'text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap',
+            state === 'pass'
+              ? 'bg-emerald-900 text-emerald-300'
+              : 'bg-amber-900 text-amber-300',
+          )}
+        >
+          {state === 'pass' ? 'G2 통과' : '다음 후보'}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-zinc-400">
+        α방향일치 5d {pct(alphaDirectionMatch5dRate)} / filled {filledCount}건
+      </p>
+    </div>
+  );
+}
+
 export default async function OverviewPage() {
   const [navHistory, bNavHistory, benchmarkNavHistory, perf, bStats, bPerf, signalStats, dashboardStats, rebalanceCount] = await Promise.all([
     api.navHistory(60).catch(() => []),
@@ -310,6 +359,13 @@ export default async function OverviewPage() {
   const bExcessSampleDays = Math.min(bSampleDays, benchmarkSampleDays);
   const aExcessSampleStatus = sampleStatus(aExcessSampleDays);
   const bExcessSampleStatus = sampleStatus(bExcessSampleDays);
+  const categorizedSignalStats = signalStats
+    .filter((s) => s.category !== null)
+    .sort(compareSignalTagStats);
+  const g2PassedCategories = categorizedSignalStats.filter((s) => s.g2Pass).slice(0, 3);
+  const g2WatchCategories = categorizedSignalStats
+    .filter((s) => s.g2Eligible && !s.g2Pass)
+    .slice(0, 3);
 
   return (
     <div className="space-y-6">
@@ -541,6 +597,60 @@ export default async function OverviewPage() {
           {gates.map((gate) => (
             <GateCard key={gate.id} gate={gate} />
           ))}
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-zinc-200">현재 G2 통과 카테고리</p>
+                <p className="text-xs text-zinc-600 mt-0.5">Signals/Event Returns와 같은 서버 판정 기준</p>
+              </div>
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-900 text-emerald-300">
+                {g2PassedCategories.length}개
+              </span>
+            </div>
+            <div className="mt-3 space-y-2">
+              {g2PassedCategories.length > 0 ? (
+                g2PassedCategories.map((row) => (
+                  <G2CategoryChip
+                    key={row.category}
+                    label={row.category ?? '미분류/기타'}
+                    alphaDirectionMatch5dRate={row.alphaDirectionMatch5dRate}
+                    filledCount={row.filledCount}
+                    state="pass"
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-zinc-500">아직 G2 통과 카테고리가 없습니다.</p>
+              )}
+            </div>
+          </div>
+          <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-zinc-200">다음 G2 후보</p>
+                <p className="text-xs text-zinc-600 mt-0.5">filled 50건 이상이지만 아직 45%에 도달하지 않은 카테고리</p>
+              </div>
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-amber-900 text-amber-300">
+                {g2WatchCategories.length}개
+              </span>
+            </div>
+            <div className="mt-3 space-y-2">
+              {g2WatchCategories.length > 0 ? (
+                g2WatchCategories.map((row) => (
+                  <G2CategoryChip
+                    key={row.category}
+                    label={row.category ?? '미분류/기타'}
+                    alphaDirectionMatch5dRate={row.alphaDirectionMatch5dRate}
+                    filledCount={row.filledCount}
+                    state="watch"
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-zinc-500">현재는 대기 중인 G2 후보 카테고리가 없습니다.</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
