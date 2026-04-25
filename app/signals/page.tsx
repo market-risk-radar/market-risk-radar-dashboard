@@ -45,6 +45,10 @@ function categoryCell(category: string | null) {
   return categoryBadge(category);
 }
 
+function categoryLabel(category: string | null) {
+  return category ?? '미분류/기타';
+}
+
 function sampleStatus(filledCount: number): 'ok' | 'low' {
   return filledCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
 }
