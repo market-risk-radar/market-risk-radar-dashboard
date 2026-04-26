@@ -130,6 +130,9 @@ export interface SignalCandidate {
   rsi14: number | null;
   volumeRatio: number | null;
   high52wPct: number | null;
+  /** Phase 4-B v2: 실행비용 모델 입력값 */
+  adv20KrwProxy: number | null;
+  realizedVol20d: number | null;
   createdAt: string;
 }
 
@@ -273,6 +276,7 @@ export interface BacktestResult {
     fromDate?: string;
     toDate?: string;
   };
+  note?: string;
   summary: {
     totalSignals: number;
     withReturn: number;
@@ -429,6 +433,8 @@ function normalizeSignalCandidate(raw: any): SignalCandidate {
     rsi14: nNull(raw.rsi14),
     volumeRatio: nNull(raw.volumeRatio),
     high52wPct: nNull(raw.high52wPct),
+    adv20KrwProxy: nNull(raw.adv20KrwProxy),
+    realizedVol20d: nNull(raw.realizedVol20d),
     createdAt: raw.createdAt,
   };
 }

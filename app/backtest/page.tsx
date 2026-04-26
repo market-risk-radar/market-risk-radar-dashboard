@@ -243,6 +243,14 @@ export default async function BacktestPage() {
         </div>
       )}
 
+      {/* 슬리피지 미반영 경고 */}
+      {(bt1d?.note ?? bt5d?.note) && (
+        <div className="rounded-lg border border-amber-800/60 bg-amber-950/20 px-4 py-3 text-xs text-amber-300/80">
+          <span className="font-semibold text-amber-300">주의 — </span>
+          {bt1d?.note ?? bt5d?.note}
+        </div>
+      )}
+
       {/* 해석 가이드 */}
       <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.74),rgba(10,14,19,0.78))] px-4 py-4 text-xs text-zinc-500 space-y-1 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
         <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + 방향일치율 55%+ 달성 카테고리만 신호 유효. D+1과 D+5를 나란히 비교해 어느 구간이 더 설득력 있는지 확인한다.</p>

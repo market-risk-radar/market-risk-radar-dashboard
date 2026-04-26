@@ -144,6 +144,11 @@ function high52wDisplay(v: number | null) {
   return (v * 100).toFixed(1) + '%';
 }
 
+function advDisplay(v: number | null) {
+  if (v === null) return '—';
+  return (v / 1e8).toFixed(1) + '억';
+}
+
 function formatSignalDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -337,7 +342,7 @@ export default async function SignalsPage() {
                   <p className={alphaTextColor(c.alpha5d)}>{pctOrDash(c.alpha5d)}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3 text-sm border-t border-zinc-800 pt-2">
+              <div className="grid grid-cols-4 gap-3 text-sm border-t border-zinc-800 pt-2">
                 <div>
                   <p className="text-xs text-zinc-500">RSI(14)</p>
                   <p className={rsiTextColor(c.rsi14)}>{rsiDisplay(c.rsi14)}</p>
@@ -349,6 +354,10 @@ export default async function SignalsPage() {
                 <div>
                   <p className="text-xs text-zinc-500">52주고점</p>
                   <p className="text-zinc-300">{high52wDisplay(c.high52wPct)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-500">ADV(억)</p>
+                  <p className="text-zinc-300">{advDisplay(c.adv20KrwProxy)}</p>
                 </div>
               </div>
             </div>
@@ -368,6 +377,7 @@ export default async function SignalsPage() {
                   <th className="text-right py-2 pr-4">RSI</th>
                   <th className="text-right py-2 pr-4">Vol×</th>
                   <th className="text-right py-2 pr-4">52w%</th>
+                  <th className="text-right py-2 pr-4">ADV(억)</th>
                   <th className="text-right py-2">날짜</th>
                 </tr>
             </thead>
@@ -402,6 +412,9 @@ export default async function SignalsPage() {
                   </td>
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {high52wDisplay(c.high52wPct)}
+                  </td>
+                  <td className="py-2.5 pr-4 text-right text-zinc-300">
+                    {advDisplay(c.adv20KrwProxy)}
                   </td>
                   <td className="py-2.5 text-right text-zinc-500 text-xs">{formatSignalDate(c.signalDate)}</td>
                 </tr>
