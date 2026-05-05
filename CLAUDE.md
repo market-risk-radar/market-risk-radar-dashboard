@@ -116,5 +116,52 @@ npm run lint     # ESLint
 - G2는 더 이상 `directionMatch5dRate 55%`가 아니라 `alphaDirectionMatch5dRate 45%` 기준이다. 표본 기준도 `eventCount`가 아니라 `filledCount ≥ 50`이다.
 - 프론트는 G2를 자체 상수로 다시 판정하지 않고, `/api/signal/stats`의 `g2Eligible` / `g2Pass` 서버 필드를 기준으로 표시한다.
 
+---
+
+## Claude 코딩 원칙
+
+### 1. 코딩 전 생각하기
+
+가정을 먼저 확인한다. 확신이 없으면 구현 전에 묻는다.
+
+- **API 응답 구조**: `lib/api.ts` 타입이 백엔드 실제 응답과 맞는지 먼저 확인한다. 백엔드가 먼저 배포됐는지 모르면 묻는다.
+- **G2 판정 기준**: 프론트는 자체 상수로 재판정하지 않는다 — 서버 필드(`g2Eligible`, `g2Pass`) 기준임을 전제한다. 기준이 바뀐 것 같으면 plan.md를 확인한다.
+- **Server vs Client Component**: Recharts/hooks가 필요한지, 인터랙션이 있는지 먼저 판단한다. 여러 선택이 있으면 트레이드오프를 제시하고 선택받는다.
+
+### 2. 단순함 우선
+
+요청된 것만 만든다. 투기적 기능·추상화·유연성은 추가하지 않는다.
+
+- Server Component에서 fetch → 렌더로 충분한 것을 `useEffect`/`useState`로 클라이언트 처리하지 않는다.
+- 새 Recharts 래퍼 컴포넌트를 만들기 전에 `NavChart.tsx` / `CostHistoryChart.tsx` 재사용 가능성을 먼저 확인한다.
+- `StatCard` 변형이 필요하면 새 컴포넌트 분리 전 props 확장을 먼저 고려한다.
+- Tailwind 클래스 정리, 색상 통일, 파일 구조 개편은 요청받지 않으면 하지 않는다.
+
+### 3. 외과적 변경
+
+요청 범위만 건드린다. 기존 코드를 개선하고 싶어도 언급만 하고 직접 바꾸지 않는다.
+
+- 한 페이지를 수정할 때 다른 `page.tsx`, `loading.tsx`, `Navigation.tsx`는 건드리지 않는다.
+- `lib/api.ts` 타입 변경 전 해당 타입을 사용하는 모든 페이지 범위를 먼저 파악한다.
+- **내가 만든 변경으로 생긴 미사용 import만 제거한다.** 기존 dead code는 언급만 한다.
+- 기존 스타일(Tailwind 다크 테마, `bg-zinc-*` 계열, prose 간격)을 그대로 따른다.
+
+### 4. 목표 기반 실행
+
+성공 기준을 먼저 정의한다. 검증 없이 완료 선언하지 않는다.
+
+새 페이지 추가 3단계 체크리스트:
+```
+1. app/<route>/page.tsx 생성 → verify: 데이터 렌더 확인
+2. app/<route>/loading.tsx 생성 → verify: 스켈레톤 노출 확인 (필수)
+3. Navigation.tsx 메뉴 항목 추가 → verify: 사이드바 링크 작동 확인
+```
+
+- **배포 관련 작업(Vercel env, 도메인, 빌드 트리거)은 직접 실행하지 않는다.** 필요한 명령을 안내하고 사용자가 실행한다.
+- `npm run lint` 는 수정 후 항상 통과 여부를 확인한다.
+- `lib/api.ts` 타입 변경 시 TypeScript 컴파일 오류가 없는지 확인 기준으로 삼는다.
+
+---
+
 > 상세 구현 현황 → `research.md`  
 > 향후 개발 계획 → `plan.md`

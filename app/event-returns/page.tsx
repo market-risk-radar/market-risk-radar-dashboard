@@ -27,7 +27,7 @@ function pctOrDash(v: number | null) {
   );
 }
 
-function dmBar(v: number | null, pass: boolean) {
+function dmBar(v: number | null, pass: boolean, horizon?: '1d' | '5d') {
   if (v === null) return <span className="text-zinc-600">—</span>;
   const pct = (v * 100).toFixed(1);
   return (
@@ -39,8 +39,21 @@ function dmBar(v: number | null, pass: boolean) {
         />
       </div>
       <span className={clsx('text-xs', pass ? 'text-emerald-400' : 'text-zinc-400')}>{pct}%</span>
+      {horizon && (
+        <span className="text-[10px] text-zinc-500 whitespace-nowrap">({horizon})</span>
+      )}
     </div>
   );
+}
+
+function g2Horizon(category: string | null): '1d' | '5d' {
+  return category === 'EARNINGS_BEAT' ? '1d' : '5d';
+}
+
+function g2DmRate(s: SignalTagStats): number | null {
+  return s.category === 'EARNINGS_BEAT'
+    ? s.alphaDirectionMatch1dRate
+    : s.alphaDirectionMatch5dRate;
 }
 
 function sampleStatus(filledCount: number): 'ok' | 'low' {
@@ -113,10 +126,12 @@ export default async function EventReturnsPage() {
   );
 
   const totalEvents = filled.reduce((s, r) => s + r.eventCount, 0);
-  const avgAlphaDm5d = weightedAverage(
+  const avgAlphaDmG2 = weightedAverage(
     eligibleSummaryRows.map((row) => ({
       weight: row.filledCount,
-      value: row.alphaDirectionMatch5dRate,
+      value: row.category === 'EARNINGS_BEAT'
+        ? row.alphaDirectionMatch1dRate
+        : row.alphaDirectionMatch5dRate,
     })),
   );
   const avgAlpha5d = weightedAverage(
@@ -163,12 +178,12 @@ export default async function EventReturnsPage() {
             <p className="text-2xl font-bold text-white">{totalEvents}</p>
           </div>
         <div className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">평균 α방향일치 5d</p>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">평균 α방향일치 (G2 기준)</p>
           <p className={clsx('text-2xl font-bold', eligibleSummaryRows.some((row) => row.g2Pass) ? 'text-emerald-400' : 'text-zinc-300')}>
-            {avgAlphaDm5d != null ? (avgAlphaDm5d * 100).toFixed(1) + '%' : '—'}
+            {avgAlphaDmG2 != null ? (avgAlphaDmG2 * 100).toFixed(1) + '%' : '—'}
           </p>
           <p className="text-xs text-zinc-600 mt-0.5">
-            G2 목표: α방향일치 5d ≥ 45% / 표준 카테고리 + filled 50건 이상만 반영
+            G2 목표: αDM ≥ 45% / EARNINGS_BEAT=1d, 그 외=5d / filled 50건+ 카테고리만 반영
           </p>
         </div>
         <div className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
@@ -215,8 +230,8 @@ export default async function EventReturnsPage() {
                   <span className="text-xs text-zinc-500 whitespace-nowrap">event {s.eventCount} / filled {s.filledCount}</span>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 mb-1">α방향일치 5d</p>
-                  {dmBar(s.alphaDirectionMatch5dRate, s.g2Pass)}
+                  <p className="text-xs text-zinc-500 mb-1">α방향일치 (G2 기준)</p>
+                  {dmBar(g2DmRate(s), s.g2Pass, g2Horizon(s.category))}
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
@@ -240,13 +255,14 @@ export default async function EventReturnsPage() {
             ))}
         </div>}
         {filled.length > 0 && <div className="hidden md:block overflow-x-auto">
+          <p className="text-[11px] text-zinc-600 mb-3">* G2 방향일치 기준은 카테고리별로 다릅니다: EARNINGS_BEAT = αDM 1d, CONTRACT_WIN · 기타 = αDM 5d</p>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
                 <th className="text-left py-2 pr-4">카테고리</th>
                 <th className="text-left py-2 pr-4">대표 태그</th>
                 <th className="text-right py-2 pr-4">이벤트</th>
-                <th className="py-2 pr-4">α방향일치 5d</th>
+                <th className="py-2 pr-4">α방향일치 (G2 기준)</th>
                 <th className="text-right py-2 pr-4">수익률 1d</th>
                 <th className="text-right py-2 pr-4">수익률 5d</th>
                 <th className="text-right py-2 pr-4">α 1d</th>
@@ -266,7 +282,7 @@ export default async function EventReturnsPage() {
                       {s.rawTags.length > 0 ? rawTagChips(s.rawTags, 5) : <span className="text-zinc-600 text-xs">—</span>}
                     </td>
                     <td className="py-3 pr-4 text-right text-zinc-300">{s.eventCount} / {s.filledCount}</td>
-                    <td className="py-3 pr-4 min-w-32">{dmBar(s.alphaDirectionMatch5dRate, s.g2Pass)}</td>
+                    <td className="py-3 pr-4 min-w-32">{dmBar(g2DmRate(s), s.g2Pass, g2Horizon(s.category))}</td>
                     <td className="py-3 pr-4 text-right">{pctOrDash(s.avgRet1d)}</td>
                     <td className="py-3 pr-4 text-right">{pctOrDash(s.avgRet5d)}</td>
                     <td className="py-3 pr-4 text-right">{pctOrDash(s.avgAlpha1d)}</td>
