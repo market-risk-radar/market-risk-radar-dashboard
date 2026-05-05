@@ -95,6 +95,7 @@ export default function NavChart({ datasets }: Props) {
             fill={`url(#navGrad-${dataset.key})`}
             dot={false}
             activeDot={{ r: 4, fill: dataset.color }}
+            connectNulls={true}
           />
         ))}
       </AreaChart>

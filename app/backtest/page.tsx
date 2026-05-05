@@ -167,7 +167,7 @@ export default async function BacktestPage() {
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-500 space-y-2 flex flex-col justify-center">
             <p className="text-zinc-300 font-medium text-sm">왜 별도 확인이 필요한가</p>
             <p>Portfolio B는 DART CONTRACT_WIN 공시에 한해 <span className="text-zinc-300">minConf 0.65</span>로 진입 허용.</p>
-            <p>전체 화이트리스트 패널(minConf 0.75)은 CONTRACT_WIN 표본을 과소 계상해 결과가 왜곡될 수 있음.</p>
+            <p>EARNINGS_BEAT 패널(minConf 0.75)과 기준이 달라 통합 집계 시 CONTRACT_WIN 표본이 과소 계상될 수 있음.</p>
             <p>이 패널이 실제 Portfolio B 운용 규칙과 정합적인 검증 기준이다.</p>
           </div>
         </div>
