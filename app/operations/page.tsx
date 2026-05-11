@@ -135,7 +135,6 @@ function BTradeRow({ trade }: { trade: RecentBTrade }) {
   const reason = trade.reason.replace('B_ENTRY:', '').replace('B_', '');
   return (
     <tr className="border-b border-zinc-800 last:border-0 hover:bg-zinc-800/30 transition-colors">
-      <td className="py-2.5 pr-4 text-xs text-zinc-500 tabular-nums whitespace-nowrap">{trade.tradeDate}</td>
       <td className="py-2.5 pr-4">
         <span className="text-sm font-medium text-zinc-200">{trade.tickerName ?? trade.ticker}</span>
         <span className="ml-1.5 text-xs text-zinc-600">{trade.ticker}</span>
@@ -168,6 +167,7 @@ function BTradeRow({ trade }: { trade: RecentBTrade }) {
           <span className="text-zinc-700">—</span>
         )}
       </td>
+      <td className="py-2.5 text-right text-xs text-zinc-500 tabular-nums whitespace-nowrap">{trade.tradeDate}</td>
     </tr>
   );
 }
@@ -331,13 +331,13 @@ export default async function OperationsPage() {
               <thead>
                 <tr className="border-b border-zinc-700">
                   {[
-                    { label: '날짜', align: 'text-left' },
                     { label: '종목', align: 'text-left' },
                     { label: '구분', align: 'text-left' },
                     { label: '수량', align: 'text-right' },
                     { label: '체결가', align: 'text-right' },
                     { label: '사유', align: 'text-left' },
                     { label: 'P&L', align: 'text-right' },
+                    { label: '거래일', align: 'text-right' },
                   ].map(({ label, align }) => (
                     <th key={label} className={clsx('pb-2 pr-4 text-xs font-medium text-zinc-500 uppercase tracking-wider last:pr-0', align)}>{label}</th>
                   ))}

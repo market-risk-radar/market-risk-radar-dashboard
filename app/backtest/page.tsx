@@ -19,19 +19,6 @@ function num(v: number | null, digits = 2) {
   return (v >= 0 ? '+' : '') + v.toFixed(digits);
 }
 
-const CATEGORY_COLOR: Record<string, string> = {
-  EARNINGS_BEAT:     'bg-emerald-900 text-emerald-300',
-  EARNINGS_MISS:     'bg-red-900 text-red-300',
-  CONTRACT_WIN:      'bg-blue-900 text-blue-300',
-  CONTRACT_LOSS:     'bg-orange-900 text-orange-300',
-  GUIDANCE_UP:       'bg-teal-900 text-teal-300',
-  GUIDANCE_DOWN:     'bg-amber-900 text-amber-300',
-  REGULATORY_ACTION: 'bg-rose-900 text-rose-300',
-  DILUTION:          'bg-purple-900 text-purple-300',
-  BUYBACK:           'bg-zinc-700 text-zinc-300',
-  M_A:               'bg-indigo-900 text-indigo-300',
-};
-
 // ── summary panel ─────────────────────────────────────────────────────────────
 
 function SummaryPanel({ result, label }: { result: BacktestResult; label: string }) {
