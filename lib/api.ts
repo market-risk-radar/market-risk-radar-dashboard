@@ -3,6 +3,15 @@ const INTERNAL_SECRET = process.env.AUTH_INTERNAL_SECRET;
 
 const n = (v: unknown) => (v == null ? 0 : Number(v));
 const nNull = (v: unknown) => (v == null ? null : Number(v));
+const dateOnlyKst = (v: unknown) => {
+  if (typeof v !== 'string') return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+
+  const date = new Date(v);
+  if (Number.isNaN(date.getTime())) return v;
+
+  return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+};
 
 const CF_HEADERS: HeadersInit =
   process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET
@@ -407,7 +416,7 @@ function normalizeTrade(raw: any): PaperTrade {
     qty,
     fillPrice,
     amount: raw.amount != null ? n(raw.amount) : qty * fillPrice,
-    tradeDate: raw.tradeDate,
+    tradeDate: dateOnlyKst(raw.tradeDate),
     portfolioType: raw.portfolioType,
     createdAt: raw.createdAt,
   };
@@ -509,6 +518,22 @@ function normalizeRecentAlert(raw: any): RecentAlert {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeRecentBTrade(raw: any): RecentBTrade {
+  return {
+    tradeDate: dateOnlyKst(raw.tradeDate),
+    ticker: raw.ticker,
+    tickerName: raw.tickerName ?? null,
+    side: raw.side,
+    qty: n(raw.qty),
+    fillPrice: n(raw.fillPrice),
+    reason: raw.reason,
+    pnl: nNull(raw.pnl),
+    pnlPct: nNull(raw.pnlPct),
+    createdAt: raw.createdAt,
+  };
+}
+
 // ── API calls ────────────────────────────────────────────────────────────────
 
 export const api = {
@@ -595,5 +620,6 @@ export const api = {
     return get<BacktestResult>(`/api/signal/backtest?${q.toString()}`);
   },
   bRecentTrades: (days = 14) =>
-    get<RecentBTrade[]>(`/api/paper-trading/b/recent-trades?days=${days}`),
+    get<unknown[]>(`/api/paper-trading/b/recent-trades?days=${days}`)
+      .then((rows) => rows.map(normalizeRecentBTrade)),
 };
