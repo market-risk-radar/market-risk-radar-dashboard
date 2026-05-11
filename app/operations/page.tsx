@@ -330,8 +330,16 @@ export default async function OperationsPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-zinc-700">
-                  {['날짜', '종목', '구분', '수량', '체결가', '사유', 'P&L'].map((h) => (
-                    <th key={h} className="pb-2 pr-4 text-xs font-medium text-zinc-500 uppercase tracking-wider last:pr-0">{h}</th>
+                  {[
+                    { label: '날짜', align: 'text-left' },
+                    { label: '종목', align: 'text-left' },
+                    { label: '구분', align: 'text-left' },
+                    { label: '수량', align: 'text-right' },
+                    { label: '체결가', align: 'text-right' },
+                    { label: '사유', align: 'text-left' },
+                    { label: 'P&L', align: 'text-right' },
+                  ].map(({ label, align }) => (
+                    <th key={label} className={clsx('pb-2 pr-4 text-xs font-medium text-zinc-500 uppercase tracking-wider last:pr-0', align)}>{label}</th>
                   ))}
                 </tr>
               </thead>

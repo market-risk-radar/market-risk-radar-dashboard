@@ -262,7 +262,7 @@ export default async function EventReturnsPage() {
                 <th className="text-left py-2 pr-4">카테고리</th>
                 <th className="text-left py-2 pr-4">대표 태그</th>
                 <th className="text-right py-2 pr-4">이벤트</th>
-                <th className="py-2 pr-4">α방향일치 (G2 기준)</th>
+                <th className="text-left py-2 pr-4">α방향일치 (G2 기준)</th>
                 <th className="text-right py-2 pr-4">수익률 1d</th>
                 <th className="text-right py-2 pr-4">수익률 5d</th>
                 <th className="text-right py-2 pr-4">α 1d</th>

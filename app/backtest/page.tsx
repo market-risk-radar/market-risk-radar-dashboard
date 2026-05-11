@@ -32,14 +32,6 @@ const CATEGORY_COLOR: Record<string, string> = {
   M_A:               'bg-indigo-900 text-indigo-300',
 };
 
-function CategoryBadge({ cat }: { cat: string }) {
-  return (
-    <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', CATEGORY_COLOR[cat] ?? 'bg-zinc-800 text-zinc-300')}>
-      {cat}
-    </span>
-  );
-}
-
 // ── summary panel ─────────────────────────────────────────────────────────────
 
 function SummaryPanel({ result, label }: { result: BacktestResult; label: string }) {
