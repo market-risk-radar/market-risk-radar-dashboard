@@ -142,6 +142,8 @@ export interface SignalCandidate {
   /** Phase 4-B v2: 실행비용 모델 입력값 */
   adv20KrwProxy: number | null;
   realizedVol20d: number | null;
+  /** Phase 4-B v3: 20일 Anchored VWAP (원). close > avwap20d = 매수세 우세 */
+  avwap20d: number | null;
   createdAt: string;
 }
 
@@ -444,6 +446,7 @@ function normalizeSignalCandidate(raw: any): SignalCandidate {
     high52wPct: nNull(raw.high52wPct),
     adv20KrwProxy: nNull(raw.adv20KrwProxy),
     realizedVol20d: nNull(raw.realizedVol20d),
+    avwap20d: nNull(raw.avwap20d),
     createdAt: raw.createdAt,
   };
 }
