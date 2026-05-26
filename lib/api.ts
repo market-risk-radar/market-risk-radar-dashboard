@@ -162,6 +162,12 @@ export interface SignalTagStats {
   avgAlpha1d: number | null;
   avgAlpha5d: number | null;
   avgAlpha20d: number | null;
+  /** 베이스라인(미분류 `__none__` 뉴스) 대비 상대 alpha = avgAlpha − baselineAlpha. 체계적 측정 편향 상쇄용 */
+  relAlpha1d: number | null;
+  relAlpha5d: number | null;
+  /** 상대 alpha 계산에 쓰인 미분류 베이스라인 avgAlpha (모든 행 동일값, 참조용) */
+  baselineAlpha1d: number | null;
+  baselineAlpha5d: number | null;
   avgRet1d: number | null;
   avgRet5d: number | null;
 }
