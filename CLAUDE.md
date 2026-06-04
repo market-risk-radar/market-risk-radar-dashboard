@@ -2,7 +2,39 @@
 
 # 작업 규칙
 
-> **프론트엔드(이 프로젝트)는 로컬 빌드와 커밋/푸시를 직접 실행하지 않는다. 코드 수정만 하고, 커밋 후 Vercel 배포 관리는 사용자가 직접 진행한다.**
+> **Claude는 브랜치 생성·커밋·푸시·`gh pr create`까지 수행한다. PR merge와 Vercel 배포 관리는 사용자가 직접 진행한다.** (로컬 프로덕션 빌드 트리거·Vercel env·도메인 작업은 Claude가 직접 하지 않고 명령만 안내한다.)
+
+## Git 워크플로우 (커밋·브랜치 컨벤션)
+
+백엔드 repo(`market-risk-radar`)와 동일한 컨벤션을 따른다. 모든 작업은 **브랜치 → PR → merge** 로 main에 들어간다. **main 직접 커밋 금지.**
+
+### 커밋 메시지
+형식: `<type>: <한글 설명>` — Conventional Commits 간소화형 (scope 생략)
+
+| type | 용도 |
+|------|------|
+| `feat` | 새 페이지·컴포넌트·기능 |
+| `fix` | 버그 수정·동작 교정 |
+| `docs` | 문서만 변경 (CLAUDE / AGENTS / research / plan / README) |
+| `refactor` | 동작 변화 없는 구조 변경 |
+| `chore` | 빌드·설정·의존성 |
+| `hotfix` | 긴급 운영 수정 |
+
+- 설명은 한글로 간결하게 (예: `feat: event-returns 페이지 추가`)
+- 독립적인 변경은 한 PR 안에서도 **커밋 단위로 분리**한다
+- Claude가 만든 커밋은 푸터에 `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>` 포함
+
+### 브랜치 네이밍
+형식: `<type>/<설명>` — type은 커밋 type과 동일 집합
+
+- 단어 구분자는 **언더스코어(`_`)** 로 통일
+- 한글·영문 모두 허용 (예: `feat/signals_정렬추가`, `fix/nav_차트_축교정`, `docs/claude_현행화`)
+
+### PR
+- base: `main`, 머지 방식: **merge commit** (squash 아님 — PR 단위 history 보존)
+- 제목은 대표 변경 1줄, 본문에 변경 요약 + 검증 방법(`npm run lint` 통과 여부 등)
+- Claude가 생성하는 PR 본문 끝에 `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
+- gh CLI 인증됨 — Claude가 `gh pr create` 로 PR 생성 (머지는 사람이 확인 후)
 
 # Market Risk Radar — Dashboard
 
