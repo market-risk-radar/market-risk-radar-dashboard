@@ -51,6 +51,7 @@ export default function Pagination({ page, totalPages, buildHref }: PaginationPr
       <Link
         href={buildHref(1)}
         aria-disabled={currentPage <= 1}
+        tabIndex={currentPage <= 1 ? -1 : undefined}
         className={linkClass(currentPage <= 1)}
       >
         처음
@@ -58,6 +59,7 @@ export default function Pagination({ page, totalPages, buildHref }: PaginationPr
       <Link
         href={buildHref(prevPage)}
         aria-disabled={currentPage <= 1}
+        tabIndex={currentPage <= 1 ? -1 : undefined}
         className={linkClass(currentPage <= 1)}
       >
         이전
@@ -83,6 +85,7 @@ export default function Pagination({ page, totalPages, buildHref }: PaginationPr
       <Link
         href={buildHref(nextPage)}
         aria-disabled={currentPage >= totalPages}
+        tabIndex={currentPage >= totalPages ? -1 : undefined}
         className={linkClass(currentPage >= totalPages)}
       >
         다음
@@ -90,6 +93,7 @@ export default function Pagination({ page, totalPages, buildHref }: PaginationPr
       <Link
         href={buildHref(totalPages)}
         aria-disabled={currentPage >= totalPages}
+        tabIndex={currentPage >= totalPages ? -1 : undefined}
         className={linkClass(currentPage >= totalPages)}
       >
         마지막
