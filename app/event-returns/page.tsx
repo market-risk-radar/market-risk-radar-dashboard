@@ -1,4 +1,5 @@
 import { api, type SignalTagStats } from '@/lib/api';
+import { compareSignalTagStats, categoryLabel } from '@/lib/signalStats';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
@@ -92,25 +93,6 @@ function rawTagChips(tags: string[], limit = 5) {
         </span>
       )}
     </div>
-  );
-}
-
-function categoryLabel(category: string | null) {
-  return category ?? '미분류/기타';
-}
-
-function compareSignalTagStats(a: SignalTagStats, b: SignalTagStats) {
-  const g2Score = (row: SignalTagStats) => {
-    if (row.g2Pass) return 2;
-    if (row.g2Eligible) return 1;
-    return 0;
-  };
-
-  return (
-    g2Score(b) - g2Score(a) ||
-    b.filledCount - a.filledCount ||
-    b.eventCount - a.eventCount ||
-    categoryLabel(a.category).localeCompare(categoryLabel(b.category))
   );
 }
 

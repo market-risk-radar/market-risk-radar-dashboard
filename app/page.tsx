@@ -1,19 +1,9 @@
 import { api, SignalTagStats } from '@/lib/api';
+import { compareSignalTagStats } from '@/lib/signalStats';
 import StatCard from '@/components/StatCard';
 import NavChart from '@/components/NavChart';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
-
-function compareSignalTagStats(a: SignalTagStats, b: SignalTagStats) {
-  return (
-    Number(b.g2Pass) - Number(a.g2Pass) ||
-    Number(b.g2Eligible) - Number(a.g2Eligible) ||
-    b.filledCount - a.filledCount ||
-    b.eventCount - a.eventCount ||
-    (b.alphaDirectionMatch5dRate ?? -1) - (a.alphaDirectionMatch5dRate ?? -1) ||
-    (a.category ?? '미분류/기타').localeCompare(b.category ?? '미분류/기타')
-  );
-}
 
 function pct(v: number | null) {
   if (v === null) return '—';
