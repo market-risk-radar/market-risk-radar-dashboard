@@ -3,41 +3,7 @@
 import { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import type { RecentAlert } from '@/lib/api';
-
-// ── KST 포맷 ────────────────────────────────────────────────────────────────
-function toKST(isoString: string | null): string {
-  if (!isoString) return '—';
-  try {
-    return new Date(isoString).toLocaleString('ko-KR', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-  } catch {
-    return isoString;
-  }
-}
-
-function toKSTShort(isoString: string | null): string {
-  if (!isoString) return '—';
-  try {
-    return new Date(isoString).toLocaleString('ko-KR', {
-      timeZone: 'Asia/Seoul',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-  } catch {
-    return isoString;
-  }
-}
+import { formatKstDateTime, formatKstShort } from '@/lib/datetime';
 
 // ── 상태 스타일 ──────────────────────────────────────────────────────────────
 const STATUS_STYLE: Record<string, string> = {
@@ -167,13 +133,13 @@ function AlertDetailModal({
           {/* 발송 시각 */}
           <div className="flex items-center gap-3">
             <span className="text-zinc-400 w-24 flex-shrink-0">발송 시각</span>
-            <span className="text-zinc-300">{toKST(alert.sentAt ?? alert.createdAt)}</span>
+            <span className="text-zinc-300">{formatKstDateTime(alert.sentAt ?? alert.createdAt)}</span>
           </div>
 
           {/* 게시 시각 */}
           <div className="flex items-center gap-3">
             <span className="text-zinc-400 w-24 flex-shrink-0">게시 시각</span>
-            <span className="text-zinc-300">{toKST(alert.publishedAt)}</span>
+            <span className="text-zinc-300">{formatKstDateTime(alert.publishedAt)}</span>
           </div>
 
           {/* 오류 메시지 */}
@@ -310,7 +276,7 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400">시각</p>
-                      <p className="text-zinc-400">{toKSTShort(alert.sentAt ?? alert.createdAt)}</p>
+                      <p className="text-zinc-400">{formatKstShort(alert.sentAt ?? alert.createdAt)}</p>
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400">임팩트</p>
@@ -390,7 +356,7 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
                       </span>
                     </td>
                     <td className="py-2.5 text-right text-zinc-400 text-xs whitespace-nowrap">
-                      {toKSTShort(alert.sentAt ?? alert.createdAt)}
+                      {formatKstShort(alert.sentAt ?? alert.createdAt)}
                     </td>
                   </tr>
                 ))}

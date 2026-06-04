@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import { compareSignalTagStats } from '@/lib/signalStats';
+import { formatKstMonthDay } from '@/lib/datetime';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
@@ -129,16 +130,6 @@ function high52wDisplay(v: number | null) {
 function advDisplay(v: number | null) {
   if (v === null) return '—';
   return (v / 1e8).toFixed(1) + '억';
-}
-
-function formatSignalDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString('ko-KR', {
-    timeZone: 'Asia/Seoul',
-    month: '2-digit',
-    day: '2-digit',
-  });
 }
 
 export default async function SignalsPage() {
@@ -301,7 +292,7 @@ export default async function SignalsPage() {
                   <p className={clsx('font-bold', DIRECTION_COLOR[c.impactDirection])}>
                     {c.impactDirection === '+' ? '▲' : '▼'}
                   </p>
-                  <p className="text-xs text-zinc-400">{formatSignalDate(c.signalDate)}</p>
+                  <p className="text-xs text-zinc-400">{formatKstMonthDay(c.signalDate)}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -398,7 +389,7 @@ export default async function SignalsPage() {
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {advDisplay(c.adv20KrwProxy)}
                   </td>
-                  <td className="py-2.5 text-right text-zinc-400 text-xs">{formatSignalDate(c.signalDate)}</td>
+                  <td className="py-2.5 text-right text-zinc-400 text-xs">{formatKstMonthDay(c.signalDate)}</td>
                 </tr>
               ))}
             </tbody>

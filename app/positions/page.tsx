@@ -1,5 +1,6 @@
 import { api, PaperPosition } from '@/lib/api';
 import StatCard from '@/components/StatCard';
+import { todayKstIsoDate } from '@/lib/datetime';
 import { clsx } from 'clsx';
 
 export const dynamic = 'force-dynamic';
@@ -78,9 +79,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
 function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
   const target = new Date(`${dateStr}T00:00:00+09:00`);
-  const todayKst = new Date(
-    new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' }) + 'T00:00:00+09:00',
-  );
+  const todayKst = new Date(`${todayKstIsoDate()}T00:00:00+09:00`);
   return Math.round((target.getTime() - todayKst.getTime()) / (1000 * 60 * 60 * 24));
 }
 
