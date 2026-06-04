@@ -195,8 +195,13 @@ export default async function OperationsPage() {
     );
   }
 
-  const costTrend =
-    stats.summary.estimatedDailyCostUsd <= 3 ? 'up' : 'down'; // $3 이하면 good
+  // G6 일비용 예산 — app/page.tsx GATE_THRESHOLDS.costPerDay와 동일 값
+  // (공유 모듈 외부화는 audit §7 "임계값 외부화 비권장"에 따라 보류)
+  const DAILY_COST_BUDGET_USD = 3.0;
+  // 예산 이하면 good(StatCard 'up'=녹색), 초과면 bad('down'=빨강).
+  // 'up/down'은 비용 증감이 아니라 예산 대비 양호/주의 의미.
+  const costTrend: 'up' | 'down' =
+    stats.summary.estimatedDailyCostUsd <= DAILY_COST_BUDGET_USD ? 'up' : 'down';
   const timestampLabel = normalizeTimestamp(stats.timestamp);
 
   return (
@@ -235,7 +240,7 @@ export default async function OperationsPage() {
         <StatCard
           label="예상 일비용 (Claude)"
           value={`$${stats.summary.estimatedDailyCostUsd.toFixed(2)}`}
-          sub="목표: $3.00 이하"
+          sub={`목표: $${DAILY_COST_BUDGET_USD.toFixed(2)} 이하`}
           trend={costTrend}
         />
         <StatCard
