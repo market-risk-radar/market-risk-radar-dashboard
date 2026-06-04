@@ -25,6 +25,7 @@ function fmtDate(d: string) {
 
 export default function CostHistoryChart({ data }: Props) {
   return (
+    <div role="img" aria-label="Claude 비용 30일 추이 차트">
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
@@ -59,5 +60,6 @@ export default function CostHistoryChart({ data }: Props) {
         />
       </LineChart>
     </ResponsiveContainer>
+    </div>
   );
 }

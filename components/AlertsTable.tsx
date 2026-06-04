@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import type { RecentAlert } from '@/lib/api';
 
@@ -55,12 +55,29 @@ function AlertDetailModal({
   alert: RecentAlert;
   onClose: () => void;
 }) {
+  // Escape 닫기 + body 스크롤 잠금
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/70"
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="alert-detail-title"
         className="bg-zinc-900 border border-zinc-700 rounded-xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -80,10 +97,12 @@ function AlertDetailModal({
                 {alert.latestDeliveryStatus}
               </span>
             </div>
-            <p className="text-sm font-semibold text-white leading-snug">{alert.title}</p>
+            <p id="alert-detail-title" className="text-sm font-semibold text-white leading-snug">{alert.title}</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="닫기"
             className="text-zinc-500 hover:text-white transition-colors flex-shrink-0 text-lg leading-none"
           >
             ✕

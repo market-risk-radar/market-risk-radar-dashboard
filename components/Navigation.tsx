@@ -34,6 +34,7 @@ const NAV = [
 export default function Navigation() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const { data: session } = useSession();
   const isAdmin = (session as { role?: string } | null)?.role === 'ADMIN';
 
@@ -44,6 +45,7 @@ export default function Navigation() {
         key={href}
         href={href}
         onClick={() => setOpen(false)}
+        aria-current={active ? 'page' : undefined}
         className={clsx(
           'group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200',
           active
@@ -135,6 +137,7 @@ export default function Navigation() {
             <Link
               href="/admin/users"
               onClick={() => setOpen(false)}
+              aria-current={path === '/admin/users' ? 'page' : undefined}
               className={clsx(
                 'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all',
                 path === '/admin/users'
@@ -171,11 +174,16 @@ export default function Navigation() {
             </div>
           )}
           <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex w-full items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 transition"
+            onClick={() => {
+              setSigningOut(true);
+              signOut({ callbackUrl: '/login' });
+            }}
+            disabled={signingOut}
+            aria-busy={signingOut}
+            className="flex w-full items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <LogOut size={12} />
-            로그아웃
+            {signingOut ? '로그아웃 중…' : '로그아웃'}
           </button>
         </div>
       </aside>

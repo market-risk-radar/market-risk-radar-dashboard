@@ -49,7 +49,10 @@ export default function NavChart({ datasets }: Props) {
     String(a.navDate).localeCompare(String(b.navDate)),
   );
 
+  const chartLabel = `${sortedDatasets.map((d) => d.label).join(', ')} NAV 추이 차트`;
+
   return (
+    <div role="img" aria-label={chartLabel}>
     <ResponsiveContainer width="100%" height={240}>
       <AreaChart data={merged} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
         <defs>
@@ -100,5 +103,6 @@ export default function NavChart({ datasets }: Props) {
         ))}
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   );
 }
