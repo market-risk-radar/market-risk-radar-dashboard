@@ -1,4 +1,5 @@
-import { api, type SignalTagStats } from '@/lib/api';
+import { api } from '@/lib/api';
+import { compareSignalTagStats } from '@/lib/signalStats';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
@@ -45,10 +46,6 @@ function categoryCell(category: string | null) {
   return categoryBadge(category);
 }
 
-function categoryLabel(category: string | null) {
-  return category ?? '미분류/기타';
-}
-
 function sampleStatus(filledCount: number): 'ok' | 'low' {
   return filledCount >= MIN_SAMPLE_EVENTS ? 'ok' : 'low';
 }
@@ -88,21 +85,6 @@ function g2Badge(g2Eligible: boolean, g2Pass: boolean) {
     <span className="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap bg-amber-900 text-amber-300">
       G2 미통과
     </span>
-  );
-}
-
-function compareSignalTagStats(a: SignalTagStats, b: SignalTagStats) {
-  const g2Score = (row: SignalTagStats) => {
-    if (row.g2Pass) return 2;
-    if (row.g2Eligible) return 1;
-    return 0;
-  };
-
-  return (
-    g2Score(b) - g2Score(a) ||
-    b.filledCount - a.filledCount ||
-    b.eventCount - a.eventCount ||
-    categoryLabel(a.category).localeCompare(categoryLabel(b.category))
   );
 }
 
