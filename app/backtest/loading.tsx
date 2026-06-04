@@ -23,7 +23,7 @@ export default function Loading() {
           <div key={i} className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 space-y-4">
             <div className="h-4 bg-zinc-800 rounded w-32" />
             <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 6 }).map((_, j) => (
+              {Array.from({ length: 8 }).map((_, j) => (
                 <div key={j} className="h-12 bg-zinc-800 rounded" />
               ))}
             </div>
