@@ -126,7 +126,7 @@ export default async function BacktestPage() {
 
       {/* 해석 가이드 */}
       <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.74),rgba(10,14,19,0.78))] px-4 py-4 text-xs text-zinc-500 space-y-1 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
-        <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + 방향일치율 55%+ 달성 카테고리만 신호 유효. 카테고리별 운용 horizon(D+1 vs D+5)이 다르므로 각 패널을 독립적으로 판단한다.</p>
+        <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + α방향일치율 45%+ (filledCount ≥ 50) 달성 카테고리만 신호 유효(G2 기준). 카테고리별 운용 horizon(D+1 vs D+5)이 다르므로 각 패널을 독립적으로 판단한다.</p>
         <p><span className="text-zinc-400 font-medium">현재 기준:</span> EARNINGS_BEAT → D+1 단기 반응 (alpha_5d 음수, mean reversion 40.9% 확인). CONTRACT_WIN → D+5 (minConf 0.65, 실제 운용 기준)</p>
       </div>
 
