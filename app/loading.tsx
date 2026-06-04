@@ -61,6 +61,34 @@ export default function Loading() {
         </div>
         <div className="h-60 bg-zinc-800 rounded" />
       </div>
+
+      {/* G1~G6 실전 전환 게이트 */}
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-6 bg-zinc-800 rounded-full" />
+          <div className="space-y-2">
+            <div className="h-4 bg-zinc-800 rounded w-40" />
+            <div className="h-3 bg-zinc-800 rounded w-28" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 space-y-2">
+              <div className="h-3 bg-zinc-800 rounded w-16" />
+              <div className="h-6 bg-zinc-800 rounded w-20" />
+              <div className="h-3 bg-zinc-800 rounded w-full" />
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-white/8 bg-zinc-950/40 p-4 space-y-2">
+              <div className="h-4 bg-zinc-800 rounded w-32" />
+              <div className="h-3 bg-zinc-800 rounded w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

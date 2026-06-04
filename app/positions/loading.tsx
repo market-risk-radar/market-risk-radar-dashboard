@@ -26,6 +26,17 @@ export default function Loading() {
             </div>
             <div className="h-5 bg-zinc-800 rounded w-16" />
           </div>
+          {/* Portfolio B는 표 위에 bStats 4-StatCard 요약이 추가로 표시됨 */}
+          {i === 1 && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, j) => (
+                <div key={j} className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(18,23,31,0.92),rgba(12,16,22,0.9))] p-4 space-y-2">
+                  <div className="h-3 bg-zinc-800 rounded w-16" />
+                  <div className="h-6 bg-zinc-800 rounded w-14" />
+                </div>
+              ))}
+            </div>
+          )}
           {Array.from({ length: 4 }).map((_, j) => (
             <div key={j} className="h-10 bg-zinc-800 rounded" />
           ))}
