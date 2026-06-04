@@ -1,3 +1,5 @@
+import { formatKstIsoDate } from './datetime';
+
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 const INTERNAL_SECRET = process.env.AUTH_INTERNAL_SECRET;
 
@@ -6,11 +8,7 @@ const nNull = (v: unknown) => (v == null ? null : Number(v));
 const dateOnlyKst = (v: unknown) => {
   if (typeof v !== 'string') return '';
   if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
-
-  const date = new Date(v);
-  if (Number.isNaN(date.getTime())) return v;
-
-  return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+  return formatKstIsoDate(v);
 };
 
 const CF_HEADERS: HeadersInit =

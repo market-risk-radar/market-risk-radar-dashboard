@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { clsx } from 'clsx';
+import { formatKstDateTime } from '@/lib/datetime';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3000';
 const ADMIN_KEY = process.env.AUTH_ADMIN_KEY!;
@@ -107,9 +108,7 @@ export default async function AdminUsersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-zinc-400">
-                    {user.lastLoginAt
-                      ? new Date(user.lastLoginAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
-                      : '—'}
+                    {formatKstDateTime(user.lastLoginAt)}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
