@@ -149,7 +149,7 @@ function BTradeRow({ trade }: { trade: RecentBTrade }) {
       </td>
       <td className="py-2.5 pr-4 text-xs text-zinc-400 tabular-nums text-right">{Number(trade.qty).toLocaleString()}주</td>
       <td className="py-2.5 pr-4 text-xs text-zinc-300 tabular-nums text-right">{Number(trade.fillPrice).toLocaleString()}원</td>
-      <td className="py-2.5 pr-4 text-xs text-zinc-500">{reason}</td>
+      <td className="py-2.5 pr-4 text-xs text-zinc-400">{reason}</td>
       <td className="py-2.5 text-xs tabular-nums text-right">
         {trade.pnl != null ? (
           <span className={clsx(
@@ -158,7 +158,7 @@ function BTradeRow({ trade }: { trade: RecentBTrade }) {
           )}>
             {trade.pnl >= 0 ? '+' : ''}{Number(trade.pnl).toLocaleString()}원
             {trade.pnlPct != null && (
-              <span className="ml-1 text-zinc-500">
+              <span className="ml-1 text-zinc-400">
                 ({trade.pnlPct >= 0 ? '+' : ''}{Number(trade.pnlPct).toFixed(2)}%)
               </span>
             )}
@@ -167,7 +167,7 @@ function BTradeRow({ trade }: { trade: RecentBTrade }) {
           <span className="text-zinc-700">—</span>
         )}
       </td>
-      <td className="py-2.5 text-right text-xs text-zinc-500 tabular-nums whitespace-nowrap">{trade.tradeDate}</td>
+      <td className="py-2.5 text-right text-xs text-zinc-400 tabular-nums whitespace-nowrap">{trade.tradeDate}</td>
     </tr>
   );
 }
@@ -186,7 +186,7 @@ export default async function OperationsPage() {
       <div className="space-y-6">
         <div>
           <h2 className="text-xl font-bold text-white">Operations</h2>
-          <p className="text-sm text-zinc-500 mt-0.5">파이프라인 운영 현황</p>
+          <p className="text-sm text-zinc-400 mt-0.5">파이프라인 운영 현황</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8 text-center text-zinc-600 text-sm">
           운영 데이터를 불러올 수 없습니다
@@ -213,18 +213,18 @@ export default async function OperationsPage() {
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
             수집부터 분류, 알림, 비용까지 전체 운영 파이프라인을 한 번에 확인하는 상태판.
           </p>
-          <p className="mt-4 text-xs text-zinc-500">기준 시각 {timestampLabel}</p>
+          <p className="mt-4 text-xs text-zinc-400">기준 시각 {timestampLabel}</p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Ingest</p>
             <p className="mt-2 text-3xl font-bold text-white">{stats.ingest.todayCount.toLocaleString()}</p>
-            <p className="mt-1 text-xs text-zinc-500">오늘 수집 건수</p>
+            <p className="mt-1 text-xs text-zinc-400">오늘 수집 건수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Delivery</p>
             <p className="mt-2 text-3xl font-bold text-white">{stats.alert.deliveryRate}</p>
-            <p className="mt-1 text-xs text-zinc-500">Slack 알림 발송률</p>
+            <p className="mt-1 text-xs text-zinc-400">Slack 알림 발송률</p>
           </div>
         </div>
       </div>
@@ -296,7 +296,7 @@ export default async function OperationsPage() {
               { label: '평균 임팩트', value: stats.alert.avgImpactScore.toFixed(1) + '점', color: 'text-zinc-200' },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex justify-between items-center py-1.5 border-b border-zinc-800 last:border-0">
-                <span className="text-zinc-500">{label}</span>
+                <span className="text-zinc-400">{label}</span>
                 <span className={`font-medium tabular-nums ${color}`}>{value}</span>
               </div>
             ))}

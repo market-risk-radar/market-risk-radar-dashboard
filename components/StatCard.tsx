@@ -32,7 +32,7 @@ export default function StatCard({ label, value, sub, trend }: Props) {
       >
         {value}
       </p>
-      {sub && <p className="relative mt-2 text-xs leading-relaxed text-zinc-500">{sub}</p>}
+      {sub && <p className="relative mt-2 text-xs leading-relaxed text-zinc-400">{sub}</p>}
     </div>
   );
 }

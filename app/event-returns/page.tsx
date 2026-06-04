@@ -40,7 +40,7 @@ function dmBar(v: number | null, pass: boolean, horizon?: '1d' | '5d') {
       </div>
       <span className={clsx('text-xs', pass ? 'text-emerald-400' : 'text-zinc-400')}>{pct}%</span>
       {horizon && (
-        <span className="text-[10px] text-zinc-500 whitespace-nowrap">({horizon})</span>
+        <span className="text-[10px] text-zinc-400 whitespace-nowrap">({horizon})</span>
       )}
     </div>
   );
@@ -87,7 +87,7 @@ function rawTagChips(tags: string[], limit = 5) {
         </span>
       ))}
       {tags.length > limit && (
-        <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-500">
+        <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-400">
           +{tags.length - limit}
         </span>
       )}
@@ -155,12 +155,12 @@ export default async function EventReturnsPage() {
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Events</p>
             <p className="mt-2 text-3xl font-bold text-white">{totalEvents}</p>
-            <p className="mt-1 text-xs text-zinc-500">집계 포함 총 이벤트 수</p>
+            <p className="mt-1 text-xs text-zinc-400">집계 포함 총 이벤트 수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Eligible</p>
             <p className="mt-2 text-3xl font-bold text-white">{eligibleSummaryRows.length}</p>
-            <p className="mt-1 text-xs text-zinc-500">filled 50건 기준 통과 카테고리 수</p>
+            <p className="mt-1 text-xs text-zinc-400">filled 50건 기준 통과 카테고리 수</p>
           </div>
         </div>
       </div>
@@ -227,27 +227,27 @@ export default async function EventReturnsPage() {
                     </div>
                     {s.rawTags.length > 0 && <div className="mt-2">{rawTagChips(s.rawTags, 4)}</div>}
                   </div>
-                  <span className="text-xs text-zinc-500 whitespace-nowrap">event {s.eventCount} / filled {s.filledCount}</span>
+                  <span className="text-xs text-zinc-400 whitespace-nowrap">event {s.eventCount} / filled {s.filledCount}</span>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 mb-1">α방향일치 (G2 기준)</p>
+                  <p className="text-xs text-zinc-400 mb-1">α방향일치 (G2 기준)</p>
                   {dmBar(g2DmRate(s), s.g2Pass, g2Horizon(s.category))}
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-xs text-zinc-500">수익률 1d</p>
+                    <p className="text-xs text-zinc-400">수익률 1d</p>
                     <div>{pctOrDash(s.avgRet1d)}</div>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">수익률 5d</p>
+                    <p className="text-xs text-zinc-400">수익률 5d</p>
                     <div>{pctOrDash(s.avgRet5d)}</div>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">α 1d</p>
+                    <p className="text-xs text-zinc-400">α 1d</p>
                     <div>{pctOrDash(s.avgAlpha1d)}</div>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">α 5d</p>
+                    <p className="text-xs text-zinc-400">α 5d</p>
                     <div>{pctOrDash(s.avgAlpha5d)}</div>
                   </div>
                 </div>

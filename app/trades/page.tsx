@@ -57,12 +57,12 @@ export default async function TradesPage({
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Page</p>
             <p className="mt-2 text-3xl font-bold text-white">{result.page}</p>
-            <p className="mt-1 text-xs text-zinc-500">현재 페이지 / {totalPages}</p>
+            <p className="mt-1 text-xs text-zinc-400">현재 페이지 / {totalPages}</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Window</p>
             <p className="mt-2 text-3xl font-bold text-white">{result.limit}</p>
-            <p className="mt-1 text-xs text-zinc-500">페이지당 조회 건수</p>
+            <p className="mt-1 text-xs text-zinc-400">페이지당 조회 건수</p>
           </div>
         </div>
       </div>
@@ -71,24 +71,24 @@ export default async function TradesPage({
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">최근 체결</p>
           <p className="text-2xl font-bold text-white">{trades.length}</p>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             {result.total.toLocaleString()}건 중 {result.page} / {totalPages} 페이지
           </p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">BUY</p>
           <p className="text-2xl font-bold text-emerald-400">{buyCount}</p>
-          <p className="text-xs text-zinc-500 mt-1">매수 체결 수</p>
+          <p className="text-xs text-zinc-400 mt-1">매수 체결 수</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">SELL</p>
           <p className="text-2xl font-bold text-red-400">{sellCount}</p>
-          <p className="text-xs text-zinc-500 mt-1">매도 체결 수</p>
+          <p className="text-xs text-zinc-400 mt-1">매도 체결 수</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">총 체결 금액</p>
           <p className="text-2xl font-bold text-white">{result.totalAmount.toLocaleString()}원</p>
-          <p className="text-xs text-zinc-500 mt-1">전체 체결 기준, 매수+매도 합계</p>
+          <p className="text-xs text-zinc-400 mt-1">전체 체결 기준, 매수+매도 합계</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">순매수 금액</p>
@@ -96,7 +96,7 @@ export default async function TradesPage({
             {result.netAmount > 0 ? '+' : ''}
             {result.netAmount.toLocaleString()}원
           </p>
-          <p className="text-xs text-zinc-500 mt-1">전체 체결 기준, 매수-매도 차이</p>
+          <p className="text-xs text-zinc-400 mt-1">전체 체결 기준, 매수-매도 차이</p>
         </div>
       </div>
 
@@ -107,7 +107,7 @@ export default async function TradesPage({
             <p className="text-sm font-semibold text-zinc-300">거래 히스토리</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500">조회 건수</span>
+            <span className="text-xs text-zinc-400">조회 건수</span>
             {LIMIT_OPTIONS.map((option) => {
               const active = option === limit;
               return (
@@ -128,7 +128,7 @@ export default async function TradesPage({
         </div>
         <TradesTable trades={trades} />
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-800 pt-4">
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-400">
             전체 {result.total.toLocaleString()}건 · 페이지 {result.page} / {totalPages}
           </p>
           <Pagination

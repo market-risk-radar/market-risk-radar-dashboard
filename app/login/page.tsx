@@ -23,7 +23,7 @@ export default async function LoginPage({
             Market Risk Radar
           </p>
           <h1 className="text-2xl font-bold text-white">대시보드 로그인</h1>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-zinc-400">
             관리자 승인이 완료된 계정만 접근할 수 있습니다.
           </p>
         </div>

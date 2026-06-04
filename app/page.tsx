@@ -263,7 +263,7 @@ function GateCard({ gate }: { gate: GateInfo }) {
     <div className={`bg-zinc-900 border rounded-lg p-4 ${style.border}`}>
       <div className="flex items-start justify-between gap-2 mb-2">
         <div>
-          <span className="text-xs font-bold text-zinc-500">{gate.id}</span>
+          <span className="text-xs font-bold text-zinc-400">{gate.id}</span>
           <p className="text-sm font-medium text-white leading-tight mt-0.5">{gate.label}</p>
         </div>
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${style.badge}`}>
@@ -381,14 +381,14 @@ export default async function OverviewPage() {
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Gate Progress</p>
             <p className="mt-2 text-3xl font-bold text-white">{passCount}/6</p>
-            <p className="mt-1 text-xs text-zinc-500">실전 전환 게이트 달성 수</p>
+            <p className="mt-1 text-xs text-zinc-400">실전 전환 게이트 달성 수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Daily Cost</p>
             <p className="mt-2 text-3xl font-bold text-white">
               {dashboardStats ? `$${dashboardStats.summary.estimatedDailyCostUsd.toFixed(2)}` : '—'}
             </p>
-            <p className="mt-1 text-xs text-zinc-500">Claude 기준 예상 일비용</p>
+            <p className="mt-1 text-xs text-zinc-400">Claude 기준 예상 일비용</p>
           </div>
         </div>
       </div>
@@ -398,7 +398,7 @@ export default async function OverviewPage() {
           <PortfolioBadge type="A" />
           <div>
             <p className="text-sm font-semibold text-zinc-200">Portfolio A</p>
-            <p className="text-xs text-zinc-500">리밸런싱 기반 성과 요약</p>
+            <p className="text-xs text-zinc-400">리밸런싱 기반 성과 요약</p>
           </div>
         </div>
 
@@ -453,7 +453,7 @@ export default async function OverviewPage() {
           <PortfolioBadge type="B" />
           <div>
             <p className="text-sm font-semibold text-zinc-200">Portfolio B</p>
-            <p className="text-xs text-zinc-500">신호 기반 롱 요약</p>
+            <p className="text-xs text-zinc-400">신호 기반 롱 요약</p>
           </div>
         </div>
 
@@ -479,9 +479,9 @@ export default async function OverviewPage() {
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Nav History</p>
             <p className="mt-2 text-lg font-semibold text-zinc-100">최근 60일 NAV 비교</p>
-            <p className="mt-1 text-xs text-zinc-500">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
+            <p className="mt-1 text-xs text-zinc-400">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
               Portfolio A
@@ -499,7 +499,7 @@ export default async function OverviewPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(aSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-500">Portfolio A 60일 누적</p>
+              <p className="text-xs text-zinc-400">Portfolio A 60일 누적</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(aSampleStatus)}`}>
                 {sampleBadgeLabel(aSampleStatus)}
               </span>
@@ -509,7 +509,7 @@ export default async function OverviewPage() {
           </div>
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(bSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-500">Portfolio B 60일 누적</p>
+              <p className="text-xs text-zinc-400">Portfolio B 60일 누적</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(bSampleStatus)}`}>
                 {sampleBadgeLabel(bSampleStatus)}
               </span>
@@ -519,7 +519,7 @@ export default async function OverviewPage() {
           </div>
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(benchmarkSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-500">KOSPI(1억 기준) 60일 누적</p>
+              <p className="text-xs text-zinc-400">KOSPI(1억 기준) 60일 누적</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(benchmarkSampleStatus)}`}>
                 {sampleBadgeLabel(benchmarkSampleStatus)}
               </span>
@@ -531,7 +531,7 @@ export default async function OverviewPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(aExcessSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-500">A-KOSPI 60일 초과수익</p>
+              <p className="text-xs text-zinc-400">A-KOSPI 60일 초과수익</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(aExcessSampleStatus)}`}>
                 {sampleBadgeLabel(aExcessSampleStatus)}
               </span>
@@ -541,7 +541,7 @@ export default async function OverviewPage() {
           </div>
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(bExcessSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-500">B-KOSPI 60일 초과수익</p>
+              <p className="text-xs text-zinc-400">B-KOSPI 60일 초과수익</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(bExcessSampleStatus)}`}>
                 {sampleBadgeLabel(bExcessSampleStatus)}
               </span>
@@ -621,7 +621,7 @@ export default async function OverviewPage() {
                   />
                 ))
               ) : (
-                <p className="text-sm text-zinc-500">아직 G2 통과 카테고리가 없습니다.</p>
+                <p className="text-sm text-zinc-400">아직 G2 통과 카테고리가 없습니다.</p>
               )}
             </div>
           </div>
@@ -647,7 +647,7 @@ export default async function OverviewPage() {
                   />
                 ))
               ) : (
-                <p className="text-sm text-zinc-500">현재는 대기 중인 G2 후보 카테고리가 없습니다.</p>
+                <p className="text-sm text-zinc-400">현재는 대기 중인 G2 후보 카테고리가 없습니다.</p>
               )}
             </div>
           </div>

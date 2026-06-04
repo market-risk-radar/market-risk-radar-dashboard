@@ -16,7 +16,7 @@ export default function PendingPage() {
         </p>
 
         <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/60 px-4 py-3">
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-400">
             승인 완료 후 다시 로그인해주세요.
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function PendingPage() {
         >
           <button
             type="submit"
-            className="text-sm text-zinc-500 underline underline-offset-4 hover:text-zinc-300 transition"
+            className="text-sm text-zinc-400 underline underline-offset-4 hover:text-zinc-300 transition"
           >
             다른 계정으로 로그인
           </button>

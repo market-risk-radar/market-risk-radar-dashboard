@@ -113,7 +113,7 @@ export default function Navigation() {
               Market Risk
             </p>
             <h1 className="text-lg font-bold leading-tight text-white">Radar Dashboard</h1>
-            <p className="mt-1 text-xs text-zinc-500">signal • portfolio • ops</p>
+            <p className="mt-1 text-xs text-zinc-400">signal • portfolio • ops</p>
           </div>
           <button
             className="md:hidden rounded-lg border border-white/8 bg-white/[0.03] p-2 text-zinc-300 hover:text-white"
@@ -142,7 +142,7 @@ export default function Navigation() {
                 'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all',
                 path === '/admin/users'
                   ? 'bg-white/[0.06] text-white'
-                  : 'text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300',
+                  : 'text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-300',
               )}
             >
               <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/6 bg-white/[0.03]">

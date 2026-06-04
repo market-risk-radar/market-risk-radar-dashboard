@@ -114,7 +114,7 @@ function AlertDetailModal({
 
           {/* 임팩트 스코어 */}
           <div className="flex items-center gap-3">
-            <span className="text-zinc-500 w-24 flex-shrink-0">임팩트 스코어</span>
+            <span className="text-zinc-400 w-24 flex-shrink-0">임팩트 스코어</span>
             <span
               className={clsx(
                 'font-bold text-base',
@@ -129,7 +129,7 @@ function AlertDetailModal({
 
           {/* 채널 */}
           <div className="flex items-start gap-3">
-            <span className="text-zinc-500 w-24 flex-shrink-0">채널</span>
+            <span className="text-zinc-400 w-24 flex-shrink-0">채널</span>
             <div>
               <p className="text-zinc-200">{alert.slackChannelName ?? alert.sectorCode}</p>
               <p className="text-xs text-zinc-600">{alert.slackChannelId}</p>
@@ -139,7 +139,7 @@ function AlertDetailModal({
           {/* 관련 종목 */}
           {alert.relatedTickers.length > 0 && (
             <div className="flex items-start gap-3">
-              <span className="text-zinc-500 w-24 flex-shrink-0">관련 종목</span>
+              <span className="text-zinc-400 w-24 flex-shrink-0">관련 종목</span>
               <div className="flex flex-wrap gap-1.5">
                 {alert.relatedTickers.map((t) => (
                   <span key={t} className="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
@@ -153,10 +153,10 @@ function AlertDetailModal({
           {/* 관련 섹터 */}
           {alert.relatedSectors.length > 0 && (
             <div className="flex items-start gap-3">
-              <span className="text-zinc-500 w-24 flex-shrink-0">관련 섹터</span>
+              <span className="text-zinc-400 w-24 flex-shrink-0">관련 섹터</span>
               <div className="flex flex-wrap gap-1.5">
                 {alert.relatedSectors.map((s) => (
-                  <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-500">
+                  <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">
                     {s}
                   </span>
                 ))}
@@ -166,20 +166,20 @@ function AlertDetailModal({
 
           {/* 발송 시각 */}
           <div className="flex items-center gap-3">
-            <span className="text-zinc-500 w-24 flex-shrink-0">발송 시각</span>
+            <span className="text-zinc-400 w-24 flex-shrink-0">발송 시각</span>
             <span className="text-zinc-300">{toKST(alert.sentAt ?? alert.createdAt)}</span>
           </div>
 
           {/* 게시 시각 */}
           <div className="flex items-center gap-3">
-            <span className="text-zinc-500 w-24 flex-shrink-0">게시 시각</span>
+            <span className="text-zinc-400 w-24 flex-shrink-0">게시 시각</span>
             <span className="text-zinc-300">{toKST(alert.publishedAt)}</span>
           </div>
 
           {/* 오류 메시지 */}
           {alert.latestDeliveryError && (
             <div className="flex items-start gap-3">
-              <span className="text-zinc-500 w-24 flex-shrink-0">오류</span>
+              <span className="text-zinc-400 w-24 flex-shrink-0">오류</span>
               <p className="text-xs text-red-400 break-all">{alert.latestDeliveryError}</p>
             </div>
           )}
@@ -260,7 +260,7 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
               </button>
             ))}
           </div>
-          <div className="text-xs text-zinc-500">
+          <div className="text-xs text-zinc-400">
             {filtered.length}건 · SENT {sentCount} · FAILED {failedCount}
           </div>
         </div>
@@ -305,15 +305,15 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <p className="text-xs text-zinc-500">채널</p>
+                      <p className="text-xs text-zinc-400">채널</p>
                       <p className="text-zinc-200 break-all">{alert.slackChannelName ?? alert.sectorCode}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-zinc-500">시각</p>
+                      <p className="text-xs text-zinc-400">시각</p>
                       <p className="text-zinc-400">{toKSTShort(alert.sentAt ?? alert.createdAt)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-zinc-500">임팩트</p>
+                      <p className="text-xs text-zinc-400">임팩트</p>
                       <p
                         className={clsx(
                           'font-semibold',
@@ -389,7 +389,7 @@ export default function AlertsTable({ alerts }: { alerts: RecentAlert[] }) {
                         {alert.latestDeliveryStatus}
                       </span>
                     </td>
-                    <td className="py-2.5 text-right text-zinc-500 text-xs whitespace-nowrap">
+                    <td className="py-2.5 text-right text-zinc-400 text-xs whitespace-nowrap">
                       {toKSTShort(alert.sentAt ?? alert.createdAt)}
                     </td>
                   </tr>
