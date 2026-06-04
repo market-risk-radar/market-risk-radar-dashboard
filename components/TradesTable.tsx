@@ -48,7 +48,7 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
           ))}
         </div>
 
-        <div className="text-xs text-zinc-500">
+        <div className="text-xs text-zinc-400">
           {filteredTrades.length}건 · BUY {buyCount} · SELL {sellCount}
         </div>
       </div>
@@ -85,22 +85,22 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
                       </span>
                     </div>
                     <p className="font-medium text-white mt-2">{trade.name}</p>
-                    <p className="text-xs text-zinc-500">{trade.ticker}</p>
+                    <p className="text-xs text-zinc-400">{trade.ticker}</p>
                   </div>
-                  <p className="text-xs text-zinc-500 text-right">{trade.tradeDate}</p>
+                  <p className="text-xs text-zinc-400 text-right">{trade.tradeDate}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 text-sm">
                   <div>
-                    <p className="text-xs text-zinc-500">수량</p>
+                    <p className="text-xs text-zinc-400">수량</p>
                     <p className="text-zinc-200">{trade.qty.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">체결가</p>
+                    <p className="text-xs text-zinc-400">체결가</p>
                     <p className="text-zinc-200">{formatPrice(trade.fillPrice)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">금액</p>
+                    <p className="text-xs text-zinc-400">금액</p>
                     <p className="text-zinc-200">{formatPrice(trade.amount)}</p>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
                   </td>
                   <td className="py-2.5 pr-4">
                     <p className="font-medium text-white">{trade.name}</p>
-                    <p className="text-xs text-zinc-500">{trade.ticker}</p>
+                    <p className="text-xs text-zinc-400">{trade.ticker}</p>
                   </td>
                   <td className="py-2.5 pr-4">
                     <span
@@ -159,7 +159,7 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {formatPrice(trade.amount)}
                   </td>
-                  <td className="py-2.5 text-right text-zinc-500 text-xs">
+                  <td className="py-2.5 text-right text-zinc-400 text-xs">
                     {trade.tradeDate}
                   </td>
                 </tr>

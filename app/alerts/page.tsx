@@ -30,12 +30,12 @@ export default async function AlertsPage() {
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Recent</p>
             <p className="mt-2 text-3xl font-bold text-white">{recentAlerts.length}</p>
-            <p className="mt-1 text-xs text-zinc-500">최근 알림 행 수</p>
+            <p className="mt-1 text-xs text-zinc-400">최근 알림 행 수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Success</p>
             <p className="mt-2 text-3xl font-bold text-white">{sentRate}</p>
-            <p className="mt-1 text-xs text-zinc-500">현재 집계 발송 성공률</p>
+            <p className="mt-1 text-xs text-zinc-400">현재 집계 발송 성공률</p>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export default async function AlertsPage() {
         <div className="mb-4">
           <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Recent Alerts</p>
           <p className="text-sm font-semibold text-zinc-300">최근 알림 목록</p>
-          <p className="text-xs text-zinc-500">최근 50건 기준 · 행 클릭 시 상세 보기</p>
+          <p className="text-xs text-zinc-400">최근 50건 기준 · 행 클릭 시 상세 보기</p>
         </div>
         {recentAlerts.length === 0 ? (
           <div className="text-sm text-zinc-600 py-8 text-center">최근 알림 없음</div>

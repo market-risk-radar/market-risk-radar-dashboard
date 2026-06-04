@@ -75,11 +75,11 @@ export default async function AdminUsersPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/6 text-left">
-              <th className="px-4 py-3 font-medium text-zinc-500">이름 / 이메일</th>
-              <th className="px-4 py-3 font-medium text-zinc-500">상태</th>
-              <th className="px-4 py-3 font-medium text-zinc-500">역할</th>
-              <th className="px-4 py-3 font-medium text-zinc-500">마지막 로그인</th>
-              <th className="px-4 py-3 font-medium text-zinc-500">액션</th>
+              <th className="px-4 py-3 font-medium text-zinc-400">이름 / 이메일</th>
+              <th className="px-4 py-3 font-medium text-zinc-400">상태</th>
+              <th className="px-4 py-3 font-medium text-zinc-400">역할</th>
+              <th className="px-4 py-3 font-medium text-zinc-400">마지막 로그인</th>
+              <th className="px-4 py-3 font-medium text-zinc-400">액션</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/4">
@@ -89,7 +89,7 @@ export default async function AdminUsersPage() {
                 <tr key={user.id} className="hover:bg-white/[0.02] transition">
                   <td className="px-4 py-3">
                     <p className="font-medium text-zinc-200">{user.name ?? '—'}</p>
-                    <p className="text-xs text-zinc-500">{user.email}</p>
+                    <p className="text-xs text-zinc-400">{user.email}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className={clsx('text-xs px-2 py-0.5 rounded-full font-medium', style.badge)}>
@@ -106,7 +106,7 @@ export default async function AdminUsersPage() {
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-zinc-500">
+                  <td className="px-4 py-3 text-xs text-zinc-400">
                     {user.lastLoginAt
                       ? new Date(user.lastLoginAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
                       : '—'}

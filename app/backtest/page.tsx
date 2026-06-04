@@ -64,7 +64,7 @@ function SummaryPanel({ result, label }: { result: BacktestResult; label: string
       <div className="grid grid-cols-2 gap-3">
         {stats.map((s) => (
           <div key={s.label} className="bg-zinc-950/60 rounded-lg p-3">
-            <p className="text-xs text-zinc-500 mb-1">{s.label}</p>
+            <p className="text-xs text-zinc-400 mb-1">{s.label}</p>
             <p className={clsx('text-lg font-bold', s.color ?? 'text-zinc-200')}>{s.value}</p>
             {s.sub && <p className="text-xs text-zinc-600 mt-0.5">{s.sub}</p>}
           </div>
@@ -100,12 +100,12 @@ export default async function BacktestPage() {
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">EARNINGS_BEAT</p>
             <p className="mt-2 text-3xl font-bold text-white">{btEB?.summary.totalSignals ?? '—'}</p>
-            <p className="mt-1 text-xs text-zinc-500">D+1 신호 수</p>
+            <p className="mt-1 text-xs text-zinc-400">D+1 신호 수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">CONTRACT_WIN</p>
             <p className="mt-2 text-3xl font-bold text-white">{btCW?.summary.totalSignals ?? '—'}</p>
-            <p className="mt-1 text-xs text-zinc-500">D+5 신호 수</p>
+            <p className="mt-1 text-xs text-zinc-400">D+5 신호 수</p>
           </div>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default async function BacktestPage() {
       )}
 
       {/* 해석 가이드 */}
-      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.74),rgba(10,14,19,0.78))] px-4 py-4 text-xs text-zinc-500 space-y-1 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
+      <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.74),rgba(10,14,19,0.78))] px-4 py-4 text-xs text-zinc-400 space-y-1 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
         <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + α방향일치율 45%+ (filledCount ≥ 50) 달성 카테고리만 신호 유효(G2 기준). 카테고리별 운용 horizon(D+1 vs D+5)이 다르므로 각 패널을 독립적으로 판단한다.</p>
         <p><span className="text-zinc-400 font-medium">현재 기준:</span> EARNINGS_BEAT → D+1 단기 반응 (alpha_5d 음수, mean reversion 40.9% 확인). CONTRACT_WIN → D+5 (minConf 0.65, 실제 운용 기준)</p>
       </div>
@@ -143,7 +143,7 @@ export default async function BacktestPage() {
               CONTRACT_WIN 데이터 없음
             </div>
           )}
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-500 space-y-2 flex flex-col justify-center">
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-400 space-y-2 flex flex-col justify-center">
             <p className="text-zinc-300 font-medium text-sm">왜 별도 확인이 필요한가</p>
             <p>Portfolio B는 DART CONTRACT_WIN 공시에 한해 <span className="text-zinc-300">minConf 0.65</span>로 진입 허용.</p>
             <p>EARNINGS_BEAT 패널(minConf 0.75)과 기준이 달라 통합 집계 시 CONTRACT_WIN 표본이 과소 계상될 수 있음.</p>
@@ -165,7 +165,7 @@ export default async function BacktestPage() {
               EARNINGS_BEAT 데이터 없음
             </div>
           )}
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-500 space-y-2 flex flex-col justify-center">
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 text-xs text-zinc-400 space-y-2 flex flex-col justify-center">
             <p className="text-zinc-300 font-medium text-sm">D+1 단기 반응 전략 근거</p>
             <p>실증 데이터: EARNINGS_BEAT <span className="text-zinc-300">alpha_1d +1.16%</span> vs alpha_5d −0.94%.</p>
             <p>D+5 구간에서 KOSPI 벤치마크에 밀리는 패턴 확인 → <span className="text-zinc-300">2026-04-15 holdDays 5→1 변경</span>.</p>

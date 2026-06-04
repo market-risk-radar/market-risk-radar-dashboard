@@ -16,23 +16,23 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
           <div key={p.rowKey} className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-4 space-y-3">
             <div>
               <p className="font-medium text-white">{p.name || p.ticker}</p>
-              <p className="text-xs text-zinc-500">{p.ticker}</p>
+              <p className="text-xs text-zinc-400">{p.ticker}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-xs text-zinc-500">수량</p>
+                <p className="text-xs text-zinc-400">수량</p>
                 <p className="text-zinc-200">{p.qty.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">기준단가</p>
+                <p className="text-xs text-zinc-400">기준단가</p>
                 <p className="text-zinc-200">{p.avgPrice.toLocaleString()}원</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">평가금액</p>
+                <p className="text-xs text-zinc-400">평가금액</p>
                 <p className="text-zinc-200">{(p.qty * p.avgPrice).toLocaleString()}원</p>
               </div>
               <div>
-                <p className="text-xs text-zinc-500">기준일</p>
+                <p className="text-xs text-zinc-400">기준일</p>
                 <p className="text-zinc-400">{p.asOfDate}</p>
               </div>
             </div>
@@ -55,7 +55,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
             <tr key={p.rowKey} className="hover:bg-zinc-800/50 transition-colors">
               <td className="py-2.5 pr-4">
                 <p className="font-medium text-white">{p.name || p.ticker}</p>
-                <p className="text-xs text-zinc-500">{p.ticker}</p>
+                <p className="text-xs text-zinc-400">{p.ticker}</p>
               </td>
               <td className="py-2.5 pr-4 text-right text-zinc-300">{p.qty.toLocaleString()}</td>
               <td className="py-2.5 pr-4 text-right text-zinc-300">
@@ -64,7 +64,7 @@ function PositionTableA({ positions }: { positions: PaperPosition[] }) {
               <td className="py-2.5 pr-4 text-right text-zinc-300">
                 {(p.qty * p.avgPrice).toLocaleString()}원
               </td>
-              <td className="py-2.5 text-right text-zinc-500 text-xs">{p.asOfDate}</td>
+              <td className="py-2.5 text-right text-zinc-400 text-xs">{p.asOfDate}</td>
             </tr>
           ))}
         </tbody>
@@ -98,7 +98,7 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-medium text-white">{p.name || p.ticker}</p>
-                  <p className="text-xs text-zinc-500">{p.ticker}</p>
+                  <p className="text-xs text-zinc-400">{p.ticker}</p>
                 </div>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300 font-medium">
                   {p.status}
@@ -106,17 +106,17 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-xs text-zinc-500">진입가(slip포함)</p>
+                  <p className="text-xs text-zinc-400">진입가(slip포함)</p>
                   <p className="text-zinc-200">{p.avgPrice.toLocaleString()}원</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">손절가</p>
+                  <p className="text-xs text-zinc-400">손절가</p>
                   <p className={p.stopLossPrice != null ? 'text-red-400' : 'text-zinc-600'}>
                     {p.stopLossPrice != null ? `${p.stopLossPrice.toLocaleString()}원` : '—'}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs text-zinc-500">청산 예정</p>
+                  <p className="text-xs text-zinc-400">청산 예정</p>
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-zinc-300">{p.targetExitDate ?? '—'}</p>
                     {remaining !== null && (
@@ -149,7 +149,7 @@ function PositionTableB({ positions }: { positions: PaperPosition[] }) {
               <tr key={p.rowKey} className="hover:bg-zinc-800/50 transition-colors">
                 <td className="py-2.5 pr-4">
                   <p className="font-medium text-white">{p.name || p.ticker}</p>
-                  <p className="text-xs text-zinc-500">{p.ticker}</p>
+                  <p className="text-xs text-zinc-400">{p.ticker}</p>
                 </td>
                 <td className="py-2.5 pr-4 text-right text-zinc-300">
                   {p.avgPrice.toLocaleString()}원
@@ -215,12 +215,12 @@ export default async function PositionsPage() {
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">A Open</p>
             <p className="mt-2 text-3xl font-bold text-white">{openA.length}</p>
-            <p className="mt-1 text-xs text-zinc-500">Portfolio A 오픈 종목 수</p>
+            <p className="mt-1 text-xs text-zinc-400">Portfolio A 오픈 종목 수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">B Open</p>
             <p className="mt-2 text-3xl font-bold text-white">{bStats?.openPositions ?? bPositions.length}</p>
-            <p className="mt-1 text-xs text-zinc-500">Portfolio B 오픈 종목 수</p>
+            <p className="mt-1 text-xs text-zinc-400">Portfolio B 오픈 종목 수</p>
           </div>
         </div>
       </div>
@@ -231,11 +231,11 @@ export default async function PositionsPage() {
           <div>
             <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Portfolio A</p>
             <p className="text-sm font-semibold text-white">Portfolio A</p>
-            <p className="text-xs text-zinc-500">리밸런싱 기반</p>
+            <p className="text-xs text-zinc-400">리밸런싱 기반</p>
           </div>
           <div className="text-right">
             <p className="text-sm font-bold text-white">{(totalA / 1_000_000).toFixed(2)}M</p>
-            <p className="text-xs text-zinc-500">{openA.length}종목</p>
+            <p className="text-xs text-zinc-400">{openA.length}종목</p>
           </div>
         </div>
         <PositionTableA positions={openA} />
@@ -247,7 +247,7 @@ export default async function PositionsPage() {
           <div>
             <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Portfolio B</p>
             <p className="text-sm font-semibold text-white">Portfolio B</p>
-            <p className="text-xs text-zinc-500">신호 기반 롱 · D+5 기계적 청산 · -10% 손절</p>
+            <p className="text-xs text-zinc-400">신호 기반 롱 · D+5 기계적 청산 · -10% 손절</p>
           </div>
           <div className="text-right">
             <p className="text-sm font-bold text-white">{bPositions.length}종목</p>

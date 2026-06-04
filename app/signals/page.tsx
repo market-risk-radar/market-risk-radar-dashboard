@@ -184,12 +184,12 @@ export default async function SignalsPage() {
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Candidates</p>
             <p className="mt-2 text-3xl font-bold text-white">{candidates.length}</p>
-            <p className="mt-1 text-xs text-zinc-500">최근 시그널 후보 수</p>
+            <p className="mt-1 text-xs text-zinc-400">최근 시그널 후보 수</p>
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Categories</p>
             <p className="mt-2 text-3xl font-bold text-white">{stats.length}</p>
-            <p className="mt-1 text-xs text-zinc-500">카테고리 통계 행 수</p>
+            <p className="mt-1 text-xs text-zinc-400">카테고리 통계 행 수</p>
           </div>
         </div>
       </div>
@@ -225,31 +225,31 @@ export default async function SignalsPage() {
                     {sampleBadge(s.filledCount)}
                     {g2Badge(s.g2Eligible, s.g2Pass)}
                   </div>
-                  <span className="text-xs text-zinc-500">event {s.eventCount} / filled {s.filledCount}</span>
+                  <span className="text-xs text-zinc-400">event {s.eventCount} / filled {s.filledCount}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-xs text-zinc-500">방향일치 1d</p>
+                    <p className="text-xs text-zinc-400">방향일치 1d</p>
                     <p className="text-zinc-200">{pctOrDash(s.directionMatch1dRate)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">방향일치 5d</p>
+                    <p className="text-xs text-zinc-400">방향일치 5d</p>
                     <p className="text-zinc-200">{pctOrDash(s.directionMatch5dRate)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">α방향일치 1d</p>
+                    <p className="text-xs text-zinc-400">α방향일치 1d</p>
                     <p className="text-zinc-200">{pctOrDash(s.alphaDirectionMatch1dRate)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">α방향일치 5d</p>
+                    <p className="text-xs text-zinc-400">α방향일치 5d</p>
                     <p className="text-zinc-200">{pctOrDash(s.alphaDirectionMatch5dRate)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">α 1d</p>
+                    <p className="text-xs text-zinc-400">α 1d</p>
                     <p className={alphaTextColor(s.avgAlpha1d)}>{pctOrDash(s.avgAlpha1d)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">α 5d</p>
+                    <p className="text-xs text-zinc-400">α 5d</p>
                     <p className={alphaTextColor(s.avgAlpha5d)}>{pctOrDash(s.avgAlpha5d)}</p>
                   </div>
                 </div>
@@ -313,13 +313,13 @@ export default async function SignalsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-medium text-white">{c.name}</p>
-                  <p className="text-xs text-zinc-500">{c.ticker}</p>
+                  <p className="text-xs text-zinc-400">{c.ticker}</p>
                 </div>
                 <div className="text-right">
                   <p className={clsx('font-bold', DIRECTION_COLOR[c.impactDirection])}>
                     {c.impactDirection === '+' ? '▲' : '▼'}
                   </p>
-                  <p className="text-xs text-zinc-500">{formatSignalDate(c.signalDate)}</p>
+                  <p className="text-xs text-zinc-400">{formatSignalDate(c.signalDate)}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -330,33 +330,33 @@ export default async function SignalsPage() {
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-xs text-zinc-500">Ret 1d</p>
+                  <p className="text-xs text-zinc-400">Ret 1d</p>
                   <p className="text-zinc-200">{pctOrDash(c.ret1d)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Ret 5d</p>
+                  <p className="text-xs text-zinc-400">Ret 5d</p>
                   <p className="text-zinc-200">{pctOrDash(c.ret5d)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">α 5d</p>
+                  <p className="text-xs text-zinc-400">α 5d</p>
                   <p className={alphaTextColor(c.alpha5d)}>{pctOrDash(c.alpha5d)}</p>
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-3 text-sm border-t border-zinc-800 pt-2">
                 <div>
-                  <p className="text-xs text-zinc-500">RSI(14)</p>
+                  <p className="text-xs text-zinc-400">RSI(14)</p>
                   <p className={rsiTextColor(c.rsi14)}>{rsiDisplay(c.rsi14)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">거래량비율</p>
+                  <p className="text-xs text-zinc-400">거래량비율</p>
                   <p className={volRatioTextColor(c.volumeRatio)}>{volRatioDisplay(c.volumeRatio)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">52주고점</p>
+                  <p className="text-xs text-zinc-400">52주고점</p>
                   <p className="text-zinc-300">{high52wDisplay(c.high52wPct)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">ADV(억)</p>
+                  <p className="text-xs text-zinc-400">ADV(억)</p>
                   <p className="text-zinc-300">{advDisplay(c.adv20KrwProxy)}</p>
                 </div>
               </div>
@@ -386,7 +386,7 @@ export default async function SignalsPage() {
                 <tr key={c.id} className="hover:bg-zinc-800/50">
                   <td className="py-2.5 pr-4">
                     <p className="font-medium text-white">{c.name}</p>
-                    <p className="text-xs text-zinc-500">{c.ticker}</p>
+                    <p className="text-xs text-zinc-400">{c.ticker}</p>
                   </td>
                   <td className="py-2.5 pr-4">{categoryBadge(c.category)}</td>
                   <td className={clsx('py-2.5 pr-4 text-right font-bold', DIRECTION_COLOR[c.impactDirection])}>
@@ -416,7 +416,7 @@ export default async function SignalsPage() {
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {advDisplay(c.adv20KrwProxy)}
                   </td>
-                  <td className="py-2.5 text-right text-zinc-500 text-xs">{formatSignalDate(c.signalDate)}</td>
+                  <td className="py-2.5 text-right text-zinc-400 text-xs">{formatSignalDate(c.signalDate)}</td>
                 </tr>
               ))}
             </tbody>
