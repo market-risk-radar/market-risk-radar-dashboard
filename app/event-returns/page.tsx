@@ -236,11 +236,11 @@ export default async function EventReturnsPage() {
               </div>
             ))}
         </div>}
-        {filled.length > 0 && <div className="hidden md:block overflow-x-auto">
+        {filled.length > 0 && <div className="hidden md:block max-h-[70vh] overflow-auto">
           <p className="text-[11px] text-zinc-600 mb-3">* G2 방향일치 기준은 카테고리별로 다릅니다: EARNINGS_BEAT = αDM 1d, CONTRACT_WIN · 기타 = αDM 5d</p>
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
+              <tr className="sticky top-0 z-10 bg-zinc-900 text-xs text-zinc-500 uppercase border-b border-zinc-800">
                 <th className="text-left py-2 pr-4">카테고리</th>
                 <th className="text-left py-2 pr-4">대표 태그</th>
                 <th className="text-right py-2 pr-4">이벤트</th>

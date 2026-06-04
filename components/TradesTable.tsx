@@ -108,10 +108,10 @@ export default function TradesTable({ trades }: { trades: PaperTrade[] }) {
             ))}
           </div>
 
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden md:block max-h-[70vh] overflow-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-zinc-500 uppercase border-b border-zinc-800">
+              <tr className="sticky top-0 z-10 bg-zinc-900 text-xs text-zinc-500 uppercase border-b border-zinc-800">
                 <th className="text-left py-2 pr-4">포트폴리오</th>
                 <th className="text-left py-2 pr-4">종목</th>
                 <th className="text-left py-2 pr-4">구분</th>
