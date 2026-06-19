@@ -23,6 +23,8 @@
 
 html {
   background: var(--background);
+  /* 스크롤바 유무에 따른 가로 흔들림 방지 (페이지 전환·콘텐츠 길이 변화 시) */
+  scrollbar-gutter: stable;
 }
 
 body {
