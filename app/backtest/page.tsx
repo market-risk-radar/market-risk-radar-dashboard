@@ -93,7 +93,7 @@ export default async function BacktestPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Backtest</p>
           <h2 className="mt-3 text-3xl font-bold text-white">Lightweight strategy probe</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
-            카테고리별 운용 기준으로 signal_candidate × event_return 알파·방향일치율을 점검. EARNINGS_BEAT=D+1, CONTRACT_WIN=D+5 각각 독립 집계.
+            카테고리별 기준으로 signal_candidate × event_return 알파·방향일치율을 점검. CONTRACT_WIN=D+5 운용 중, EARNINGS_BEAT=D+1 관찰 전용 — 진입 중단(2026-07-07 0-E 판정 &lsquo;없음&rsquo;). 각각 독립 집계.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -127,13 +127,13 @@ export default async function BacktestPage() {
       {/* 해석 가이드 */}
       <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.74),rgba(10,14,19,0.78))] px-4 py-4 text-xs text-zinc-400 space-y-1 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
         <p><span className="text-zinc-400 font-medium">해석 원칙:</span> alpha &gt; 0 + α방향일치율 45%+ (filledCount ≥ 50) 달성 카테고리만 신호 유효(G2 기준). 카테고리별 운용 horizon(D+1 vs D+5)이 다르므로 각 패널을 독립적으로 판단한다.</p>
-        <p><span className="text-zinc-400 font-medium">현재 기준:</span> EARNINGS_BEAT → D+1 단기 반응 (alpha_5d 음수, mean reversion 40.9% 확인). CONTRACT_WIN → D+5 (minConf 0.65, 실제 운용 기준)</p>
+        <p><span className="text-zinc-400 font-medium">현재 기준:</span> CONTRACT_WIN → D+5 운용 중 (RSI≥50 필터, 진입 단독 카테고리, minConf 0.65). EARNINGS_BEAT → D+1 관찰 전용 — 진입 중단(2026-07-07 0-E 판정 &lsquo;없음&rsquo;), 통계 축적·재입증 추적은 계속.</p>
       </div>
 
       {/* CONTRACT_WIN 실제 운용 기준 패널 */}
       <div>
         <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-          CONTRACT_WIN 실제 운용 기준 (minConf 0.65 · D+5)
+          CONTRACT_WIN 실제 운용 기준 (minConf 0.65 · D+5) — 운용 중 (RSI≥50 필터, 진입 단독 카테고리)
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {btCW ? (
@@ -152,10 +152,10 @@ export default async function BacktestPage() {
         </div>
       </div>
 
-      {/* EARNINGS_BEAT 실제 운용 기준 패널 */}
+      {/* EARNINGS_BEAT 관찰 전용 패널 — 진입 중단, 통계 축적·재입증 추적용으로 유지 */}
       <div>
         <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-          EARNINGS_BEAT 실제 운용 기준 (minConf 0.75 · D+1)
+          EARNINGS_BEAT 관찰 전용 — 진입 중단(2026-07-07 0-E 판정 &lsquo;없음&rsquo;) (minConf 0.75 · D+1)
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {btEB ? (
