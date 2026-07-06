@@ -269,6 +269,9 @@ export default async function SignalsPage() {
               </tbody>
             </table>
           </div>
+          <p className="text-xs text-zinc-600 mt-3">
+            α 벤치마크는 market-matched(KOSDAQ→229200, 그 외 069500) — 2026-07-07부터 적용.
+          </p>
         </div>
       )}
 

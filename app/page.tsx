@@ -109,36 +109,38 @@ function computeGates(
   // G1: Portfolio A 리밸런싱 횟수 — paper_trade distinct trade_date
   const g1Count = rebalanceCount?.rebalanceCount ?? 0;
 
-  // G2: alphaDirectionMatch5dRate ≥ 45% (filled 50건 이상 카테고리 기준)
-  // 2026-04-22 변경: direction_match_5d → alphaDirectionMatch5dRate
-  // 근거: bull market에서 direction_match는 악재도 ✅ → alpha 기준이 신호 품질을 더 정직하게 측정
+  // G2: α방향일치율 ≥ 45% (filled 50건 이상 카테고리 기준)
+  // 백엔드 차등 기준: EARNINGS_BEAT=αDM1d / 그 외=αDM5d — 판정은 서버 g2Pass 필드 그대로 사용
+  // best 선정: g2Pass 카테고리 중 filledCount 최대 우선, 없으면 αDM5d 최대(기존 방식) fallback
   const categorizedStats = signalStats.filter((s) => s.category !== null);
-  const g2Eligible = categorizedStats.filter(
-    (s) => s.g2Eligible,
-  );
-  const g2Best = g2Eligible.reduce<SignalTagStats | null>(
-    (best, s) =>
-      s.alphaDirectionMatch5dRate !== null &&
-      (best === null || s.alphaDirectionMatch5dRate > (best.alphaDirectionMatch5dRate ?? 0))
-        ? s
-        : best,
-    null,
-  );
-  const g2Dm = g2Best?.alphaDirectionMatch5dRate ?? null;
+  const g2EligibleStats = categorizedStats.filter((s) => s.g2Eligible);
+  const g2Passed = g2EligibleStats.filter((s) => s.g2Pass);
+  const g2Best =
+    g2Passed.length > 0
+      ? g2Passed.reduce((best, s) => (s.filledCount > best.filledCount ? s : best))
+      : g2EligibleStats.reduce<SignalTagStats | null>(
+          (best, s) =>
+            s.alphaDirectionMatch5dRate !== null &&
+            (best === null || s.alphaDirectionMatch5dRate > (best.alphaDirectionMatch5dRate ?? 0))
+              ? s
+              : best,
+          null,
+        );
+  const g2Horizon = g2Best?.category === 'EARNINGS_BEAT' ? '1d' : '5d';
+  const g2Dm =
+    g2Best === null
+      ? null
+      : g2Best.category === 'EARNINGS_BEAT'
+        ? g2Best.alphaDirectionMatch1dRate
+        : g2Best.alphaDirectionMatch5dRate;
   const g2Pass = g2Best?.g2Pass ?? false;
   const bestFilledCount = categorizedStats.reduce((max, s) => Math.max(max, s.filledCount), 0);
   const g2CategoryLabel = g2Best?.category ?? '표준 카테고리';
 
-  // G3: alpha_5d 평균 ≥ 0 — CONTRACT_WIN 우선, 없으면 집계 가능한 전체 평균
+  // G3: relAlpha5d > 0 — CONTRACT_WIN 단독, 미분류(__none__) 베이스라인 대비 상대 알파
+  // 0-E 재정의(2026-07-07): 절대 avgAlpha5d ≥ 0 → relAlpha5d > 0. bootstrap CI 검정은 오프라인 스크립트 담당
   const contractWin = signalStats.find((s) => s.category === 'CONTRACT_WIN');
-  const fallbackAlphaRows = signalStats.filter((s) => s.avgAlpha5d !== null);
-  const fallbackAlpha =
-    fallbackAlphaRows.length > 0
-      ? fallbackAlphaRows.reduce((sum, s) => sum + (s.avgAlpha5d ?? 0), 0) /
-        fallbackAlphaRows.length
-      : null;
-  const g3Alpha = contractWin?.avgAlpha5d ?? fallbackAlpha;
-  const g3Label = contractWin?.avgAlpha5d != null ? 'CONTRACT_WIN' : '전체 평균';
+  const g3RelAlpha = contractWin?.relAlpha5d ?? null;
 
   // G4/G5: Portfolio B 성과
   const bTradingDays = bPerf?.tradingDays ?? 0;
@@ -161,7 +163,7 @@ function computeGates(
     },
     {
       id: 'G2',
-      label: 'α방향일치율 5d',
+      label: 'α방향일치율(카테고리별 1d/5d)',
       target: '≥ 45% (alpha 기준, 50건+)',
       status:
         g2Dm !== null
@@ -171,19 +173,19 @@ function computeGates(
           : 'watch',
       current:
         g2Dm !== null
-          ? `${g2CategoryLabel} / α방향일치 5d ${(g2Dm * 100).toFixed(1)}% / filled ${g2Best?.filledCount ?? 0}건`
+          ? `${g2CategoryLabel} / α방향일치 ${g2Horizon} ${(g2Dm * 100).toFixed(1)}% / filled ${g2Best?.filledCount ?? 0}건`
           : `데이터 집계 중 / 최다 filled ${bestFilledCount}건`,
       note: '최상위 표준 카테고리 기준',
     },
     {
       id: 'G3',
-      label: '신호 alpha_5d ≥ 0',
-      target: '초과수익률 양수',
+      label: '신호 relAlpha_5d > 0',
+      target: '미분류 대비 상대알파 양수 (0-E 재정의 2026-07-07)',
       status:
-        g3Alpha !== null ? (g3Alpha >= 0 ? 'pass' : 'fail') : 'watch',
+        g3RelAlpha !== null ? (g3RelAlpha > 0 ? 'pass' : 'fail') : 'watch',
       current:
-        g3Alpha !== null
-          ? `${g3Alpha >= 0 ? '+' : ''}${(g3Alpha * 100).toFixed(2)}% (${g3Label})`
+        g3RelAlpha !== null
+          ? `relα5d ${g3RelAlpha >= 0 ? '+' : ''}${(g3RelAlpha * 100).toFixed(2)}%p (CONTRACT_WIN)`
           : '데이터 축적 중',
     },
     {
