@@ -1,6 +1,7 @@
-import { api, DashboardStats, RecentBTrade } from '@/lib/api';
+import { api, DashboardStats, MinuteBarStats, RecentBTrade } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import CostHistoryChart from '@/components/CostHistoryChart';
+import { todayKstIsoDate } from '@/lib/datetime';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 
@@ -128,6 +129,60 @@ function SourceTypeBar({ stats }: { stats: DashboardStats }) {
   );
 }
 
+// ── 분봉 수집 현황 ────────────────────────────────────────────────────────────
+
+// 무인 크론(거래일 17:10)의 침묵 실패 감지용 헬스 카드 — 데이터 시각화가 아니라 파이프라인 모니터링
+function MinuteBarCard({ stats }: { stats: MinuteBarStats | null }) {
+  const empty = !stats || stats.totalBars === 0;
+  // 크론이 월~금만 돌므로 "오늘과 다름 = 경고"로 하지 않는다. 3일 여유 = 주말 커버
+  const staleDays =
+    !empty && stats.lastDate
+      ? Math.round(
+          (new Date(`${todayKstIsoDate()}T00:00:00Z`).getTime() -
+            new Date(`${stats.lastDate}T00:00:00Z`).getTime()) / 86_400_000,
+        )
+      : null;
+  const fresh = staleDays !== null && staleDays <= 3;
+
+  return (
+    <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(17,22,29,0.9),rgba(10,14,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Minute Bars</p>
+          <p className="mt-1 text-sm font-semibold text-zinc-300">분봉 수집 현황 (KIS 1분봉 · 거래일 17:10 크론)</p>
+        </div>
+        {staleDays !== null && (
+          <span
+            className={clsx(
+              'text-xs font-semibold px-2.5 py-1 rounded-full',
+              fresh ? 'bg-emerald-900/60 text-emerald-300' : 'bg-red-900/60 text-red-300',
+            )}
+          >
+            {fresh ? '정상' : '수집 지연'} · {staleDays === 0 ? '오늘' : `${staleDays}일 전`}
+          </span>
+        )}
+      </div>
+      {empty ? (
+        <div className="py-8 text-center text-zinc-600 text-sm">수집 데이터 없음</div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: '누적 분봉', value: `${stats.totalBars.toLocaleString()}봉` },
+            { label: '수집 종목', value: `${stats.tickers}종목` },
+            { label: '수집 기간', value: `${stats.firstDate ?? '—'} ~ ${stats.lastDate ?? '—'}` },
+            { label: '최근 수집일', value: stats.lastDate ?? '—' },
+          ].map(({ label, value }) => (
+            <div key={label} className="bg-zinc-950/60 rounded-lg p-3">
+              <p className="text-xs text-zinc-400 mb-1">{label}</p>
+              <p className="text-sm font-bold text-zinc-200 tabular-nums">{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Portfolio B 실행 로그 ────────────────────────────────────────────────────
 
 function BTradeRow({ trade }: { trade: RecentBTrade }) {
@@ -175,10 +230,11 @@ function BTradeRow({ trade }: { trade: RecentBTrade }) {
 // ── 메인 페이지 ──────────────────────────────────────────────────────────────
 
 export default async function OperationsPage() {
-  const [stats, costHistory, bRecentTrades] = await Promise.all([
+  const [stats, costHistory, bRecentTrades, minuteBarStats] = await Promise.all([
     api.dashboardStats().catch(() => null),
     api.costHistory(30).catch(() => []),
     api.bRecentTrades(14).catch(() => []),
+    api.minuteBarStats().catch(() => null),
   ]);
 
   if (!stats) {
@@ -303,6 +359,9 @@ export default async function OperationsPage() {
           </div>
         </div>
       </div>
+
+      {/* 분봉 수집 현황 */}
+      <MinuteBarCard stats={minuteBarStats} />
 
       <div className="rounded-[24px] border border-white/8 bg-[linear-gradient(180deg,rgba(16,21,29,0.9),rgba(10,13,19,0.92))] p-5 shadow-[0_28px_70px_rgba(0,0,0,0.2)]">
         <div className="flex items-center justify-between mb-4">

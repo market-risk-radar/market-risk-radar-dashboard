@@ -258,6 +258,14 @@ export interface CostHistoryPoint {
   costUsd: number;
 }
 
+/** 분봉 수집 파이프라인 현황 — 신호 종목 + 벤치 ETF 1분봉 (KIS, 거래일 17:10 크론) */
+export interface MinuteBarStats {
+  totalBars: number;
+  tickers: number;
+  firstDate: string | null;
+  lastDate: string | null;
+}
+
 export interface BacktestCategoryRow {
   category: string;
   count: number;
@@ -407,6 +415,16 @@ function normalizeCostHistoryPoint(raw: any): CostHistoryPoint {
   return {
     date: raw.date,
     costUsd: n(raw.costUsd),
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeMinuteBarStats(raw: any): MinuteBarStats {
+  return {
+    totalBars: n(raw.totalBars),
+    tickers: n(raw.tickers),
+    firstDate: raw.firstDate ?? null,
+    lastDate: raw.lastDate ?? null,
   };
 }
 
@@ -609,6 +627,9 @@ export const api = {
   costHistory: (days = 30) =>
     get<unknown[]>(`/api/stats/cost/history?days=${days}`)
       .then((rows) => rows.map(normalizeCostHistoryPoint)),
+  minuteBarStats: () =>
+    get<unknown>('/api/minute-bar/stats')
+      .then(normalizeMinuteBarStats),
   backtest: (params: {
     holdDays?: 1 | 5 | 20;
     minConfidence?: number;
