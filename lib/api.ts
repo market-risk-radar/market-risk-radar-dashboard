@@ -56,6 +56,7 @@ export interface PortfolioNav {
 export interface BenchmarkNavPoint {
   navDate: string;
   totalNav: number;
+  /** 시장혼합(069500+229200, A 보유 비중 가중) 지수 레벨 — 윈도우 시작=100. 필드명과 달리 실제 종가 아님 */
   closePrice: number;
   dailyReturn: number | null;
 }
