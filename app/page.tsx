@@ -366,7 +366,7 @@ export default async function OverviewPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Overview</p>
           <h2 className="mt-3 text-3xl font-bold text-white">Portfolio command center</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
-            Portfolio A/B 성과, KOSPI 대비 초과수익, 실전 전환 게이트를 한 화면에서 확인하는 운영 대시보드.
+            Portfolio A/B 성과, 시장혼합 벤치 대비 초과수익, 실전 전환 게이트를 한 화면에서 확인하는 운영 대시보드.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -471,7 +471,7 @@ export default async function OverviewPage() {
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">Nav History</p>
             <p className="mt-2 text-lg font-semibold text-zinc-100">최근 60일 NAV 비교</p>
-            <p className="mt-1 text-xs text-zinc-400">Portfolio A/B 실제 NAV와 KOSPI(069500) 1억원 환산 기준 비교</p>
+            <p className="mt-1 text-xs text-zinc-400">Portfolio A/B 실제 NAV와 시장혼합 벤치마크(069500+229200, A 보유 비중 가중) 1억원 환산 기준 비교</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
             <span className="inline-flex items-center gap-1.5">
@@ -484,7 +484,7 @@ export default async function OverviewPage() {
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-sky-400" />
-              KOSPI(1억 기준)
+              벤치마크(시장혼합·1억 기준)
             </span>
           </div>
         </div>
@@ -511,7 +511,7 @@ export default async function OverviewPage() {
           </div>
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(benchmarkSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-400">KOSPI(1억 기준) 60일 누적</p>
+              <p className="text-xs text-zinc-400">벤치마크(시장혼합·1억 기준) 60일 누적</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(benchmarkSampleStatus)}`}>
                 {sampleBadgeLabel(benchmarkSampleStatus)}
               </span>
@@ -523,7 +523,7 @@ export default async function OverviewPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(aExcessSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-400">A-KOSPI 60일 초과수익</p>
+              <p className="text-xs text-zinc-400">A-벤치마크 60일 초과수익</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(aExcessSampleStatus)}`}>
                 {sampleBadgeLabel(aExcessSampleStatus)}
               </span>
@@ -533,7 +533,7 @@ export default async function OverviewPage() {
           </div>
           <div className={`rounded-lg border px-4 py-3 ${sampleCardClass(bExcessSampleStatus)}`}>
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs text-zinc-400">B-KOSPI 60일 초과수익</p>
+              <p className="text-xs text-zinc-400">B-벤치마크 60일 초과수익</p>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${sampleBadgeClass(bExcessSampleStatus)}`}>
                 {sampleBadgeLabel(bExcessSampleStatus)}
               </span>
@@ -547,7 +547,7 @@ export default async function OverviewPage() {
             datasets={[
               { key: 'portfolioA', label: 'Portfolio A', color: '#3b82f6', data: navHistory },
               { key: 'portfolioB', label: 'Portfolio B', color: '#f59e0b', data: bNavHistory },
-              { key: 'benchmark', label: 'KOSPI(1억 기준)', color: '#38bdf8', data: benchmarkNavHistory },
+              { key: 'benchmark', label: '벤치마크(시장혼합·1억 기준)', color: '#38bdf8', data: benchmarkNavHistory },
             ].filter((dataset) => dataset.data.length > 0)}
           />
         ) : (
