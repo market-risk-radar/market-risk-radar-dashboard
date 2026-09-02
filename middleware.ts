@@ -28,6 +28,10 @@ async function validateSession(sessionId: string): Promise<Response | null> {
       },
       body: JSON.stringify({ sessionId }),
       cache: 'no-store',
+      // 없으면 fail-open 이다: Access 가 자격증명 없는 요청에 302(로그인 페이지)를 주는데
+      // 기본값(follow)이면 그걸 따라가 `200 text/html` 을 받고, 아래 호출부의 validateRes.ok 가
+      // true 가 되어 **세션 검증을 통과시킨다.** manual 이면 302 그대로 와서 !ok → /login 이다.
+      redirect: 'manual',
     });
   } catch {
     return null;

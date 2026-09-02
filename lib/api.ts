@@ -34,8 +34,17 @@ async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     next: { revalidate: 30 },
     headers: buildHeaders(),
+    // Cloudflare Access 는 자격증명 없는 요청을 거절하지 않고 로그인 페이지로 **302** 보낸다.
+    // 기본값(follow)이면 그걸 따라가 `200 text/html` 을 받고 아래 !res.ok 를 통과한 뒤
+    // res.json() 이 `Unexpected token '<'` 로 죽는다 — 인증 실패가 파싱 버그로 위장한다.
+    redirect: 'manual',
     signal: AbortSignal.timeout(8000),
   });
+  if (res.status >= 300 && res.status < 400) {
+    throw new Error(
+      `GET ${path} → ${res.status} 리다이렉트: 인증 경계에서 막혔을 가능성이 높다 (CF_ACCESS_* 확인)`,
+    );
+  }
   if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
   return res.json();
 }
