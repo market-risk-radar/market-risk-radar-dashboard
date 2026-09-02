@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    // 타입을 `type` 키워드 없이 가져오면 TS1484 로 빌드를 깬다.
+    // lib/api.ts 는 서버 전용이라 클라이언트 컴포넌트가 값으로 끌어가면 안 되는데,
+    // 그 위반의 첫 단계가 바로 "type 을 빠뜨린 임포트" 다. 자세한 근거는 lib/api.ts 상단.
+    "verbatimModuleSyntax": true,
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,

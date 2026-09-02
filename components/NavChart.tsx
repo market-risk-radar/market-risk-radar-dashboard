@@ -9,7 +9,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-import { BenchmarkNavPoint, PortfolioNav } from '@/lib/api';
+import type { BenchmarkNavPoint, PortfolioNav } from '@/lib/api';
 
 export interface NavDataset {
   key: string;

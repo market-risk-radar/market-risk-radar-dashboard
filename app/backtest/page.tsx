@@ -1,4 +1,4 @@
-import { api, BacktestResult } from '@/lib/api';
+import { api, type BacktestResult } from '@/lib/api';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
 

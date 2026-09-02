@@ -1,3 +1,20 @@
+// 이 모듈은 Cloudflare Access Service Token 과 내부 시크릿을 읽는다 — 서버 전용이다.
+// 타입은 `import type` 으로 자유롭게 가져가도 된다(컴파일 시 지워진다).
+//
+// 2026-09-03 실측 — 클라이언트 컴포넌트가 여기서 값을 하나 쓰기만 해도
+// CF-Access-Client-Id·X-Internal-Secret·API 경로·백엔드 호스트명이
+// .next/static/chunks 로 나갔다. (토큰 **값** 자체는 인라인되지 않는다.)
+//
+// 관행 대신 빌드로 막는 이유: 값 임포트를 추가만 하고 쓰지 않으면 번들러 DCE 가
+// 지워서 아무 일도 안 일어난다 — 경계를 여는 커밋이 조용히 리뷰를 통과한다.
+// 그래서 방어를 두 겹으로 둔다(둘 다 실측으로 발화 확인).
+//   · `verbatimModuleSyntax` (tsconfig) — 타입을 `type` 없이 가져오면 TS1484.
+//     NavChart 가 실제로 그 모양이었고, 이제 그 커밋이 빌드를 깬다.
+//   · `server-only` (아래)          — 클라이언트에서 값을 **쓰면** 빌드가 깨진다.
+// 남는 틈은 「값을 임포트하고 쓰지는 않는」 경우뿐인데, 그건 번들에 아무것도
+// 싣지 않으므로 무해하고, 쓰는 순간 아래 가드가 잡는다.
+import 'server-only';
+
 import { formatKstIsoDate } from './datetime';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
