@@ -1,4 +1,4 @@
-import { api, DashboardStats, MinuteBarStats, RecentBTrade } from '@/lib/api';
+import { api, type DashboardStats, type MinuteBarStats, type RecentBTrade } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import CostHistoryChart from '@/components/CostHistoryChart';
 import { todayKstIsoDate } from '@/lib/datetime';

@@ -1,4 +1,4 @@
-import { api, SignalTagStats } from '@/lib/api';
+import { api, type SignalTagStats } from '@/lib/api';
 import { compareSignalTagStats } from '@/lib/signalStats';
 import StatCard from '@/components/StatCard';
 import NavChart from '@/components/NavChart';

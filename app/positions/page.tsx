@@ -1,4 +1,4 @@
-import { api, PaperPosition } from '@/lib/api';
+import { api, type PaperPosition } from '@/lib/api';
 import StatCard from '@/components/StatCard';
 import { todayKstIsoDate } from '@/lib/datetime';
 import { clsx } from 'clsx';
