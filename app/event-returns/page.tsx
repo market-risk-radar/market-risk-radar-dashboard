@@ -1,3 +1,5 @@
+import Gate0BlindNotice from '@/components/Gate0BlindNotice';
+import { GATE0_BLIND } from '@/lib/gate0Blind';
 import { api, type SignalTagStats } from '@/lib/api';
 import { compareSignalTagStats, categoryLabel } from '@/lib/signalStats';
 import { clsx } from 'clsx';
@@ -97,6 +99,8 @@ function rawTagChips(tags: string[], limit = 5) {
 }
 
 export default async function EventReturnsPage() {
+  if (GATE0_BLIND) return <Gate0BlindNotice scope="Event Returns 카테고리 통계" />;
+
   const statsResult = await api.signalStats()
     .then((value) => ({ ok: true as const, value }))
     .catch(() => ({ ok: false as const, value: [] }));

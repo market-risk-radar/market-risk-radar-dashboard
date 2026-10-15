@@ -1,3 +1,5 @@
+import Gate0BlindNotice from '@/components/Gate0BlindNotice';
+import { GATE0_BLIND } from '@/lib/gate0Blind';
 import { api } from '@/lib/api';
 import { compareSignalTagStats } from '@/lib/signalStats';
 import { formatKstMonthDay } from '@/lib/datetime';
@@ -135,7 +137,7 @@ function advDisplay(v: number | null) {
 export default async function SignalsPage() {
   const [candidatesResult, statsResult] = await Promise.allSettled([
     api.signalCandidates(50),
-    api.signalStats(),
+    GATE0_BLIND ? Promise.resolve([]) : api.signalStats(),
   ]);
   const candidates = candidatesResult.status === 'fulfilled' ? candidatesResult.value : [];
   const stats = statsResult.status === 'fulfilled' ? statsResult.value : [];
@@ -150,7 +152,7 @@ export default async function SignalsPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-orange-200/70">Signals</p>
           <h2 className="mt-3 text-3xl font-bold text-white">Signal validation surface</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
-            최근 signal_candidate와 카테고리별 방향일치율, alpha를 함께 확인하는 검증 화면.
+            최근 signal_candidate와 카테고리별 방향일치율, alpha를 함께 확인하는 검증 화면. (Gate 0 판정 전에는 수익률·alpha를 가린다)
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -161,7 +163,7 @@ export default async function SignalsPage() {
           </div>
           <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Categories</p>
-            <p className="mt-2 text-3xl font-bold text-white">{stats.length}</p>
+            <p className="mt-2 text-3xl font-bold text-white">{GATE0_BLIND ? '—' : stats.length}</p>
             <p className="mt-1 text-xs text-zinc-400">카테고리 통계 행 수</p>
           </div>
         </div>
@@ -172,6 +174,8 @@ export default async function SignalsPage() {
           일부 시그널 데이터를 불러오지 못했습니다. API 연결 또는 접근 제어 상태를 확인하세요.
         </div>
       )}
+
+      {GATE0_BLIND && <Gate0BlindNotice scope="카테고리별 통계·후보별 실현 수익률" />}
 
       {/* Stats by category */}
       {stats.length > 0 && (
@@ -304,7 +308,7 @@ export default async function SignalsPage() {
                   {(c.confidence * 100).toFixed(0)}%
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-3 text-sm">
+              {!GATE0_BLIND && <div className="grid grid-cols-3 gap-3 text-sm">
                 <div>
                   <p className="text-xs text-zinc-400">Ret 1d</p>
                   <p className="text-zinc-200">{pctOrDash(c.ret1d)}</p>
@@ -317,7 +321,7 @@ export default async function SignalsPage() {
                   <p className="text-xs text-zinc-400">α 5d</p>
                   <p className={alphaTextColor(c.alpha5d)}>{pctOrDash(c.alpha5d)}</p>
                 </div>
-              </div>
+              </div>}
               <div className="grid grid-cols-4 gap-3 text-sm border-t border-zinc-800 pt-2">
                 <div>
                   <p className="text-xs text-zinc-400">RSI(14)</p>
@@ -347,9 +351,11 @@ export default async function SignalsPage() {
                   <th className="text-left py-2 pr-4">카테고리</th>
                   <th className="text-right py-2 pr-4">방향</th>
                   <th className="text-right py-2 pr-4">Conf</th>
+                  {!GATE0_BLIND && <>
                   <th className="text-right py-2 pr-4">Ret 1d</th>
                   <th className="text-right py-2 pr-4">Ret 5d</th>
                   <th className="text-right py-2 pr-4">α 5d</th>
+                  </>}
                   <th className="text-right py-2 pr-4">RSI</th>
                   <th className="text-right py-2 pr-4">Vol×</th>
                   <th className="text-right py-2 pr-4">52w%</th>
@@ -371,6 +377,7 @@ export default async function SignalsPage() {
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {(c.confidence * 100).toFixed(0)}%
                   </td>
+                  {!GATE0_BLIND && <>
                   <td className="py-2.5 pr-4 text-right text-zinc-300">
                     {pctOrDash(c.ret1d)}
                   </td>
@@ -380,6 +387,7 @@ export default async function SignalsPage() {
                   <td className={clsx('py-2.5 pr-4 text-right', alphaTextColor(c.alpha5d))}>
                     {pctOrDash(c.alpha5d)}
                   </td>
+                  </>}
                   <td className={clsx('py-2.5 pr-4 text-right', rsiTextColor(c.rsi14))}>
                     {rsiDisplay(c.rsi14)}
                   </td>
