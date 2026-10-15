@@ -1,3 +1,5 @@
+import Gate0BlindNotice from '@/components/Gate0BlindNotice';
+import { GATE0_BLIND } from '@/lib/gate0Blind';
 import { api, type BacktestResult } from '@/lib/api';
 import { clsx } from 'clsx';
 export const dynamic = 'force-dynamic';
@@ -77,6 +79,8 @@ function SummaryPanel({ result, label }: { result: BacktestResult; label: string
 // ── page ─────────────────────────────────────────────────────────────────────
 
 export default async function BacktestPage() {
+  if (GATE0_BLIND) return <Gate0BlindNotice scope="Backtest (CONTRACT_WIN·EARNINGS_BEAT alpha)" />;
+
   const [resCW, resEB] = await Promise.allSettled([
     api.backtest({ holdDays: 5, minConfidence: 0.65, category: 'CONTRACT_WIN' }),
     api.backtest({ holdDays: 1, category: 'EARNINGS_BEAT' }),

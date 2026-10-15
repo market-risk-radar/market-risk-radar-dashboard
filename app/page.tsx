@@ -1,3 +1,5 @@
+import Gate0BlindNotice from '@/components/Gate0BlindNotice';
+import { GATE0_BLIND } from '@/lib/gate0Blind';
 import { api, type SignalTagStats } from '@/lib/api';
 import { compareSignalTagStats } from '@/lib/signalStats';
 import StatCard from '@/components/StatCard';
@@ -88,7 +90,7 @@ const GATE_THRESHOLDS = {
   costPerDay: 3.0,     // G6: $3 이하
 };
 
-type GateStatus = 'pass' | 'watch' | 'fail' | 'pending';
+type GateStatus = 'pass' | 'watch' | 'fail' | 'pending' | 'blind';
 
 interface GateInfo {
   id: string;
@@ -247,6 +249,7 @@ const GATE_STATUS_STYLE: Record<GateStatus, { border: string; badge: string; lab
   watch:   { border: 'border-amber-800',   badge: 'bg-amber-900 text-amber-300',     label: '○ 모니터링' },
   fail:    { border: 'border-red-800',     badge: 'bg-red-900 text-red-300',         label: '✗ 미달' },
   pending: { border: 'border-zinc-700',    badge: 'bg-zinc-800 text-zinc-400',       label: '— 집계 대기' },
+  blind:   { border: 'border-zinc-700',    badge: 'bg-zinc-800 text-zinc-300',       label: '가림 (Gate 0 대기)' },
 };
 
 function GateCard({ gate }: { gate: GateInfo }) {
@@ -317,7 +320,7 @@ export default async function OverviewPage() {
     api.performance().catch(() => null),
     api.bStats().catch(() => null),
     api.bPerformance().catch(() => null),
-    api.signalStats().catch(() => []),
+    GATE0_BLIND ? Promise.resolve([]) : api.signalStats().catch(() => []),
     api.dashboardStats().catch(() => null),
     api.rebalanceCount().catch(() => null),
   ]);
@@ -329,7 +332,14 @@ export default async function OverviewPage() {
     dashboardStats?.summary.estimatedDailyCostUsd ?? null,
     rebalanceCount,
   );
-  const passCount = gates.filter((g) => g.status === 'pass').length;
+  const visibleGates = GATE0_BLIND
+    ? gates.map((g): GateInfo =>
+        g.id === 'G2' || g.id === 'G3'
+          ? { ...g, status: 'blind', current: 'Gate 0 판정 전 미조회', note: undefined }
+          : g,
+      )
+    : gates;
+  const passCount = visibleGates.filter((g) => g.status === 'pass').length;
   const aWindowReturn = calcWindowReturn(navHistory);
   const bWindowReturn = calcWindowReturn(bNavHistory);
   const benchmarkWindowReturn = calcWindowReturn(benchmarkNavHistory);
@@ -586,10 +596,15 @@ export default async function OverviewPage() {
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {gates.map((gate) => (
+          {visibleGates.map((gate) => (
             <GateCard key={gate.id} gate={gate} />
           ))}
         </div>
+        {GATE0_BLIND ? (
+          <div className="mt-4">
+            <Gate0BlindNotice scope="G2·G3 판정과 G2 카테고리 요약" />
+          </div>
+        ) : (
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
             <div className="flex items-start justify-between gap-3">
@@ -644,6 +659,7 @@ export default async function OverviewPage() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
